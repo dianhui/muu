@@ -1,0 +1,95 @@
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="WeekTopAppearence">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/dark</item>
+    </style>
+
+    <style name="ChangeListAppearence">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/gray</item>
+    </style>
+    
+    <style name="SlidingCategoryAppearence">
+        <item name="android:textSize">21sp</item>
+        <item name="android:textColor">@color/category_text_color</item>
+    </style>
+    
+    <style name="BookTagAppearence">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="BookNameAppearence">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="DragForMoreAppearence">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="ActionBarBackTextAppearence">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="ActionBarTitleTextAppearence">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="CategoryListNameAppearence">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="CategoryListAuthorAppearence">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/list_sub_text</item>
+    </style>
+    
+    <style name="CategoryListCommentAppearence">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="DetailInfoTextAppearence">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="DetailBtnAppearence">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    
+    <style name="DetailCategoryAppearence">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="PageIdxAppearence">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+</resources>

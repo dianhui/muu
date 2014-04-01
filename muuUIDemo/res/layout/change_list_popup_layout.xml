@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/popup_background"
+    android:gravity="center"
+    android:minHeight="120dp"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/btn_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:minWidth="100dp"
+        android:text="@string/new_books" />
+
+    <Button
+        android:id="@+id/btn_hot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="100dp"
+        android:text="@string/hot_books" />
+    
+</LinearLayout>

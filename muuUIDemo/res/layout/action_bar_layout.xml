@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="50dp"
+    android:background="@color/white"
+    android:layout_gravity="center_vertical"
+    android:gravity="center_vertical" >
+
+    <ImageButton
+        android:id="@+id/imbtn_slide_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="8dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/slide_category_imageview"
+        android:src="@drawable/category_btn" />
+    
+    <RelativeLayout
+        android:id="@+id/rl_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="10dp"
+        android:visibility="gone"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/imv_back_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/back_icon"
+            android:contentDescription="@string/back_icon" />
+        
+        <TextView
+            android:id="@+id/tv_back_text"
+            style="@style/ActionBarBackTextAppearence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/humer"
+            android:layout_toRightOf="@id/imv_back_icon" />
+        
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_action_title"
+        style="@style/ActionBarTitleTextAppearence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:text="@string/book_name" />
+    
+    <RelativeLayout
+        android:id="@+id/rl_top_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_centerHorizontal="true" >
+        <TextView 
+            android:id="@+id/tv_weekly_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/WeekTopAppearence"
+            android:text="@string/weekly_top"
+            />
+        <TextView
+            android:id="@+id/tv_click_change_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
+            android:layout_below="@+id/tv_weekly_top"
+            style="@style/ChangeListAppearence"
+            android:text="@string/click_to_change_list"
+            android:drawableRight="@drawable/ic_change_list"
+            />
+        
+    </RelativeLayout>
+
+    <ImageButton 
+        android:id="@+id/imbtn_recent_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="12dp"
+        android:layout_toLeftOf="@+id/imbtn_search"
+        android:contentDescription="@string/recent_hisotry"
+        android:src="@drawable/ic_recent_history"
+        android:background="@android:color/transparent"
+        />
+    
+    <ImageButton 
+        android:id="@+id/imbtn_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="12dp"
+        android:contentDescription="@string/search_btn_imv"
+        android:src="@drawable/ic_search"
+        android:background="@android:color/transparent"
+        />
+
+    <TextView
+        android:id="@+id/tv_chapter_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:clickable="true"
+        android:layout_marginRight="10dp"
+        style="@style/ActionBarBackTextAppearence"
+        android:visibility="gone"
+        android:text="@string/chapter_name" />
+    
+</RelativeLayout>

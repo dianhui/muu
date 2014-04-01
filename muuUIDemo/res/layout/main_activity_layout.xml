@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white" >
+
+    <include
+        android:id="@+id/action_bar_layout"
+        layout="@layout/action_bar_layout" />
+    
+    <ImageView
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/action_bar_layout"
+        android:src="@color/light_gray" />
+
+    <ScrollView
+        android:id="@+id/sv_middle_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider" >
+
+        <RelativeLayout
+            android:id="@+id/rl_middle_conent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/rl_top3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <RelativeLayout
+                    android:id="@+id/rl_no1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/middle_place_holder"
+                    android:clickable="true" >
+
+                    <ImageView
+                        android:id="@+id/imv_no1_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/no1_icon"
+                        android:src="@drawable/no1_icon" />
+
+                    <TextView
+                        android:id="@+id/tv_tag"
+                        style="@style/BookTagAppearence"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/tag_background"
+                        android:gravity="center"
+                        android:text="@string/humer" />
+
+                    <ImageView
+                        android:id="@+id/imv_name_bg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/no1_icon"
+                        android:layout_alignBottom="@id/imv_no1_icon"
+                        android:src="@drawable/book_name_bg" />
+                    
+                    <TextView
+                        android:id="@+id/tv_no1_name"
+                        style="@style/BookNameAppearence"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@id/imv_no1_icon"
+                        android:layout_marginBottom="10dp"
+                        android:layout_centerHorizontal="true"
+                        android:text="@string/book_name" />
+                </RelativeLayout>
+                
+                <TextView 
+                    android:id="@+id/middle_place_holder"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_centerInParent="true"
+                    />
+                
+                <RelativeLayout
+                    android:id="@+id/rl_no2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/middle_place_holder"
+                    android:layout_alignBottom="@id/rl_no1"
+                    android:clickable="true" >
+
+                    <ImageView
+                        android:id="@+id/imv_no2_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/no2_3_icon"
+                        android:src="@drawable/no1_icon" />
+
+                    <TextView
+                        android:id="@+id/tv_no2_tag"
+                        style="@style/BookTagAppearence"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/tag_background"
+                        android:gravity="center"
+                        android:text="@string/humer" />
+
+                    <ImageView
+                        android:id="@+id/no2_imv_name_bg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/no1_icon"
+                        android:layout_alignBottom="@id/imv_no2_icon"
+                        android:src="@drawable/book_name_bg" />
+                    
+                    <TextView
+                        android:id="@+id/tv_no2_name"
+                        style="@style/BookNameAppearence"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@id/imv_no2_icon"
+                        android:layout_marginBottom="10dp"
+                        android:layout_centerHorizontal="true"
+                        android:text="@string/book_name" />
+                </RelativeLayout>
+            </RelativeLayout>
+            
+            <RelativeLayout
+                android:id="@+id/rl_others"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/rl_top3" />
+            
+            <TextView
+                android:id="@+id/tv_load_more"
+                style="@style/DragForMoreAppearence"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/rl_others"
+                android:gravity="center_horizontal"
+                android:background="@color/light_gray"
+                android:text="@string/drag_for_more" />
+            
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

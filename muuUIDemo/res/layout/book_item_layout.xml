@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="105dp"
+    android:layout_height="148dp"
+    android:paddingTop="14dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
+     >
+
+    <ImageView
+        android:id="@+id/imv_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/other_icon"
+        android:src="@drawable/book_icon" />
+
+    <TextView
+        android:id="@+id/tv_tag"
+        style="@style/BookTagAppearence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/tag_background"
+        android:gravity="center"
+        android:text="@string/humer" />
+    
+    <ImageView
+        android:id="@+id/imv_name_bg"
+        android:layout_width="105dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/imv_icon"
+        android:contentDescription="@string/other_icon"
+        android:src="@drawable/book_name_bg" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        style="@style/BookNameAppearence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/imv_icon"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:text="@string/book_name" />
+
+</RelativeLayout>
