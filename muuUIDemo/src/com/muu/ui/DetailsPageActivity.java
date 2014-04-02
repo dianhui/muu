@@ -29,7 +29,7 @@ public class DetailsPageActivity extends Activity {
 		setContentView(R.layout.details_page_layout);
 		
 		ImageButton settingsImage = (ImageButton)this.findViewById(R.id.imbtn_slide_category);
-		settingsImage.setVisibility(View.GONE);
+		settingsImage.setVisibility(View.INVISIBLE);
 		
 		RelativeLayout backLayout = (RelativeLayout)this.findViewById(R.id.rl_back);
 		backLayout.setVisibility(View.VISIBLE);
@@ -40,7 +40,7 @@ public class DetailsPageActivity extends Activity {
 			}
 		});
 		TextView backText = (TextView)this.findViewById(R.id.tv_back_text);
-		backText.setVisibility(View.GONE);
+		backText.setVisibility(View.INVISIBLE);
 		
 		RelativeLayout topLayout = (RelativeLayout)this.findViewById(R.id.rl_top_btn);
 		topLayout.setVisibility(View.INVISIBLE);

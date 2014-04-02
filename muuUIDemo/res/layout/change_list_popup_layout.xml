@@ -1,25 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/popup_background"
-    android:gravity="center"
-    android:minHeight="120dp"
-    android:orientation="vertical" >
+    android:gravity="center_horizontal"
+    android:minHeight="96dp" >
 
-    <Button
-        android:id="@+id/btn_new"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:minWidth="100dp"
-        android:text="@string/new_books" />
+    <LinearLayout
+        android:id="@+id/ll_new"
+        android:layout_width="150dp"
+        android:layout_height="47dp"
+        android:gravity="center"
+        android:clickable="true"
+        android:background="@color/gray">
 
-    <Button
-        android:id="@+id/btn_hot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="100dp"
-        android:text="@string/hot_books" />
+        <TextView
+            android:id="@+id/tv_new"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            style="@style/WeekTopDropAppearence"
+            android:text="@string/recent_update" />
+        
+    </LinearLayout>
     
-</LinearLayout>
+    <ImageView 
+        android:id="@+id/imv_divider"
+        android:layout_width="150dp"
+        android:layout_height="1dp"
+        android:src="@color/white"
+        android:layout_below="@id/ll_new"
+        />
+    
+    <LinearLayout
+        android:id="@+id/ll_hot"
+        android:layout_width="150dp"
+        android:layout_height="47dp"
+        android:layout_below="@id/imv_divider"
+        android:background="@color/gray"
+        android:gravity="center"
+        android:clickable="true">
+
+        <TextView
+            android:id="@+id/tv_hot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            style="@style/WeekTopDropAppearence"
+            android:text="@string/hot_list" />
+        
+    </LinearLayout>
+    
+    
+</RelativeLayout>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Muu</string>
-    <string name="weekly_top">每周TOP20榜</string>
-    <string name="click_to_change_list">点击更换榜单</string>
+    <string name="weekly_top">每周TOP20</string>
+    <string name="recent_update">最近更新</string>
+    <string name="hot_list">人气榜</string>
     <string name="category_item_text">搞笑</string>
     <string name="humer">搞笑</string>
     <string name="recent_read">最近看过</string>
@@ -13,8 +14,6 @@
     <string name="shake_change">摇一摇 换几个</string>
     <string name="book_name">漫画名称</string>
     <string name="drag_for_more">向上拖动加载更多</string>
-    <string name="new_books">新作</string>
-    <string name="hot_books">经典排行</string>
     <string name="author">作者:</string>
     <string name="category">题材:</string>
     <string name="size">大小:</string>

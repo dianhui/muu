@@ -63,26 +63,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:layout_centerHorizontal="true" >
+        android:layout_centerInParent="true" >
         <TextView 
             android:id="@+id/tv_weekly_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/WeekTopAppearence"
             android:text="@string/weekly_top"
-            />
-        <TextView
-            android:id="@+id/tv_click_change_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:gravity="center_vertical"
-            android:layout_below="@+id/tv_weekly_top"
-            style="@style/ChangeListAppearence"
-            android:text="@string/click_to_change_list"
             android:drawableRight="@drawable/ic_change_list"
+            android:layout_centerInParent="true"
             />
-        
     </RelativeLayout>
 
     <ImageButton 

@@ -78,7 +78,7 @@ public class BooksListActivity extends Activity {
 	
 	private void setupActionBar() {
 		ImageButton settingsImage = (ImageButton)this.findViewById(R.id.imbtn_slide_category);
-		settingsImage.setVisibility(View.GONE);
+		settingsImage.setVisibility(View.INVISIBLE);
 		
 		RelativeLayout topLayout = (RelativeLayout)this.findViewById(R.id.rl_top_btn);
 		topLayout.setVisibility(View.INVISIBLE);
@@ -93,7 +93,7 @@ public class BooksListActivity extends Activity {
 		});
 		
 		ImageButton recentButton = (ImageButton)this.findViewById(R.id.imbtn_recent_history);
-		recentButton.setVisibility(View.GONE);
+		recentButton.setVisibility(View.INVISIBLE);
 		
 		ImageButton searchBtn = (ImageButton) this
 				.findViewById(R.id.imbtn_search);
