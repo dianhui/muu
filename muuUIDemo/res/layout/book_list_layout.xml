@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    >
+
+    <include
+        android:id="@+id/action_bar"
+        layout="@layout/action_bar_layout" />
+    
+    <ImageView
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/action_bar"
+        android:src="@color/light_gray" />
+    
+    <EditText 
+        android:id="@+id/et_search"
+        android:layout_below="@id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_you_want"
+        android:drawableEnd="@drawable/ic_search_normal"
+        android:layout_margin="5dp"
+        android:visibility="gone"
+        />
+    
+    <RelativeLayout
+        android:id="@+id/rl_search_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:visibility="gone"
+        android:layout_below="@id/et_search" >
+
+        <TextView
+            android:id="@+id/tv_search_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/they_are_searching" />
+
+        <ImageView
+            android:id="@+id/imv_search_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/tv_search_header"
+            android:src="@drawable/ic_they_searching" />
+        
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/lv_books_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_search_header"
+        android:layout_marginTop="15dp"
+        android:background="@color/white"
+        android:dividerHeight="10dp"
+        android:divider="@color/white"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" />
+    
+    <RelativeLayout
+        android:id="@+id/rl_shake_change"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:visibility="gone"
+        android:minHeight="120dp" >
+        <ImageView 
+        	android:id="@+id/imv_shake"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:src="@drawable/ic_shake"
+        	android:layout_marginTop="20dp"
+        	android:layout_centerHorizontal="true"
+            />
+        <TextView 
+            android:id="@+id/tv_shake_change"
+            android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/shake_change"
+        	android:layout_below="@id/imv_shake"
+        	android:layout_centerHorizontal="true"
+            />
+        
+    </RelativeLayout>
+    
+    <TextView
+        android:id="@+id/tv_load_more"
+        style="@style/DragForMoreAppearence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/light_gray"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        android:text="@string/drag_for_more" />
+
+</RelativeLayout>

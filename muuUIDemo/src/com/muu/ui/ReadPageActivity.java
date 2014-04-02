@@ -1,103 +1,84 @@
 package com.muu.ui;
 
 import com.muu.uidemo.R;
+import com.muu.widget.TouchImageView;
+import com.muu.widget.TouchImageView.OnGestureListener;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
-import android.widget.ImageView;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class ReadPageActivity extends Activity implements OnGestureListener {
-	private Boolean mScrolling = false;
-	private GestureDetector mGestureDetector = null;
-	
 	private RelativeLayout mActionBarLayout = null;
 	private RelativeLayout mPageIdxLayout = null;
-	private ImageView mContentImage = null;
-	private Boolean mInReadingMode = false;
+	private RelativeLayout mBottomLayout = null;
+	private TouchImageView mContentImage = null;
+	private Boolean mTouchedMode = false;
+	private Boolean mRecomment = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.read_page_layout);
 		
-		mGestureDetector = new GestureDetector(this, this);
 		
 		mActionBarLayout = (RelativeLayout)this.findViewById(R.id.rl_action_bar);
 		mPageIdxLayout = (RelativeLayout)this.findViewById(R.id.rl_page_index);
+		mBottomLayout = (RelativeLayout)this.findViewById(R.id.rl_bottom_chapter);
 		
-		mContentImage = (ImageView)this.findViewById(R.id.imv_content);
-		mContentImage.setOnTouchListener(new OnTouchListener() {
-			
+		mContentImage = (TouchImageView)this.findViewById(R.id.imv_content);
+		mContentImage.setSwipObserver(this);
+		
+		final ImageButton recommentBtn = (ImageButton)this.findViewById(R.id.imv_btn_recomment);
+		recommentBtn.setOnClickListener(new OnClickListener() {
 			@Override
-            public boolean onTouch(View v, MotionEvent event) {
-				if (mGestureDetector.onTouchEvent(event)) {
-	                return true;
-	            }
+			public void onClick(View v) {
+				mRecomment = !mRecomment;
 				
-				if (event.getAction() == MotionEvent.ACTION_UP) {
-	                if (mScrolling) {
-	                    mScrolling = false;
-                    }
-                }
-				
-	            return false;
-            } 
+				if (mRecomment) {
+					recommentBtn.setBackgroundResource(R.drawable.ic_recomment_selected);
+				} else {
+					recommentBtn.setBackgroundResource(R.drawable.ic_recomment_normal);
+				}
+			}
 		});
 		
+		ImageButton backBtn = (ImageButton)this.findViewById(R.id.img_btn_back);
+		backBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ReadPageActivity.this.finish();
+			}
+		});
 	}
 
 	@Override
-    public boolean onDown(MotionEvent e) {
-		return true;
-    }
+	public void onSwipPrevious() {
+		Toast.makeText(getApplicationContext(), "onSwipPrevious",
+				Toast.LENGTH_SHORT).show();
+	}
 
 	@Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-            float velocityY) {
-	    return false;
-    }
+	public void onSwipNext() {
+		Toast.makeText(getApplicationContext(), "onSwipNext",
+				Toast.LENGTH_SHORT).show();
+	}
 
 	@Override
-    public void onLongPress(MotionEvent e) {
-    }
-
-	@Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-            float distanceY) {
-		if (mScrolling) {
-	        return true;
-        }
-		
-		if (distanceX > 20 && distanceY < 20) {
-			mScrolling = true;
-			Toast.makeText(this, "onScroll ...", Toast.LENGTH_SHORT).show();
-        }
-		
-	    return true;
-    }
-
-	@Override
-    public void onShowPress(MotionEvent e) {
-    }
-
-	@Override
-    public boolean onSingleTapUp(MotionEvent e) {
-		if (mInReadingMode) {
+	public void onSingleTapUp() {
+		if (mTouchedMode) {
 			mActionBarLayout.setVisibility(View.VISIBLE);
 			mPageIdxLayout.setVisibility(View.GONE);
+			mBottomLayout.setVisibility(View.VISIBLE);
         } else {
         	mActionBarLayout.setVisibility(View.GONE);
     		mPageIdxLayout.setVisibility(View.VISIBLE);
+    		mBottomLayout.setVisibility(View.GONE);
         }
-		mInReadingMode = !mInReadingMode;
-		
-	    return true;
-    }
+		mTouchedMode = !mTouchedMode;
+	}
 }

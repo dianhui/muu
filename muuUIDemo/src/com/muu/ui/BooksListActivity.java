@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -18,11 +19,25 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BooksListActivity extends Activity {
+	public static String sListTypeKey = "list_type";
+	public static int sListCategory = 0;
+	public static int sListRecent = 1;
+	public static int sListSearch = 2;
+	
+	public static String sCategoryIdx = "category_idx";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.category_list_layout);
+		setContentView(R.layout.book_list_layout);
 		
+		setupActionBar();
+		setupViews();
+//		getListData();
+		setupBooksList();
+	}
+	
+	private void setupActionBar() {
 		ImageButton settingsImage = (ImageButton)this.findViewById(R.id.imbtn_slide_category);
 		settingsImage.setVisibility(View.GONE);
 		
@@ -41,13 +56,89 @@ public class BooksListActivity extends Activity {
 		ImageButton recentButton = (ImageButton)this.findViewById(R.id.imbtn_recent_history);
 		recentButton.setVisibility(View.GONE);
 		
-		setupBooksList();
+		ImageButton searchBtn = (ImageButton) this
+				.findViewById(R.id.imbtn_search);
+		searchBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getApplicationContext(),
+						BooksListActivity.class);
+				intent.putExtra(BooksListActivity.sListTypeKey,
+						BooksListActivity.sListSearch);
+				BooksListActivity.this.startActivity(intent);
+			}
+		});
+
+		TextView backText = (TextView)this.findViewById(R.id.tv_back_text);
+		Intent intent = getIntent();
+		int listType = intent.getIntExtra(sListTypeKey, 0);
+		if (listType == sListCategory) {
+			int categoryIdx = intent.getIntExtra(sCategoryIdx, 0);
+			String categoryName = this.getResources().getStringArray(
+			        R.array.category_text_array)[categoryIdx];
+			backText.setText(categoryName);
+			return;
+		}
+		
+		if (listType == sListRecent) {
+			backText.setText(R.string.recent_read);
+			return;
+		}
+		
+		if (listType == sListSearch) {
+			backText.setVisibility(View.INVISIBLE);
+			TextView title = (TextView)this.findViewById(R.id.tv_action_title);
+			title.setVisibility(View.VISIBLE);
+			title.setText(R.string.search);
+			
+			searchBtn.setVisibility(View.INVISIBLE);
+		}
+	}
+	
+	private void setupViews() {
+		Intent intent = getIntent();
+		int listType = intent.getIntExtra(sListTypeKey, 0);
+		
+		TextView dragMore = (TextView)this.findViewById(R.id.tv_load_more);
+		if (listType == sListCategory) {
+			dragMore.setVisibility(View.VISIBLE);
+		}
+		
+		if (listType == sListSearch) {
+			EditText searchEdit = (EditText)this.findViewById(R.id.et_search);
+			searchEdit.setVisibility(View.VISIBLE);
+			
+			RelativeLayout searchHeader = (RelativeLayout)this.findViewById(R.id.rl_search_header);
+			searchHeader.setVisibility(View.VISIBLE);
+			
+			RelativeLayout shakeChange = (RelativeLayout)this.findViewById(R.id.rl_shake_change);
+			shakeChange.setVisibility(View.VISIBLE);
+			
+			dragMore.setVisibility(View.GONE);
+		}
+		
 	}
 	
 	private void setupBooksList() {
 		ListView listView = (ListView)this.findViewById(R.id.lv_books_list);
 		BooksListAdapter listAdapter = new BooksListAdapter(this);
 		listView.setAdapter(listAdapter);
+	}
+	
+	private void getListData() {
+		Intent intent = getIntent();
+		int listType = intent.getIntExtra(sListTypeKey, 0);
+		if (listType == sListCategory) {
+			return;
+		}
+		
+		if (listType == sListRecent) {
+			return;
+		}
+		
+		if (listType == sListSearch) {
+			return;
+		}
 	}
 	
 	private class BooksListAdapter extends BaseAdapter {
@@ -83,7 +174,7 @@ public class BooksListActivity extends Activity {
 			ViewHolder holder;
 
 			if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.category_list_item, null);
+				convertView = mInflater.inflate(R.layout.book_list_item, null);
 				holder = new ViewHolder();
 				holder.icon = (ImageView) convertView
 				        .findViewById(R.id.imv_icon);

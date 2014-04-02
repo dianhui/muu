@@ -16,5 +16,7 @@
     
     <color name="list_item_bg">#f0f0f0</color>
     <color name="list_sub_text">#7e7e7e</color>
+    
+    <color name="transparent_gray">#50343434</color>
 
 </resources>

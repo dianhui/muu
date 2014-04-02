@@ -43,7 +43,7 @@ public class CategoryListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 
 		if (convertView == null) {
@@ -66,6 +66,9 @@ public class CategoryListAdapter extends BaseAdapter {
 				
 				Intent intent = new Intent(mCtx, BooksListActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra(BooksListActivity.sListTypeKey,
+						BooksListActivity.sListCategory);
+				intent.putExtra(BooksListActivity.sCategoryIdx, position);
 				mCtx.startActivity(intent);
 			}
 		});

@@ -56,6 +56,32 @@ public class MainActivity extends Activity {
 			}
 		});
 		
+		ImageButton recentBtn = (ImageButton) this
+				.findViewById(R.id.imbtn_recent_history);
+		recentBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getApplicationContext(),
+						BooksListActivity.class);
+				intent.putExtra(BooksListActivity.sListTypeKey,
+						BooksListActivity.sListRecent);
+				MainActivity.this.startActivity(intent);
+			}
+		});
+		
+		ImageButton searchBtn = (ImageButton) this
+				.findViewById(R.id.imbtn_search);
+		searchBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getApplicationContext(),
+						BooksListActivity.class);
+				intent.putExtra(BooksListActivity.sListTypeKey,
+						BooksListActivity.sListSearch);
+				MainActivity.this.startActivity(intent);
+			}
+		});
+		
 		setupTop3Views();
 		updateOtherBooks();
 	}

@@ -3,44 +3,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <ScrollView
-        android:id="@+id/scv_content"
+    <com.muu.widget.TouchImageView
+        android:id="@+id/imv_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        
-        <ImageView
-            android:id="@+id/imv_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/content_img"
-            android:clickable="true"
-            android:contentDescription="@string/book_content" />
-                
-    </ScrollView>
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:contentDescription="@string/book_content"
+        android:src="@drawable/content_img" />
     
     <RelativeLayout
         android:id="@+id/rl_action_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:background="@drawable/action_bar_bg" >
+        android:minHeight="50dp"
+        android:background="@color/transparent_gray" >
         
         <ImageButton
             android:id="@+id/img_btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
             android:background="@drawable/back_icon"
             android:contentDescription="@drawable/back_icon"
             />
         
         <TextView
             android:id="@+id/tv_title"
-            style="@style/ActionBarTitleTextAppearence"
+            style="@style/ReadActionBarTitleTextAppearence"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="@string/book_name" />
+        
+        <ImageButton
+            android:id="@+id/imv_btn_recomment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/imv_btn_share"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/ic_recomment_normal"
+            android:contentDescription="@string/share_content_des" />
         
         <ImageButton
             android:id="@+id/imv_btn_share"
@@ -48,9 +53,51 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="20dp"
             android:background="@drawable/share_btn"
             android:contentDescription="@string/share_content_des" />
+        
+    </RelativeLayout>
+    
+    <RelativeLayout
+        android:id="@+id/rl_bottom_chapter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent_gray"
+       	android:gravity="center_vertical"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        android:minHeight="50dp" >
+        
+        <TextView 
+            android:id="@+id/tv_chapter_num"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="10dp"
+            style="@style/BottomChapterTextAppearence"
+            android:text="@string/chapter"
+            />
+        <TextView 
+            android:id="@+id/tv_chapter_name"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:singleLine="true"
+            android:maxWidth="240dp"
+            android:ellipsize="end"
+            android:layout_toRightOf="@id/tv_chapter_num"
+            style="@style/BottomChapterTextAppearence"
+            android:text="@string/chapter_name"
+            />
+        <TextView 
+            android:id="@+id/tv_chapter_page_idx"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/tv_chapter_name"
+            style="@style/BottomChapterTextAppearence"
+            android:text="@string/page"
+            />
         
     </RelativeLayout>
     
@@ -79,72 +126,5 @@
             android:layout_toRightOf="@id/tv_chapter"
             android:text="@string/page" />
     </RelativeLayout>
-
-    <!-- <ScrollView
-        android:id="@+id/scv_comments"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:layout_above="@+id/rl_bottom_layout" >
-        <RelativeLayout 
-            android:id="@+id/rl_comments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-        
-    </ScrollView> -->
-
-    <!--< RelativeLayout
-        android:id="@+id/rl_bottom_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/bottom_bg"
-        android:visibility="gone" >
-
-        <RelativeLayout
-            android:id="@+id/rl_bottom_page"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true" >
-
-            <TextView
-                android:id="@+id/tv_bottom_chapter"
-                style="@style/PageIdxAppearence"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="@string/chapter" />
-
-            <TextView
-                android:id="@+id/tv_bottom_page_idx"
-                style="@style/PageIdxAppearence"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_toRightOf="@id/tv_bottom_chapter"
-                android:text="@string/page" />
-        </RelativeLayout>
-
-        <EditText
-            android:id="@+id/et_comment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="10dp"
-            android:layout_toLeftOf="@+id/imbtn_show_comment"
-            android:layout_toRightOf="@id/rl_bottom_page"
-            android:hint="@string/comment_hint" />
-
-        <ImageButton
-            android:id="@+id/imbtn_show_comment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/ic_show_comment"
-            android:contentDescription="@string/show_comment" />
-    </RelativeLayout> -->
 
 </RelativeLayout>
