@@ -13,12 +13,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,6 +29,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.TextView.OnEditorActionListener;
 
 public class BooksListActivity extends Activity {
 	public static final String sListTypeKey = "list_type";
@@ -38,27 +43,7 @@ public class BooksListActivity extends Activity {
 	
 	private SensorManager mSensorMgr;
 	private Vibrator mVibrator;
-	private SensorEventListener mSensorListener = new SensorEventListener() {
-		@Override
-		public void onSensorChanged(SensorEvent event) {
-			float[] values = event.values;
-			float x = values[0];
-			float y = values[1];
-			float z = values[2];
-			int medumValue = 19;
-			if (Math.abs(x) > medumValue || Math.abs(y) > medumValue
-					|| Math.abs(z) > medumValue) {
-				// vibrator.vibrate(200);
-				 Message msg = new Message();
-				 msg.what = SENSOR_SHAKE;
-				 mHandler.sendMessage(msg);
-			}
-		}
-
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		}
-	};
+	private SensorEventListener mSensorListener;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +146,7 @@ public class BooksListActivity extends Activity {
 		if (listType == sListSearch) {
 			EditText searchEdit = (EditText) this.findViewById(R.id.et_search);
 			searchEdit.setVisibility(View.VISIBLE);
+			searchEdit.setOnEditorActionListener(new EditActionListener());
 
 			RelativeLayout searchHeader = (RelativeLayout) this
 					.findViewById(R.id.rl_search_header);
@@ -174,6 +160,7 @@ public class BooksListActivity extends Activity {
 
 			mSensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
 			mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+			mSensorListener = new ShakeListener();
 		}
 	}
 	
@@ -288,4 +275,47 @@ public class BooksListActivity extends Activity {
 			}
 		}
 	};
+	
+	private class ShakeListener implements SensorEventListener {
+		@Override
+		public void onSensorChanged(SensorEvent event) {
+			float[] values = event.values;
+			float x = values[0];
+			float y = values[1];
+			float z = values[2];
+			int medumValue = 19;
+			if (Math.abs(x) > medumValue || Math.abs(y) > medumValue
+					|| Math.abs(z) > medumValue) {
+				// vibrator.vibrate(200);
+				 Message msg = new Message();
+				 msg.what = SENSOR_SHAKE;
+				 mHandler.sendMessage(msg);
+			}
+		}
+		
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		}
+	}
+	
+	private class EditActionListener implements OnEditorActionListener {
+		@Override
+		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+	                actionId == EditorInfo.IME_ACTION_DONE ||
+	                event.getAction() == KeyEvent.ACTION_DOWN &&
+	                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+	            onSearchAction(v);
+	            return true;
+	        }
+			return false;
+		}
+	}
+	
+	private void onSearchAction(TextView v) {
+		Toast.makeText(this, v.getText().toString(), Toast.LENGTH_LONG).show();
+		 
+		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
+	}
 }

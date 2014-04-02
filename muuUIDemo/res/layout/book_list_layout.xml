@@ -26,6 +26,8 @@
         android:hint="@string/search_you_want"
         android:drawableEnd="@drawable/ic_search_normal"
         android:layout_margin="5dp"
+        android:imeOptions="actionSearch"
+        android:singleLine="true"
         android:visibility="gone"
         />
     
