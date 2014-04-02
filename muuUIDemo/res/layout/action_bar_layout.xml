@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="8dp"
+        android:padding="10dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/slide_category_imageview"
         android:src="@drawable/category_btn" />
@@ -25,7 +25,7 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:gravity="center_vertical"
-        android:layout_marginLeft="-2dp"
+        android:padding="10dp"
         android:visibility="gone"
         android:clickable="true">
 
@@ -34,6 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/back_icon"
+            android:layout_centerVertical="true"
             android:contentDescription="@string/back_icon" />
         
         <TextView
@@ -43,6 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:text="@string/humer"
+            android:layout_marginLeft="4dp"
             android:layout_toRightOf="@id/imv_back_icon" />
         
     </RelativeLayout>
@@ -88,7 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="10dp"
         android:layout_toLeftOf="@+id/imbtn_search"
         android:contentDescription="@string/recent_hisotry"
         android:src="@drawable/ic_recent_history"
@@ -101,7 +103,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="15dp"
         android:contentDescription="@string/search_btn_imv"
         android:src="@drawable/ic_search"
         android:background="@android:color/transparent"

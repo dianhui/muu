@@ -19,7 +19,7 @@
 
     <style name="WeekTopAppearence">
         <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/dark</item>
+        <item name="android:textColor">@color/action_bar_title</item>
     </style>
 
     <style name="ChangeListAppearence">
@@ -28,7 +28,7 @@
     </style>
     
     <style name="SlidingCategoryAppearence">
-        <item name="android:textSize">21sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/category_text_color</item>
     </style>
     
@@ -54,7 +54,7 @@
     
     <style name="ActionBarTitleTextAppearence">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/action_bar_title</item>
     </style>
     
     <style name="ReadActionBarTitleTextAppearence">
@@ -78,7 +78,7 @@
     </style>
     
     <style name="DetailInfoTextAppearence">
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/black</item>
     </style>
     

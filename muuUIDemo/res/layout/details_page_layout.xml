@@ -103,6 +103,8 @@
                 android:background="@drawable/read_btn"
                 android:gravity="left|center"
                 android:paddingLeft="20dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
                 style="@style/DetailBtnAppearence"
                 android:text="@string/read" />
 
@@ -148,7 +150,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:background="@drawable/share_btn"
+                android:background="@drawable/ic_more"
+                android:paddingRight="10dp"
+                android:layout_marginRight="10dp"
                 android:contentDescription="@string/download" />
             
         </RelativeLayout>

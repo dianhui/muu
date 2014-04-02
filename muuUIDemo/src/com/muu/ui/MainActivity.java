@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 		topBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mChangeListPopup.showAsDropDown(layout, 0, -45);
+				mChangeListPopup.showAsDropDown(layout, 0, -30);
 			}
 		});
 		

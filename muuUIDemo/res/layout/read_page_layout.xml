@@ -15,19 +15,30 @@
         android:id="@+id/rl_action_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="46dp"
         android:visibility="gone"
-        android:minHeight="50dp"
-        android:background="@color/transparent_gray" >
+        android:background="@color/transparent_black" >
         
-        <ImageButton
-            android:id="@+id/img_btn_back"
+        <RelativeLayout
+            android:id="@+id/rl_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
+            android:clickable="true"
+            android:gravity="center_vertical"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/back_icon"
-            android:contentDescription="@drawable/back_icon"
-            />
+            android:padding="10dp" >
+			
+            <ImageView
+                android:id="@+id/img_btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back_icon"
+                android:contentDescription="@string/back_icon" />
+            
+        </RelativeLayout>
         
         <TextView
             android:id="@+id/tv_title"
@@ -63,11 +74,11 @@
         android:id="@+id/rl_bottom_chapter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/transparent_gray"
+        android:background="@color/transparent_black"
        	android:gravity="center_vertical"
         android:layout_alignParentBottom="true"
         android:visibility="gone"
-        android:minHeight="50dp" >
+        android:minHeight="46dp" >
         
         <TextView 
             android:id="@+id/tv_chapter_num"
@@ -105,8 +116,11 @@
         android:id="@+id/rl_page_index"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="100dp"
+        android:minHeight="31dp"
+        android:layout_marginLeft="8dp"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/page_idx_bg"
+        android:background="@color/transparent_black"
         android:gravity="center_vertical" >
 
         <TextView

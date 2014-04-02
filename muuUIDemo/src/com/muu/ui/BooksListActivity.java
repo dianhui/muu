@@ -5,11 +5,20 @@ import com.muu.uidemo.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -19,12 +28,37 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BooksListActivity extends Activity {
-	public static String sListTypeKey = "list_type";
-	public static int sListCategory = 0;
-	public static int sListRecent = 1;
-	public static int sListSearch = 2;
+	public static final String sListTypeKey = "list_type";
+	public static final int sListCategory = 0;
+	public static final int sListRecent = 1;
+	public static final int sListSearch = 2;
+	private static final int SENSOR_SHAKE = 10;
 	
 	public static String sCategoryIdx = "category_idx";
+	
+	private SensorManager mSensorMgr;
+	private Vibrator mVibrator;
+	private SensorEventListener mSensorListener = new SensorEventListener() {
+		@Override
+		public void onSensorChanged(SensorEvent event) {
+			float[] values = event.values;
+			float x = values[0];
+			float y = values[1];
+			float z = values[2];
+			int medumValue = 19;
+			if (Math.abs(x) > medumValue || Math.abs(y) > medumValue
+					|| Math.abs(z) > medumValue) {
+				// vibrator.vibrate(200);
+				 Message msg = new Message();
+				 msg.what = SENSOR_SHAKE;
+				 mHandler.sendMessage(msg);
+			}
+		}
+
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		}
+	};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +69,26 @@ public class BooksListActivity extends Activity {
 		setupViews();
 //		getListData();
 		setupBooksList();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		if (mSensorMgr != null) {
+			mSensorMgr.registerListener(mSensorListener,
+					mSensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+					SensorManager.SENSOR_DELAY_NORMAL);
+		}
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		if (mSensorMgr != null) {
+			mSensorMgr.unregisterListener(mSensorListener);
+		}
 	}
 	
 	private void setupActionBar() {
@@ -105,18 +159,22 @@ public class BooksListActivity extends Activity {
 		}
 		
 		if (listType == sListSearch) {
-			EditText searchEdit = (EditText)this.findViewById(R.id.et_search);
+			EditText searchEdit = (EditText) this.findViewById(R.id.et_search);
 			searchEdit.setVisibility(View.VISIBLE);
-			
-			RelativeLayout searchHeader = (RelativeLayout)this.findViewById(R.id.rl_search_header);
+
+			RelativeLayout searchHeader = (RelativeLayout) this
+					.findViewById(R.id.rl_search_header);
 			searchHeader.setVisibility(View.VISIBLE);
-			
-			RelativeLayout shakeChange = (RelativeLayout)this.findViewById(R.id.rl_shake_change);
+
+			RelativeLayout shakeChange = (RelativeLayout) this
+					.findViewById(R.id.rl_shake_change);
 			shakeChange.setVisibility(View.VISIBLE);
-			
+
 			dragMore.setVisibility(View.GONE);
+
+			mSensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
+			mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 		}
-		
 	}
 	
 	private void setupBooksList() {
@@ -213,4 +271,21 @@ public class BooksListActivity extends Activity {
 			TextView comment;
 		}
 	}
+	
+	Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case SENSOR_SHAKE:
+				mVibrator.vibrate(300);
+				Animation shake = AnimationUtils.loadAnimation(
+						BooksListActivity.this, R.anim.shake);
+				findViewById(R.id.rl_shake_change).startAnimation(shake);
+
+				//TODO: change list.
+				break;
+			}
+		}
+	};
 }

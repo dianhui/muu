@@ -47,7 +47,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			}
 		});
 		
-		ImageButton backBtn = (ImageButton)this.findViewById(R.id.img_btn_back);
+		RelativeLayout backBtn = (RelativeLayout)this.findViewById(R.id.rl_back);
 		backBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
