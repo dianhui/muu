@@ -52,7 +52,7 @@ public class BooksListActivity extends Activity {
 		
 		setupActionBar();
 		setupViews();
-//		getListData();
+		getListData();
 		setupBooksList();
 	}
 	
@@ -286,7 +286,6 @@ public class BooksListActivity extends Activity {
 			int medumValue = 19;
 			if (Math.abs(x) > medumValue || Math.abs(y) > medumValue
 					|| Math.abs(z) > medumValue) {
-				// vibrator.vibrate(200);
 				 Message msg = new Message();
 				 msg.what = SENSOR_SHAKE;
 				 mHandler.sendMessage(msg);

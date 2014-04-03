@@ -1,14 +1,12 @@
 package com.muu.ui;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.uidemo.R;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
