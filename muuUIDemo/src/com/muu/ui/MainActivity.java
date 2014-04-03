@@ -213,14 +213,18 @@ public class MainActivity extends Activity {
 	}
 	
 	private void setupTop2Cartoons(ArrayList<Integer> list) {
+		//TODO: get data from db and update view
+		
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
 		setClickEvent(layout);
-
+		
 		layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
 		setClickEvent(layout);
 	}
 	
 	private void setupOtherCartoons(ArrayList<Integer> list) {
+		//TODO: get data from db and update view
+		
 		RelativeLayout othersLayout = (RelativeLayout) this
 				.findViewById(R.id.rl_others);
 
@@ -284,6 +288,8 @@ public class MainActivity extends Activity {
 			} catch (InterruptedException e) {
 			}
 			
+			//TODO: retrieve data from server.
+			
 			mListType = params[0];
 			return retrieveCartoonList(mListType);
 		}
@@ -299,6 +305,7 @@ public class MainActivity extends Activity {
 	}
 	
 	private ArrayList<Integer> retrieveCartoonList(Integer type) {
+		//TODO: retrieve cartoon list by type.
 		return null;
 	}
 }
