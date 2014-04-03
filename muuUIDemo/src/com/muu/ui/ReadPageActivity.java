@@ -66,6 +66,10 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	public void onSwipNext() {
 		Toast.makeText(getApplicationContext(), "onSwipNext",
 				Toast.LENGTH_SHORT).show();
+		
+		ReadFinishDialog dialog = new ReadFinishDialog(this,
+				R.style.FloatDialogTheme);
+		dialog.show();
 	}
 
 	@Override

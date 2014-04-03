@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="240dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center" >
+
+    <ImageView
+        android:id="@+id/imv_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/ic_close"
+        android:contentDescription="@string/content_des_place_holder" />
+
+    <RelativeLayout
+        android:id="@+id/rl_window"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" >
+
+        <TextView
+            android:id="@+id/tv_read_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:drawableLeft="@drawable/ic_read_finish"
+            style="@style/FloatDialogTitleAppearence"
+            android:text="@string/read_finish" />
+
+        <ImageView
+            android:id="@+id/imv_cartoon_cover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_read_finish"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/no1_icon"
+            android:clickable="true"
+            android:contentDescription="@string/content_des_place_holder" />
+    </RelativeLayout>
+
+</RelativeLayout>

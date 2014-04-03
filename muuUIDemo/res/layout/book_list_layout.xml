@@ -16,6 +16,7 @@
         android:layout_below="@id/action_bar"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:contentDescription="@string/content_des_place_holder"
         android:src="@color/light_gray" />
     
     <EditText 
@@ -51,6 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/tv_search_header"
+            android:contentDescription="@string/content_des_place_holder"
             android:src="@drawable/ic_they_searching" />
         
     </RelativeLayout>
@@ -75,14 +77,16 @@
         android:background="@color/white"
         android:visibility="gone"
         android:minHeight="120dp" >
-        <ImageView 
-        	android:id="@+id/imv_shake"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:src="@drawable/ic_shake"
-        	android:layout_marginTop="20dp"
-        	android:layout_centerHorizontal="true"
-            />
+
+        <ImageView
+            android:id="@+id/imv_shake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:contentDescription="@string/content_des_place_holder"
+            android:src="@drawable/ic_shake" />
+
         <TextView 
             android:id="@+id/tv_shake_change"
             android:layout_width="wrap_content"

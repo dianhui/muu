@@ -21,11 +21,10 @@
     <string name="new_comment">最新吐槽</string>
     <string name="read">开始阅读</string>
     <string name="continue_read">继续阅读</string>
-    <string name="download">下载</string>
-    <string name="comment_hint">吐吐更健康</string>
     <string name="chapter_contents">章节目录</string>
-    <string name="introduction">Amy和Sheldon重新研究了他们的「关系协议」，对能做的和不能做的事情做了研究了他们的关系协议关系协议关系协议关系协……</string>
+    <string name="read_finish">这部看完啦~</string>
     
+    <string name="introduction">Amy和Sheldon重新研究了他们的「关系协议」，对能做的和不能做的事情做了研究了他们的关系协议关系协议关系协议关系协……</string>
     <string name="chapter">114,</string>
     <string name="page">1/2</string>
     <string name="chapter_name">章节名称章节名称章节名称章节名称章节名称</string>

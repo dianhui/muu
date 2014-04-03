@@ -2,17 +2,9 @@
 <resources>
     <color name="white">#ffffffff</color>
     <color name="black">#ff000000</color>
-    <color name="dark">#ff222222</color>
-    <color name="blue">#00aeef</color>
-    <color name="purplish">#6e81c5</color>
     <color name="light_gray">#c6c6c6</color>
     <color name="gray">#666666</color>
-    <color name="normal_gray">#878787</color>
-    <color name="red">#ef4747</color>
     <color name="dark_gray">#343434</color>
-    
-    <color name="separator_color">#dcdcdc</color>
-    <color name="list_divider">#dcdcdc</color>
     
     <color name="list_item_bg">#f0f0f0</color>
     <color name="list_sub_text">#7e7e7e</color>
