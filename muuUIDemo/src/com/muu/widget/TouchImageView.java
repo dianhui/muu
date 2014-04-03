@@ -28,7 +28,7 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
+//import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -39,7 +39,7 @@ import android.widget.Scroller;
 
 public class TouchImageView extends ImageView {
 	
-	private static final String DEBUG = "DEBUG";
+//	private static final String DEBUG = "DEBUG";
 	
 	//
 	// SuperMin and SuperMax multipliers. Determine how much the image can be
@@ -963,10 +963,10 @@ public class TouchImageView extends ImageView {
         }
     }
     
-    private void printMatrixInfo() {
-    	matrix.getValues(m);
-    	Log.d(DEBUG, "Scale: " + m[Matrix.MSCALE_X] + " TransX: " + m[Matrix.MTRANS_X] + " TransY: " + m[Matrix.MTRANS_Y]);
-    }
+//    private void printMatrixInfo() {
+//    	matrix.getValues(m);
+//    	Log.d(DEBUG, "Scale: " + m[Matrix.MSCALE_X] + " TransX: " + m[Matrix.MTRANS_X] + " TransY: " + m[Matrix.MTRANS_Y]);
+//    }
     
     public interface OnGestureListener {
 		public void onSwipPrevious();

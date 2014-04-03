@@ -1,11 +1,16 @@
 package com.muu.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.uidemo.R;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +20,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 
@@ -25,16 +32,23 @@ public class MainActivity extends Activity {
 	private View mChangeListView = null;
 	private PopupWindow mChangeListPopup = null;
 	
+	private ProgressBar mProgress = null;
+	private ScrollView mCartoonsContainer = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity_layout);
 		
+		mProgress = (ProgressBar)this.findViewById(R.id.progress_bar);
+		mCartoonsContainer = (ScrollView)this.findViewById(R.id.sv_middle_content);
+		
 		setupSlideMenu();
 		setupActionBar();
 		setupDropdownView();
-		setupTop2Cartoons();
-		setupOtherCartoons();
+		
+		RetrieveCartoonListTask task = new RetrieveCartoonListTask();
+		task.execute(sTypeWeekTop);
 	}
 
 	private void setupSlideMenu() {
@@ -134,10 +148,10 @@ public class MainActivity extends Activity {
 				
 				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
 				ll.setVisibility(View.VISIBLE);
-				
 				mChangeListPopup.dismiss();
 				
-				//TODO: update data.
+				RetrieveCartoonListTask task = new RetrieveCartoonListTask();
+				task.execute(sTypeWeekTop);
 			}
 		});
 		
@@ -162,10 +176,10 @@ public class MainActivity extends Activity {
 				
 				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
 				ll.setVisibility(View.VISIBLE);
-				
 				mChangeListPopup.dismiss();
 				
-				//TODO: update data.
+				RetrieveCartoonListTask task = new RetrieveCartoonListTask();
+				task.execute(sTypeNew);
 			}
 		});
 		
@@ -190,15 +204,15 @@ public class MainActivity extends Activity {
 				
 				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
 				ll.setVisibility(View.GONE);
-				
 				mChangeListPopup.dismiss();
 				
-				//TODO: update data.
+				RetrieveCartoonListTask task = new RetrieveCartoonListTask();
+				task.execute(sTypeHot);
 			}
 		});
 	}
 	
-	private void setupTop2Cartoons() {
+	private void setupTop2Cartoons(ArrayList<Integer> list) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
 		setClickEvent(layout);
 
@@ -206,7 +220,7 @@ public class MainActivity extends Activity {
 		setClickEvent(layout);
 	}
 	
-	private void setupOtherCartoons() {
+	private void setupOtherCartoons(ArrayList<Integer> list) {
 		RelativeLayout othersLayout = (RelativeLayout) this
 				.findViewById(R.id.rl_others);
 
@@ -248,5 +262,43 @@ public class MainActivity extends Activity {
 				MainActivity.this.startActivity(intent);
 			}
 		});
+	}
+	
+	private static final int sTypeWeekTop = 0;
+	private static final int sTypeNew = 1;
+	private static final int sTypeHot = 2;
+	private class RetrieveCartoonListTask extends
+			AsyncTask<Integer, Integer, ArrayList<Integer>> {
+		private int mListType = sTypeWeekTop;
+		
+		@Override
+		protected void onPreExecute() {
+			mProgress.setVisibility(View.VISIBLE);
+			mCartoonsContainer.setVisibility(View.GONE);
+		}
+		
+		@Override
+		protected ArrayList<Integer> doInBackground(Integer... params) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+			
+			mListType = params[0];
+			return retrieveCartoonList(mListType);
+		}
+		
+		@Override
+		protected void onPostExecute(ArrayList<Integer> result) {
+			mProgress.setVisibility(View.GONE);
+			mCartoonsContainer.setVisibility(View.VISIBLE);
+			
+			setupTop2Cartoons(result);
+			setupOtherCartoons(result);
+		}
+	}
+	
+	private ArrayList<Integer> retrieveCartoonList(Integer type) {
+		return null;
 	}
 }
