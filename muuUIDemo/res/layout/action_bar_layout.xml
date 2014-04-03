@@ -15,7 +15,7 @@
         android:layout_centerVertical="true"
         android:padding="10dp"
         android:background="@android:color/transparent"
-        android:contentDescription="@string/slide_category_imageview"
+        android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/category_btn" />
     
     <RelativeLayout
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/back_icon"
             android:layout_centerVertical="true"
-            android:contentDescription="@string/back_icon" />
+            android:contentDescription="@string/content_des_place_holder" />
         
         <TextView
             android:id="@+id/tv_back_text"
@@ -82,7 +82,7 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="10dp"
         android:layout_toLeftOf="@+id/imbtn_search"
-        android:contentDescription="@string/recent_hisotry"
+        android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/ic_recent_history"
         android:background="@android:color/transparent"
         />
@@ -94,7 +94,7 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_marginRight="15dp"
-        android:contentDescription="@string/search_btn_imv"
+        android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/ic_search"
         android:background="@android:color/transparent"
         />

@@ -29,14 +29,14 @@
             android:layout_height="wrap_content"
             android:minHeight="205dp"
             android:minWidth="145dp"
-            android:contentDescription="@string/book_icon"
+            android:contentDescription="@string/content_des_place_holder"
             android:src="@drawable/book_icon" />
         
         <ImageView 
             android:id="@+id/imv_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/book_icon"
+            android:contentDescription="@string/content_des_place_holder"
             android:layout_alignBottom="@id/imv_icon"
             android:layout_marginBottom="25dp"
             android:src="@drawable/ic_status_continue"
@@ -116,7 +116,7 @@
                 android:layout_toRightOf="@id/btn_read"
                 android:layout_marginLeft="20dp"
                 android:background="@drawable/share_btn"
-                android:contentDescription="@string/download" />
+                android:contentDescription="@string/content_des_place_holder" />
         </RelativeLayout>
     </RelativeLayout>
 
@@ -153,7 +153,7 @@
                 android:background="@drawable/ic_more"
                 android:paddingRight="10dp"
                 android:layout_marginRight="10dp"
-                android:contentDescription="@string/download" />
+                android:contentDescription="@string/content_des_place_holder" />
             
         </RelativeLayout>
         
@@ -166,7 +166,7 @@
         android:layout_below="@id/scv_intro"
         android:layout_marginTop="5dp"
         android:src="@color/light_gray"
-        android:contentDescription="@string/divider_line" />
+        android:contentDescription="@string/content_des_place_holder" />
     
     <TextView
         android:id="@+id/tv_new_comments"
@@ -185,7 +185,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_new_comments"
         android:src="@color/light_gray"
-        android:contentDescription="@string/divider_line" />
+        android:contentDescription="@string/content_des_place_holder" />
 
     <ListView
         android:id="@+id/lv_new_comments"

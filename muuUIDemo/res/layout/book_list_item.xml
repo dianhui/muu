@@ -11,7 +11,7 @@
         android:id="@+id/imv_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/book_icon"
+        android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/book_icon" />
     
     <RelativeLayout

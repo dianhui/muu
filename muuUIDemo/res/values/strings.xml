@@ -31,18 +31,5 @@
     <string name="chapter_name">章节名称章节名称章节名称章节名称章节名称</string>
 
     <!-- content description strings -->
-    <string name="slide_category_imageview">Slide Category ImageView</string>
-    <string name="recent_hisotry">Recent History</string>
-    <string name="search_btn_imv">Search Button</string>
-    <string name="logo">Logo</string>
-    <string name="category_item_icon">Category Item Icon</string>
-    <string name="no1_icon">NO1 Icon</string>
-    <string name="no2_3_icon">NO 2 or 3 Icon</string>
-    <string name="other_icon">Other Icon</string>
-    <string name="back_icon">Back Icon</string>
-    <string name="book_icon">Book Icon</string>
-    <string name="divider_line">Divider line</string>
-    <string name="book_content">Book Content</string>
-    <string name="show_comment">Show/Hide Comment</string>
-    <string name="share_content_des">Share</string>
+    <string name="content_des_place_holder">Place holder</string>
 </resources>

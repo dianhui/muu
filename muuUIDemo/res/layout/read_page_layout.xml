@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
-        android:contentDescription="@string/book_content"
+        android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/content_img" />
     
     <RelativeLayout
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:background="@drawable/back_icon"
-                android:contentDescription="@string/back_icon" />
+                android:contentDescription="@string/content_des_place_holder" />
             
         </RelativeLayout>
         
@@ -56,7 +56,7 @@
             android:layout_toLeftOf="@+id/imv_btn_share"
             android:layout_marginRight="20dp"
             android:background="@drawable/ic_recomment_normal"
-            android:contentDescription="@string/share_content_des" />
+            android:contentDescription="@string/content_des_place_holder" />
         
         <ImageButton
             android:id="@+id/imv_btn_share"
@@ -66,7 +66,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
             android:background="@drawable/share_btn"
-            android:contentDescription="@string/share_content_des" />
+            android:contentDescription="@string/content_des_place_holder" />
         
     </RelativeLayout>
     

@@ -8,7 +8,7 @@
         android:id="@+id/imv_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/logo"
+        android:contentDescription="@string/content_des_place_holder"
         android:minHeight="70dp"
         android:src="@drawable/ic_logo" />
 
