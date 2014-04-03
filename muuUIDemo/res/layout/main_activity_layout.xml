@@ -15,6 +15,15 @@
         android:layout_below="@id/action_bar_layout"
         android:src="@color/light_gray" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+         />
+    
     <ScrollView
         android:id="@+id/sv_middle_content"
         android:layout_width="match_parent"

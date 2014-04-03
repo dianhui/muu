@@ -65,7 +65,7 @@
         android:clickable="true"
         android:layout_centerInParent="true" >
         <TextView 
-            android:id="@+id/tv_weekly_top"
+            android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/WeekTopAppearence"
