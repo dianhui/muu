@@ -1,6 +1,7 @@
 package com.muu.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.uidemo.R;
@@ -8,7 +9,9 @@ import com.muu.uidemo.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,15 +22,24 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DetailsPageActivity extends Activity {
+	private static final String TAG = "DetailsPageActivity";
 	private SlidingMenu mChaptersSlideView = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.details_page_layout);
-		
+
+		setupActionBar();
+		setupSlidingView();
+		setupContentViews();
+		setupCommentsView();
+	}
+	
+	private void setupActionBar() {
 		ImageButton settingsImage = (ImageButton)this.findViewById(R.id.imbtn_slide_category);
 		settingsImage.setVisibility(View.INVISIBLE);
 		
@@ -51,22 +63,6 @@ public class DetailsPageActivity extends Activity {
 		ImageButton btnRecent = (ImageButton)this.findViewById(R.id.imbtn_recent_history);
 		btnRecent.setVisibility(View.INVISIBLE);
 		
-		Button btnRead = (Button)this.findViewById(R.id.btn_read);
-		btnRead.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent();
-				intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
-				DetailsPageActivity.this.startActivity(intent);
-			}
-		});
-		
-		setupActionBar();
-		setupSlidingView();
-		setupCommentsView();
-	}
-	
-	private void setupActionBar() {
 		ImageButton searchBtn = (ImageButton)this.findViewById(R.id.imbtn_search);
 		searchBtn.setVisibility(View.INVISIBLE);
 		
@@ -102,6 +98,41 @@ public class DetailsPageActivity extends Activity {
 		
 		listView.setAdapter(new TextListAdapter(getApplicationContext(),
 		        chapterList, R.layout.chapter_list_item, R.id.tv_chapter_text));
+	}
+	
+	private void setupContentViews() {
+		Button btnRead = (Button)this.findViewById(R.id.btn_read);
+		btnRead.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
+				DetailsPageActivity.this.startActivity(intent);
+			}
+		});
+		
+		ImageButton shareBtn = (ImageButton)this.findViewById(R.id.imv_btn_share);
+		shareBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+	            intent.setAction(Intent.ACTION_SEND);
+	            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_sub));
+				intent.putExtra(
+						Intent.EXTRA_TEXT,
+						getString(R.string.share_text));
+	            intent.setType("text/plain");
+	            List<ResolveInfo> list = DetailsPageActivity.this.getPackageManager().queryIntentActivities(
+	                    intent, intent.getFlags());
+	            if(list == null || list.size() == 0) {
+	                Log.i(TAG, "No app handling share intent is found.");
+	                Toast.makeText(DetailsPageActivity.this,
+	                        getString(R.string.no_app_share),
+	                        Toast.LENGTH_SHORT).show();
+	            }
+	            startActivity(intent);
+			}
+		});
 	}
 	
 	private void setupCommentsView() {
