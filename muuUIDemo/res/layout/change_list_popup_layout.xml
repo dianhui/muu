@@ -4,11 +4,12 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:orientation="vertical"
+    android:minWidth="173dp"
     android:minHeight="96dp" >
 
     <LinearLayout
         android:id="@+id/ll_week_top"
-        android:layout_width="150dp"
+        android:layout_width="173dp"
         android:layout_height="47dp"
         android:gravity="center"
         android:clickable="true"
@@ -26,7 +27,7 @@
     
     <ImageView
         android:id="@+id/imv_divider_1"
-        android:layout_width="150dp"
+        android:layout_width="173dp"
         android:layout_height="1dp"
         android:contentDescription="@string/content_des_place_holder"
         android:src="@color/white"
@@ -34,7 +35,7 @@
     
     <LinearLayout
         android:id="@+id/ll_new"
-        android:layout_width="150dp"
+        android:layout_width="173dp"
         android:layout_height="47dp"
         android:gravity="center"
         android:clickable="true"
@@ -51,7 +52,7 @@
     
     <ImageView 
         android:id="@+id/imv_divider_2"
-        android:layout_width="150dp"
+        android:layout_width="173dp"
         android:layout_height="1dp"
         android:src="@color/white"
         android:contentDescription="@string/content_des_place_holder"
@@ -59,7 +60,7 @@
     
     <LinearLayout
         android:id="@+id/ll_hot"
-        android:layout_width="150dp"
+        android:layout_width="173dp"
         android:layout_height="47dp"
         android:background="@color/gray"
         android:gravity="center"

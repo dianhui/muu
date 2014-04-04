@@ -31,8 +31,8 @@
     </style>
 
     <style name="WeekTopDropAppearence">
-        <item name="android:textSize">24sp</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/drop_list_item_txt_color</item>
     </style>
     
     <style name="SlidingCategoryAppearence">
