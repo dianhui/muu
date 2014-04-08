@@ -1,6 +1,7 @@
 package com.muu.ui;
 
 import com.muu.uidemo.R;
+import com.muu.util.PkgMrgUtil;
 import com.muu.widget.TouchImageView;
 import com.muu.widget.TouchImageView.OnGestureListener;
 
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -65,15 +67,57 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	}
 	
 	private void setupDropdownView() {
+		boolean isSinaWbInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.SINA_WEIBO_PKG);
+		boolean isQQWbInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.TENCENT_WEIBO_PKG);
+		boolean isQQInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.QQ_PKG);
+		boolean isWeichatInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.WEIXIN_PKG);
+
+		final ImageButton shareBtn = (ImageButton) this
+				.findViewById(R.id.imv_btn_share);
+		if (!isSinaWbInstalled && !isQQWbInstalled && !isQQInstalled
+				&& !isWeichatInstalled) {
+			shareBtn.setVisibility(View.GONE);
+			return;
+		}
+		
 		mShareDropView = LayoutInflater.from(this).inflate(
 				R.layout.share_drop_down_layout, null);
+		ImageView imv = (ImageView) mShareDropView
+				.findViewById(R.id.imv_sina_weibo);
+		if (isSinaWbInstalled) {
+			imv.setVisibility(View.VISIBLE);
+		} else {
+			imv.setVisibility(View.GONE);
+		}
+		
+		imv = (ImageView)mShareDropView.findViewById(R.id.imv_qq_weibo);
+		if (isQQWbInstalled) {
+			imv.setVisibility(View.VISIBLE);
+		} else {
+			imv.setVisibility(View.GONE);
+		}
+		
+		imv = (ImageView)mShareDropView.findViewById(R.id.imv_qq);
+		if (isQQInstalled) {
+			imv.setVisibility(View.VISIBLE);
+		} else {
+			imv.setVisibility(View.GONE);
+		}
+		
+		imv = (ImageView)mShareDropView.findViewById(R.id.imv_wechat);
+		if (isWeichatInstalled) {
+			imv.setVisibility(View.VISIBLE);
+		} else {
+			imv.setVisibility(View.GONE);
+		}
+		
 		mSharePopup = new PopupWindow(mShareDropView,
 		        LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
 		mSharePopup.setTouchable(true);
 		mSharePopup.setOutsideTouchable(true);
 		mSharePopup.setBackgroundDrawable(new ColorDrawable(0));
 		
-		final ImageButton shareBtn = (ImageButton)this.findViewById(R.id.imv_btn_share);
+		shareBtn.setVisibility(View.VISIBLE);
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

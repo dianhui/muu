@@ -3,11 +3,17 @@ package com.muu.ui;
 import java.util.ArrayList;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.muu.data.CartoonInfo;
+import com.muu.db.DatabaseMgr;
 import com.muu.uidemo.R;
+import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -210,27 +216,63 @@ public class MainActivity extends Activity {
 		});
 	}
 	
-	private void setupTop2Cartoons(ArrayList<Integer> list) {
-		//TODO: get data from db and update view
-		
+	private void setupFirstCartoon(int firstId) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
 		setClickEvent(layout);
 		
-		layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL.toString(), firstId));
+		Cursor cur = dbMgr.query(uri, null, null, null, null);
+		if (cur == null) return;
+		if (cur.getCount() < 1) return;
+		
+		CartoonInfo info = new CartoonInfo(cur);
+		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no1_icon);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(firstId);
+		imv.setImageBitmap(bmp);
+//		TempDataLoader.recycleBmp(bmp);
+		
+		TextView tv = (TextView)layout.findViewById(R.id.tv_no1_tag);
+		tv.setText(info.category);
+		
+		tv = (TextView)layout.findViewById(R.id.tv_no1_name);
+		tv.setText(info.name);
+	}
+	
+	private void setupSecondCartoon(int secondId) {
+		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
 		setClickEvent(layout);
+		
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Uri uri = Uri.parse(String.format("%s/%d",
+				DatabaseMgr.MUU_CARTOONS_ALL.toString(), secondId));
+		Cursor cur = dbMgr.query(uri, null, null, null, null);
+		if (cur == null) return;
+		if (cur.getCount() < 1) return;
+		
+		CartoonInfo info = new CartoonInfo(cur);
+		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no2_icon);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(secondId);
+		imv.setImageBitmap(bmp);
+//		TempDataLoader.recycleBmp(bmp);
+		
+		TextView tv = (TextView)layout.findViewById(R.id.tv_no2_tag);
+		tv.setText(info.category);
+		
+		tv = (TextView)layout.findViewById(R.id.tv_no2_name);
+		tv.setText(info.name);
 	}
 	
 	private void setupOtherCartoons(ArrayList<Integer> list) {
-		//TODO: get data from db and update view
-		
 		RelativeLayout othersLayout = (RelativeLayout) this
 				.findViewById(R.id.rl_others);
 
-		for (int i = 0; i < 18; i++) {
+		for (int i = 0; i < list.size(); i++) {
 			LayoutInflater inflater = LayoutInflater.from(this);
 			RelativeLayout layout = (RelativeLayout) inflater.inflate(
 					R.layout.book_item_layout, null);
 			layout.setId(9999 + i);
+			setupCartoonView(layout, list.get(i));
 			setClickEvent(layout);
 
 			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
@@ -251,6 +293,29 @@ public class MainActivity extends Activity {
 			layout.setLayoutParams(params);
 			othersLayout.addView(layout);
 		}
+	}
+	
+	private void setupCartoonView(RelativeLayout layout, Integer id) {
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Uri uri = Uri.parse(String.format("%s/%d",
+				DatabaseMgr.MUU_CARTOONS_ALL.toString(), id));
+		Cursor cur = dbMgr.query(uri, null, null, null, null);
+		if (cur == null)
+			return;
+		if (cur.getCount() < 1)
+			return;
+		
+		CartoonInfo info = new CartoonInfo(cur);
+		ImageView imv = (ImageView)layout.findViewById(R.id.imv_icon);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(id);
+		imv.setImageBitmap(bmp);
+//		TempDataLoader.recycleBmp(bmp);
+		
+		TextView tv = (TextView)layout.findViewById(R.id.tv_tag);
+		tv.setText(info.category);
+		
+		tv = (TextView)layout.findViewById(R.id.tv_name);
+		tv.setText(info.name);
 	}
 	
 	private void setClickEvent(RelativeLayout layout) {
@@ -297,13 +362,34 @@ public class MainActivity extends Activity {
 			mProgress.setVisibility(View.GONE);
 			mCartoonsContainer.setVisibility(View.VISIBLE);
 			
-			setupTop2Cartoons(result);
+			setupFirstCartoon(result.remove(0));
+			setupSecondCartoon(result.remove(0));
 			setupOtherCartoons(result);
 		}
 	}
 	
 	private ArrayList<Integer> retrieveCartoonList(Integer type) {
-		//TODO: retrieve cartoon list by type.
-		return null;
+		ArrayList<Integer> list = null;
+		TempDataLoader dataLoader = new TempDataLoader();
+		
+		switch (type) {
+		case sTypeWeekTop:
+			list = dataLoader.getCartoonIds(TempDataLoader.WEEK_TOP20);
+			break;
+		case sTypeNew:
+			list = dataLoader.getCartoonIds(TempDataLoader.NEW_TOP20);
+			break;
+		case sTypeHot:
+			list = dataLoader.getCartoonIds(TempDataLoader.HOT_TOP20);
+			break;
+
+		default:
+			break;
+		}
+		
+		//TODO: retrieve cartoon list from server.
+		
+		
+		return list;
 	}
 }

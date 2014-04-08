@@ -145,7 +145,8 @@ public class DetailsPageActivity extends Activity {
         }
 		
 		listView.setAdapter(new TextListAdapter(getApplicationContext(),
-		        commentsList, R.layout.comment_list_item, R.id.tv_comment));
+				commentsList, R.layout.comment_list_item, R.id.tv_comment));
+		listView.setClickable(false);
 	}
 	
 	private class TextListAdapter extends BaseAdapter {
@@ -194,15 +195,14 @@ public class DetailsPageActivity extends Activity {
 			}
 
 			holder.text.setText(mTextsList.get(position));
-			convertView.setClickable(true);
-			convertView.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-//					Intent intent = new Intent(mCtx, BooksListActivity.class);
-//					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//					mCtx.startActivity(intent);
-				}
-			});
+//			convertView.setOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View view) {
+////					Intent intent = new Intent(mCtx, BooksListActivity.class);
+////					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+////					mCtx.startActivity(intent);
+//				}
+//			});
 
 			return convertView;
         }
