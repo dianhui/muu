@@ -60,6 +60,7 @@ public class MainActivity extends Activity {
 		mSlidingMenu.setMode(SlidingMenu.LEFT);
 		mSlidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		mSlidingMenu.setShadowWidthRes(R.dimen.shadow_width);
+		mSlidingMenu.setShadowDrawable(R.drawable.img_menu_shadow);
 		mSlidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		mSlidingMenu.setFadeDegree(0.35f);
 		mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
@@ -218,19 +219,22 @@ public class MainActivity extends Activity {
 	
 	private void setupFirstCartoon(int firstId) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
-		setClickEvent(layout);
+		setClickEvent(layout, firstId);
 		
 		DatabaseMgr dbMgr = new DatabaseMgr(this);
-		Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL.toString(), firstId));
+		Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), firstId));
 		Cursor cur = dbMgr.query(uri, null, null, null, null);
 		if (cur == null) return;
-		if (cur.getCount() < 1) return;
+		if (cur.getCount() < 1) {
+			cur.close();
+			return;
+		}
 		
 		CartoonInfo info = new CartoonInfo(cur);
+		dbMgr.closeDatabase();
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no1_icon);
 		Bitmap bmp = new TempDataLoader().getCartoonCover(firstId);
 		imv.setImageBitmap(bmp);
-//		TempDataLoader.recycleBmp(bmp);
 		
 		TextView tv = (TextView)layout.findViewById(R.id.tv_no1_tag);
 		tv.setText(info.category);
@@ -241,20 +245,23 @@ public class MainActivity extends Activity {
 	
 	private void setupSecondCartoon(int secondId) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
-		setClickEvent(layout);
+		setClickEvent(layout, secondId);
 		
 		DatabaseMgr dbMgr = new DatabaseMgr(this);
 		Uri uri = Uri.parse(String.format("%s/%d",
-				DatabaseMgr.MUU_CARTOONS_ALL.toString(), secondId));
+				DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), secondId));
 		Cursor cur = dbMgr.query(uri, null, null, null, null);
 		if (cur == null) return;
-		if (cur.getCount() < 1) return;
+		if (cur.getCount() < 1) {
+			cur.close();
+			return;
+		}
 		
 		CartoonInfo info = new CartoonInfo(cur);
+		dbMgr.closeDatabase();
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no2_icon);
 		Bitmap bmp = new TempDataLoader().getCartoonCover(secondId);
 		imv.setImageBitmap(bmp);
-//		TempDataLoader.recycleBmp(bmp);
 		
 		TextView tv = (TextView)layout.findViewById(R.id.tv_no2_tag);
 		tv.setText(info.category);
@@ -273,7 +280,7 @@ public class MainActivity extends Activity {
 					R.layout.book_item_layout, null);
 			layout.setId(9999 + i);
 			setupCartoonView(layout, list.get(i));
-			setClickEvent(layout);
+			setClickEvent(layout, list.get(i));
 
 			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
 					LayoutParams.WRAP_CONTENT);
@@ -298,18 +305,20 @@ public class MainActivity extends Activity {
 	private void setupCartoonView(RelativeLayout layout, Integer id) {
 		DatabaseMgr dbMgr = new DatabaseMgr(this);
 		Uri uri = Uri.parse(String.format("%s/%d",
-				DatabaseMgr.MUU_CARTOONS_ALL.toString(), id));
+				DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), id));
 		Cursor cur = dbMgr.query(uri, null, null, null, null);
 		if (cur == null)
 			return;
-		if (cur.getCount() < 1)
+		if (cur.getCount() < 1) {
+			cur.close();
 			return;
+		}
 		
 		CartoonInfo info = new CartoonInfo(cur);
+		dbMgr.closeDatabase();
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_icon);
 		Bitmap bmp = new TempDataLoader().getCartoonCover(id);
 		imv.setImageBitmap(bmp);
-//		TempDataLoader.recycleBmp(bmp);
 		
 		TextView tv = (TextView)layout.findViewById(R.id.tv_tag);
 		tv.setText(info.category);
@@ -318,7 +327,7 @@ public class MainActivity extends Activity {
 		tv.setText(info.name);
 	}
 	
-	private void setClickEvent(RelativeLayout layout) {
+	private void setClickEvent(RelativeLayout layout, final int id) {
 		layout.setClickable(true);
 		layout.setOnClickListener(new OnClickListener() {
 			
@@ -326,6 +335,7 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent();
 				intent.setClass(MainActivity.this, DetailsPageActivity.class);
+				intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, id);
 				MainActivity.this.startActivity(intent);
 			}
 		});
@@ -346,11 +356,6 @@ public class MainActivity extends Activity {
 		
 		@Override
 		protected ArrayList<Integer> doInBackground(Integer... params) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-			
 			//TODO: retrieve data from server.
 			
 			mListType = params[0];
@@ -386,10 +391,7 @@ public class MainActivity extends Activity {
 		default:
 			break;
 		}
-		
 		//TODO: retrieve cartoon list from server.
-		
-		
 		return list;
 	}
 }

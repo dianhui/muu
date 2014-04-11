@@ -15,10 +15,11 @@ public class CartoonInfo {
 	public String date;
 	public String abst;
 	public String category;
+	public int isComplete;
 	
 	public String toString() {
 		return id + "|" + name + "|" + author + "|" + date + "|" + abst + "|"
-				+ category;
+				+ category + "|" + isComplete;
 	}
 
 	public CartoonInfo() {
@@ -42,6 +43,7 @@ public class CartoonInfo {
 		date = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.UPDATE_DATE));
 		abst = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.ABSTRACT));
 		category = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.CATEGORY));
+		isComplete = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.IS_COMPLETE));
 		
 		cur.close();
 	}
@@ -54,6 +56,7 @@ public class CartoonInfo {
 		values.put(CARTOONS_COLUMN.UPDATE_DATE, date);
 		values.put(CARTOONS_COLUMN.ABSTRACT, abst);
 		values.put(CARTOONS_COLUMN.CATEGORY, category);
+		values.put(CARTOONS_COLUMN.IS_COMPLETE, isComplete);
 		
 		return values;
 	}

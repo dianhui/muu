@@ -30,12 +30,12 @@
 
         <ImageView
             android:id="@+id/imv_cartoon_cover"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="220dp"
+            android:layout_height="300dp"
             android:layout_below="@id/tv_read_finish"
             android:layout_centerVertical="true"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/no1_icon"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:clickable="true"
             android:contentDescription="@string/content_des_place_holder" />
     </RelativeLayout>

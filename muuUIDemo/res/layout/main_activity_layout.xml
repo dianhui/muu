@@ -58,10 +58,11 @@
                     <TextView
                         android:id="@+id/tv_no1_tag"
                         style="@style/BookTagAppearence"
-                        android:layout_width="wrap_content"
+                        android:layout_width="60dp"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/tag_background"
-                        android:gravity="center"
+                        android:background="@color/cartoon_name_bg"
+                        android:gravity="left"
+                        android:paddingLeft="18dp"
                         android:text="@string/humer" />
 
                     <ImageView
@@ -108,10 +109,11 @@
                     <TextView
                         android:id="@+id/tv_no2_tag"
                         style="@style/BookTagAppearence"
-                        android:layout_width="wrap_content"
+                        android:layout_width="60dp"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/tag_background"
-                        android:gravity="center"
+                        android:background="@color/cartoon_name_bg"
+                        android:gravity="left"
+                        android:paddingLeft="18dp"
                         android:text="@string/humer" />
 
                     <ImageView

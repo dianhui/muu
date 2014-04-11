@@ -4,12 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.muu.data.CartoonInfo;
+import com.muu.db.DatabaseMgr;
 import com.muu.uidemo.R;
+import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,24 +26,32 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class DetailsPageActivity extends Activity {
+	public static final String sCartoonIdExtraKey = "cartoon_id";
+	
 	private static final String TAG = "DetailsPageActivity";
 	private SlidingMenu mChaptersSlideView = null;
-
+	private TextView mActionBarTitle = null;
+	private int mCartoonId = -1;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.details_page_layout);
+		mCartoonId = getIntent().getIntExtra(sCartoonIdExtraKey, -1);
+		new CaculateCartoonSizeTask().execute(mCartoonId);
 
 		setupActionBar();
-		setupSlidingView();
 		setupContentViews();
 		setupCommentsView();
+		
+		new RetrieveChaptersTask().execute(mCartoonId);
 	}
 	
 	private void setupActionBar() {
@@ -57,8 +72,8 @@ public class DetailsPageActivity extends Activity {
 		RelativeLayout topLayout = (RelativeLayout)this.findViewById(R.id.rl_top_btn);
 		topLayout.setVisibility(View.INVISIBLE);
 		
-		TextView tvTopTitle = (TextView)this.findViewById(R.id.tv_action_title);
-		tvTopTitle.setVisibility(View.VISIBLE);
+		mActionBarTitle = (TextView)this.findViewById(R.id.tv_action_title);
+		mActionBarTitle.setVisibility(View.VISIBLE);
 		
 		ImageButton btnRecent = (ImageButton)this.findViewById(R.id.imbtn_recent_history);
 		btnRecent.setVisibility(View.INVISIBLE);
@@ -77,11 +92,12 @@ public class DetailsPageActivity extends Activity {
 		});
 	}
 	
-	private void setupSlidingView() {
+	private void setupSlidingView(ArrayList<String> chapters) {
 		mChaptersSlideView = new SlidingMenu(this);
 		mChaptersSlideView.setMode(SlidingMenu.RIGHT);
 		mChaptersSlideView.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		mChaptersSlideView.setShadowWidthRes(R.dimen.shadow_width);
+		mChaptersSlideView.setShadowDrawable(R.drawable.img_menu_shadow);
 		mChaptersSlideView.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		mChaptersSlideView.setFadeDegree(0.35f);
 		mChaptersSlideView.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
@@ -89,15 +105,10 @@ public class DetailsPageActivity extends Activity {
 
 		ListView listView = (ListView) mChaptersSlideView
 		        .findViewById(R.id.lv_chapters);
-		listView.setDividerHeight(1);
+		listView.setDividerHeight(0);
 		
-		ArrayList<String> chapterList = new ArrayList<String>();
-		for (int i = 0; i < 20; i++) {
-			chapterList.add((i+1)+".xxxxxx"); 
-        }
-		
-		listView.setAdapter(new TextListAdapter(getApplicationContext(),
-		        chapterList, R.layout.chapter_list_item, R.id.tv_chapter_text));
+		listView.setAdapter(new ChapterListAdapter(getApplicationContext(),
+				chapters));
 	}
 	
 	private void setupContentViews() {
@@ -107,6 +118,9 @@ public class DetailsPageActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent();
 				intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
+				intent.putExtra(sCartoonIdExtraKey, mCartoonId);
+				intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, 1);
+				intent.putExtra(ReadPageActivity.sPageIdxExtraKey, 1);
 				DetailsPageActivity.this.startActivity(intent);
 			}
 		});
@@ -133,33 +147,65 @@ public class DetailsPageActivity extends Activity {
 	            startActivity(intent);
 			}
 		});
+		
+		if (mCartoonId < 0) return;
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), mCartoonId));
+		Cursor cur = dbMgr.query(uri, null, null, null, null);
+		if (cur == null) return;
+		if (cur.getCount() < 1) {
+			cur.close();
+			return;
+		}
+		
+		CartoonInfo info = new CartoonInfo(cur);
+		dbMgr.closeDatabase();
+		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
+		imv.setImageBitmap(bmp);
+		
+		TextView tv = (TextView)this.findViewById(R.id.tv_category);
+		tv.setText(getString(R.string.category, info.category));
+		
+		tv = (TextView)this.findViewById(R.id.tv_author);
+		tv.setText(getString(R.string.author, info.author));
+		
+		tv = (TextView)this.findViewById(R.id.tv_update_time);
+		tv.setText(getString(R.string.update_time, info.date));
+		
+//		tv = (TextView)this.findViewById(R.id.tv_size);
+		
+		tv = (TextView)this.findViewById(R.id.tv_introduction);
+		tv.setText(info.abst);
+		
+		mActionBarTitle.setText(info.name);
 	}
 	
 	private void setupCommentsView() {
-		ListView listView = (ListView)this.findViewById(R.id.lv_new_comments);
-		listView.setDividerHeight(0);
+		ArrayList<String> list = new TempDataLoader().getRandomComments(5);
+		TextView tv = (TextView)this.findViewById(R.id.tv_comment_1);
+		tv.setText(list.get(0));
 		
-		ArrayList<String> commentsList = new ArrayList<String>();
-		for (int i = 0; i < 5; i++) {
-			commentsList.add("new comments ...");
-        }
+		tv = (TextView)this.findViewById(R.id.tv_comment_2);
+		tv.setText(list.get(1));
 		
-		listView.setAdapter(new TextListAdapter(getApplicationContext(),
-				commentsList, R.layout.comment_list_item, R.id.tv_comment));
-		listView.setClickable(false);
+		tv = (TextView)this.findViewById(R.id.tv_comment_3);
+		tv.setText(list.get(2));
+		
+		tv = (TextView)this.findViewById(R.id.tv_comment_4);
+		tv.setText(list.get(3));
+		
+		tv = (TextView)this.findViewById(R.id.tv_comment_5);
+		tv.setText(list.get(4));
 	}
 	
-	private class TextListAdapter extends BaseAdapter {
+	private class ChapterListAdapter extends BaseAdapter {
 		private Context mCtx;
-		private int mViewResId;
-		private int mItemResId;
 		private LayoutInflater mInflater;
 		private ArrayList<String> mTextsList;
 		
-		public TextListAdapter(Context ctx, ArrayList<String> texts, int layoutResId, int viewResId) {
+		public ChapterListAdapter(Context ctx, ArrayList<String> texts) {
 			mCtx = ctx;
-			mViewResId = viewResId;
-			mItemResId = layoutResId;
 			mInflater = LayoutInflater.from(ctx);
 			mTextsList = texts;
 		}
@@ -180,14 +226,15 @@ public class DetailsPageActivity extends Activity {
         }
 
 		@Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
 
 			if (convertView == null) {
-				convertView = mInflater.inflate(mItemResId, null);
+				convertView = mInflater.inflate(R.layout.chapter_list_item,
+						null);
 				holder = new ViewHolder();
 				holder.text = (TextView) convertView
-				        .findViewById(mViewResId);
+						.findViewById(R.id.tv_chapter_text);
 
 				convertView.setTag(holder);
 			} else {
@@ -195,20 +242,56 @@ public class DetailsPageActivity extends Activity {
 			}
 
 			holder.text.setText(mTextsList.get(position));
-//			convertView.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View view) {
-////					Intent intent = new Intent(mCtx, BooksListActivity.class);
-////					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-////					mCtx.startActivity(intent);
-//				}
-//			});
+			convertView.setClickable(false);
+			convertView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Intent intent = new Intent(mCtx, ReadPageActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra(sCartoonIdExtraKey, mCartoonId);
+					intent.putExtra(ReadPageActivity.sChapterIdxExtraKey,
+							position + 1);
+					intent.putExtra(ReadPageActivity.sPageIdxExtraKey, 1);
+					mCtx.startActivity(intent);
+				}
+			});
 
 			return convertView;
         }
 		
 		private class ViewHolder {
 			TextView text;
+		}
+	}
+	
+	private class RetrieveChaptersTask extends
+			AsyncTask<Integer, Integer, ArrayList<String>> {
+		@Override
+		protected ArrayList<String> doInBackground(Integer... params) {
+			int cartoonId = params[0];
+			TempDataLoader dataLoader = new TempDataLoader();
+			return dataLoader.getChapters(cartoonId);
+		}
+		
+		@Override
+		protected void onPostExecute(ArrayList<String> result) {
+			setupSlidingView(result);
+		}
+	}
+	
+	private class CaculateCartoonSizeTask extends AsyncTask<Integer, Integer, Float> {
+		
+		@Override
+		protected Float doInBackground(Integer... params) {
+			int cartoonId = params[0];
+			return new TempDataLoader().getCartoonSize(cartoonId);
+		}
+		
+		@Override
+		protected void onPostExecute(Float result) {
+			TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_size);
+			tv.setVisibility(View.VISIBLE);
+			tv.setText(getString(R.string.size, result));
 		}
 	}
 }

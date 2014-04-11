@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
+        android:scaleType="centerInside"
         android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/content_img" />
     
@@ -84,9 +85,10 @@
             android:id="@+id/tv_chapter_num"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:singleLine="true"
             android:layout_marginLeft="10dp"
             style="@style/BottomChapterTextAppearence"
-            android:text="@string/chapter"
+            android:text="@string/chapter_idx_dot"
             />
         <TextView 
             android:id="@+id/tv_chapter_name"
@@ -96,6 +98,7 @@
             android:singleLine="true"
             android:maxWidth="240dp"
             android:ellipsize="end"
+            android:visibility="gone"
             android:layout_toRightOf="@id/tv_chapter_num"
             style="@style/BottomChapterTextAppearence"
             android:text="@string/chapter_name"
@@ -105,6 +108,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginLeft="5dp"
+            android:singleLine="true"
+            android:visibility="gone"
             android:layout_toRightOf="@id/tv_chapter_name"
             style="@style/BottomChapterTextAppearence"
             android:text="@string/page"
@@ -118,7 +123,6 @@
         android:layout_height="wrap_content"
         android:minWidth="120dp"
         android:minHeight="31dp"
-        android:layout_marginLeft="8dp"
         android:layout_alignParentBottom="true"
         android:background="@color/transparent_black"
         android:gravity="center_vertical" >
@@ -129,7 +133,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="@string/chapter" />
+            android:text="@string/chapter_idx_comma" />
 
         <TextView
             android:id="@+id/tv_page_idx"
@@ -137,6 +141,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
+            android:visibility="gone"
             android:layout_toRightOf="@id/tv_chapter"
             android:text="@string/page" />
     </RelativeLayout>

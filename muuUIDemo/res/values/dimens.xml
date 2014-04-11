@@ -1,5 +1,5 @@
 <resources>
     <!-- Sliding Menu -->
     <dimen name="slidingmenu_offset">125dp</dimen>
-    <dimen name="shadow_width">15dp</dimen>
+    <dimen name="shadow_width">10dp</dimen>
 </resources>

@@ -62,12 +62,16 @@ public class CategoryListAdapter extends BaseAdapter {
 		convertView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent intent = new Intent(mCtx, BooksListActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				intent.putExtra(BooksListActivity.sListTypeKey,
-						BooksListActivity.sListCategory);
-				intent.putExtra(BooksListActivity.sCategoryIdx, position);
-				mCtx.startActivity(intent);
+				if (position == 0) {
+					mSlidingMenu.toggle();
+				} else {
+					Intent intent = new Intent(mCtx, BooksListActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra(BooksListActivity.sListTypeKey,
+							BooksListActivity.sListCategory);
+					intent.putExtra(BooksListActivity.sCategoryIdx, position);
+					mCtx.startActivity(intent);
+				}
 				
 //				new Handler().postDelayed(new Runnable() {
 //					@Override

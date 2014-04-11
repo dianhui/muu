@@ -1,16 +1,22 @@
 package com.muu.ui;
 
 import com.muu.uidemo.R;
+import com.muu.util.TempDataLoader;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
 public class ReadFinishDialog extends android.app.Dialog {
 
-	public ReadFinishDialog(Context context, int theme) {
+	private int mCartoonId;
+	
+	public ReadFinishDialog(Context context, int theme, int cartoonId) {
 		super(context, theme);
+		
+		mCartoonId = cartoonId;
 	}
 
 	@Override
@@ -19,6 +25,12 @@ public class ReadFinishDialog extends android.app.Dialog {
 
 		this.setContentView(R.layout.read_finish_layout);
 
+		Bitmap bmp = new TempDataLoader().getCartoonCover(mCartoonId);
+		if (bmp != null) {
+			ImageView img = (ImageView)this.findViewById(R.id.imv_cartoon_cover);
+			img.setImageBitmap(bmp);
+		}
+		
 		ImageView closeBtn = (ImageView) this.findViewById(R.id.imv_close);
 		closeBtn.setOnClickListener(new View.OnClickListener() {
 			@Override

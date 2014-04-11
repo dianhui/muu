@@ -17,32 +17,23 @@
     <TextView
         android:id="@+id/tv_tag"
         style="@style/BookTagAppearence"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/tag_background"
+        android:layout_width="60dp"
+        android:layout_height="21dp"
+        android:background="@color/cartoon_name_bg"
         android:gravity="center"
         android:text="@string/humer" />
-    
-    <ImageView
-        android:id="@+id/imv_name_bg"
-        android:layout_width="105dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/imv_icon"
-        android:layout_marginBottom="-12dp"
-        android:contentDescription="@string/content_des_place_holder"
-        android:src="@drawable/book_name_bg" />
 
     <TextView
         android:id="@+id/tv_name"
         style="@style/BookNameAppearence"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="105dp"
+        android:layout_height="21dp"
         android:layout_alignBottom="@id/imv_icon"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp"
         android:ellipsize="end"
         android:singleLine="true"
-        android:maxWidth="105dp"
+        android:gravity="center"
+        android:background="@color/cartoon_name_bg"
         android:text="@string/book_name" />
 
 </RelativeLayout>

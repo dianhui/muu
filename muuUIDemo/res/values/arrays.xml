@@ -2,16 +2,17 @@
 <resources>
 
 	<string-array name="category_text_array">
+		<item>首页</item>
 		<item>搞笑</item>
+		<item>恋爱</item>
+		<item>生活</item>
 		<item>热血</item>
 		<item>奇幻</item>
-		<item>生活</item>
-		<item>恋爱</item>
 		<item>科幻</item>
 		<item>推理</item>
         <item>恐怖</item>
         <item>体育</item>
-		<item>审美</item>
+		<item>耽美</item>
 		<item>历史</item>
 		<item>其他</item>
         <item>同人</item>

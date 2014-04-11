@@ -12,6 +12,8 @@ public class ApplicationLauncher extends Application {
 	public void onCreate() {
 		super.onCreate();
 
+		new TempDataLoader().loadFakeComments();
+		
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -25,7 +27,6 @@ public class ApplicationLauncher extends Application {
 						true);
 				TempDataLoader dataLoader = new TempDataLoader();
 				dataLoader.loadTempData(getApplicationContext());
-				
 			}
 		});
 		thread.start();

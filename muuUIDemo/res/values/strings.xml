@@ -14,23 +14,25 @@
     <string name="shake_change">摇一摇 换几个</string>
     <string name="book_name">漫画名称</string>
     <string name="drag_for_more">向上拖动加载更多</string>
-    <string name="author">作者:</string>
-    <string name="category">题材:</string>
-    <string name="size">大小:</string>
-    <string name="update_time">更新:</string>
+    <string name="author">作者: %s</string>
+    <string name="category">题材: %s</string>
+    <string name="size">大小: %.2f MB</string>
+    <string name="update_time">更新: %s</string>
     <string name="new_comment">最新吐槽</string>
     <string name="read">开始阅读</string>
     <string name="continue_read">继续阅读</string>
     <string name="chapter_contents">章节目录</string>
+    <string name="it_is_start">到头了</string>
     <string name="read_finish">这部看完啦~</string>
 	<string name="share_sub">慢悠悠漫画，看你想看的</string>
 	<string name="share_text">我正在看%1$s,推荐给你%2$s</string>
 	<string name="no_app_share">没有安装可用来分享的程序</string>
     
-    <string name="introduction">Amy和Sheldon重新研究了他们的「关系协议」，对能做的和不能做的事情做了研究了他们的关系协议关系协议关系协议关系协……</string>
-    <string name="chapter">114,</string>
-    <string name="page">1/2</string>
-    <string name="chapter_name">章节名称章节名称章节名称章节名称章节名称</string>
+    <string name="introduction">Cartoon description.</string>
+    <string name="chapter_idx_comma">%d,</string>
+    <string name="chapter_idx_dot">%d.</string>
+    <string name="page">%1$d/%2$d</string>
+    <string name="chapter_name">Chapter name</string>
 
     <!-- content description strings -->
     <string name="content_des_place_holder">Place holder</string>

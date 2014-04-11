@@ -1,10 +1,17 @@
 package com.muu.ui;
 
+import java.util.ArrayList;
+
+import com.muu.data.CartoonInfo;
+import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.uidemo.R;
+import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,9 +59,10 @@ public class BooksListActivity extends Activity {
 		setContentView(R.layout.book_list_layout);
 		
 		setupActionBar();
+		updateViewsOnListType(getIntent().getIntExtra(sListTypeKey, 0));
 		setupViews();
 		getListData();
-		setupBooksList();
+//		setupBooksList();
 	}
 	
 	@Override
@@ -107,15 +116,17 @@ public class BooksListActivity extends Activity {
 				BooksListActivity.this.startActivity(intent);
 			}
 		});
-
+	}
+	
+	private void updateViewsOnListType(int listType) {
 		TextView backText = (TextView)this.findViewById(R.id.tv_back_text);
 		Intent intent = getIntent();
-		int listType = intent.getIntExtra(sListTypeKey, 0);
 		if (listType == sListCategory) {
 			int categoryIdx = intent.getIntExtra(sCategoryIdx, 0);
 			String categoryName = this.getResources().getStringArray(
 			        R.array.category_text_array)[categoryIdx];
 			backText.setText(categoryName);
+			setupBooksList(getCategoryCartoons(categoryName));
 			return;
 		}
 		
@@ -130,6 +141,8 @@ public class BooksListActivity extends Activity {
 			title.setVisibility(View.VISIBLE);
 			title.setText(R.string.search);
 			
+			ImageButton searchBtn = (ImageButton) this
+					.findViewById(R.id.imbtn_search);
 			searchBtn.setVisibility(View.INVISIBLE);
 		}
 	}
@@ -164,9 +177,9 @@ public class BooksListActivity extends Activity {
 		}
 	}
 	
-	private void setupBooksList() {
+	private void setupBooksList(ArrayList<CartoonInfo> list) {
 		ListView listView = (ListView)this.findViewById(R.id.lv_books_list);
-		BooksListAdapter listAdapter = new BooksListAdapter(this);
+		BooksListAdapter listAdapter = new BooksListAdapter(this, list);
 		listView.setAdapter(listAdapter);
 	}
 	
@@ -187,26 +200,27 @@ public class BooksListActivity extends Activity {
 	}
 	
 	private class BooksListAdapter extends BaseAdapter {
-
 		private Context mCtx;
 		private LayoutInflater mInflater;
+		ArrayList<CartoonInfo> mList;
 		
 		// TODO: need data.
 //		private 
 		
-		public BooksListAdapter(Context ctx) {
+		public BooksListAdapter(Context ctx, ArrayList<CartoonInfo> list) {
 			mCtx = ctx.getApplicationContext();
 			mInflater = LayoutInflater.from(ctx);
+			mList = list;
 		}
 		
 		@Override
         public int getCount() {
-	        return 20;
+	        return mList.size();
         }
 
 		@Override
         public Object getItem(int position) {
-	        return position;
+	        return mList.get(position);
         }
 
 		@Override
@@ -216,7 +230,7 @@ public class BooksListActivity extends Activity {
 
 		@Override
         public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
+			ViewHolder holder = null;
 
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.book_list_item, null);
@@ -227,15 +241,19 @@ public class BooksListActivity extends Activity {
 				        .findViewById(R.id.tv_name);
 				holder.author = (TextView) convertView
 				        .findViewById(R.id.tv_author);
-				holder.comment = (TextView) convertView
-				        .findViewById(R.id.tv_comment);
 
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-
-			//TODO:
+			
+			if (mList != null && mList.get(position) != null) {
+				holder.name.setText(mList.get(position).name);
+				holder.author.setText(getString(R.string.author,
+						mList.get(position).author));
+				holder.icon.setImageBitmap(new TempDataLoader()
+						.getCartoonCover(mList.get(position).id));
+			}
 			
 			convertView.setClickable(true);
 			convertView.setOnClickListener(new View.OnClickListener() {
@@ -247,7 +265,6 @@ public class BooksListActivity extends Activity {
 					mCtx.startActivity(intent);
 				}
 			});
-
 			return convertView;
         }
 		
@@ -255,7 +272,6 @@ public class BooksListActivity extends Activity {
 			ImageView icon;
 			TextView name;
 			TextView author;
-			TextView comment;
 		}
 	}
 	
@@ -316,5 +332,40 @@ public class BooksListActivity extends Activity {
 		 
 		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
+	}
+	
+	private ArrayList<CartoonInfo> getCategoryCartoons(String category) {
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Cursor cur = dbMgr.query(DatabaseMgr.MUU_CARTOONS_ALL_URL, null,
+				String.format("%s=\'%s\'", CARTOONS_COLUMN.CATEGORY, category),
+				null, null);
+		if (cur == null) {
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		ArrayList<CartoonInfo> list = new ArrayList<CartoonInfo>();
+		while (cur.moveToNext()) {
+			CartoonInfo info = new CartoonInfo();
+			info.id = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.ID));
+			info.name = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.NAME));
+			info.author = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.AUTHOR));
+			info.date = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.UPDATE_DATE));
+			info.abst = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.ABSTRACT));
+			info.category = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.CATEGORY));
+			info.isComplete = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.IS_COMPLETE));
+			
+			list.add(info);
+		}
+		cur.close();
+		dbMgr.closeDatabase();
+		
+		return list;
 	}
 }

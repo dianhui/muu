@@ -20,7 +20,7 @@
         android:id="@+id/rl_book_fields"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:paddingLeft="10dp"
         android:layout_below="@id/divider" >
 
         <ImageView
@@ -38,9 +38,10 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/content_des_place_holder"
             android:layout_alignBottom="@id/imv_icon"
-            android:layout_marginBottom="25dp"
-            android:src="@drawable/ic_status_continue"
-            android:layout_marginLeft="-2dp"
+            android:layout_marginBottom="2dp"
+            android:src="@drawable/ic_status_complete"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="-4dp"
             />
 
         <RelativeLayout
@@ -84,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_update_time"
                 android:layout_marginTop="10dp"
+                android:visibility="gone"
                 android:text="@string/size" />
 
         </RelativeLayout>
@@ -186,11 +188,68 @@
         android:layout_below="@id/tv_new_comments"
         android:src="@color/light_gray"
         android:contentDescription="@string/content_des_place_holder" />
-
-    <ListView
-        android:id="@+id/lv_new_comments"
+        
+	<ScrollView
+        android:id="@+id/scv_new_comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imv_bottom_divider" />
+        android:layout_below="@id/imv_bottom_divider" >
+
+        <RelativeLayout
+            android:id="@+id/rl_new_comments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+             >
+
+            <TextView
+                android:id="@+id/tv_comment_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailInfoTextAppearence"
+				android:gravity="center_vertical"                
+        		android:layout_marginLeft="10dp"
+        		android:minHeight="40dp" />
+
+            <TextView
+                android:id="@+id/tv_comment_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_comment_1"
+                style="@style/DetailInfoTextAppearence"
+                android:gravity="center_vertical"
+        		android:layout_marginLeft="10dp"
+        		android:minHeight="40dp" />
+
+            <TextView
+                android:id="@+id/tv_comment_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_comment_2"
+                style="@style/DetailInfoTextAppearence"
+                android:gravity="center_vertical"
+        		android:layout_marginLeft="10dp"
+        		android:minHeight="40dp" />
+
+            <TextView
+                android:id="@+id/tv_comment_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_comment_3"
+                style="@style/DetailInfoTextAppearence"
+                android:gravity="center_vertical"
+        		android:layout_marginLeft="10dp"
+        		android:minHeight="40dp" />
+
+            <TextView
+                android:id="@+id/tv_comment_5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_comment_4"
+                style="@style/DetailInfoTextAppearence"
+                android:gravity="center_vertical"
+        		android:layout_marginLeft="10dp"
+        		android:minHeight="40dp" />
+        </RelativeLayout>
+    </ScrollView>
 
 </RelativeLayout>
