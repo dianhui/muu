@@ -7,18 +7,20 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.uidemo.R;
+import com.muu.util.PkgMrgUtil;
 import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +37,6 @@ import android.widget.Toast;
 public class DetailsPageActivity extends Activity {
 	public static final String sCartoonIdExtraKey = "cartoon_id";
 	
-	private static final String TAG = "DetailsPageActivity";
 	private SlidingMenu mChaptersSlideView = null;
 	private TextView mActionBarTitle = null;
 	private int mCartoonId = -1;
@@ -87,7 +88,9 @@ public class DetailsPageActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				mChaptersSlideView.toggle();
+				if (mChaptersSlideView != null) {
+					mChaptersSlideView.toggle();
+				}
 			}
 		});
 	}
@@ -129,22 +132,7 @@ public class DetailsPageActivity extends Activity {
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent();
-	            intent.setAction(Intent.ACTION_SEND);
-	            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_sub));
-				intent.putExtra(
-						Intent.EXTRA_TEXT,
-						getString(R.string.share_text));
-	            intent.setType("text/plain");
-	            List<ResolveInfo> list = DetailsPageActivity.this.getPackageManager().queryIntentActivities(
-	                    intent, intent.getFlags());
-	            if(list == null || list.size() == 0) {
-	                Log.i(TAG, "No app handling share intent is found.");
-	                Toast.makeText(DetailsPageActivity.this,
-	                        getString(R.string.no_app_share),
-	                        Toast.LENGTH_SHORT).show();
-	            }
-	            startActivity(intent);
+				onShareClicked();
 			}
 		});
 		
@@ -153,12 +141,13 @@ public class DetailsPageActivity extends Activity {
 		Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), mCartoonId));
 		Cursor cur = dbMgr.query(uri, null, null, null, null);
 		if (cur == null) return;
-		if (cur.getCount() < 1) {
+		if (!cur.moveToFirst()) {
 			cur.close();
 			return;
 		}
 		
 		CartoonInfo info = new CartoonInfo(cur);
+		cur.close();
 		dbMgr.closeDatabase();
 		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
 		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
@@ -293,5 +282,40 @@ public class DetailsPageActivity extends Activity {
 			tv.setVisibility(View.VISIBLE);
 			tv.setText(getString(R.string.size, result));
 		}
+	}
+	
+	private void onShareClicked() {
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.setType("text/plain");
+		List<ResolveInfo> infoList = getPackageManager().queryIntentActivities(intent, 0);
+		if (infoList == null) {
+			return;
+		}
+		
+		List<Intent> targetedShareIntents = new ArrayList<Intent>();
+        for (ResolveInfo info : infoList) {
+            Intent targeted = new Intent(Intent.ACTION_SEND);
+            targeted.setType("text/plain");
+            ActivityInfo activityInfo = info.activityInfo;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+            // judgments : activityInfo.packageName, activityInfo.name, etc.
+            if (activityInfo.packageName.contains(PkgMrgUtil.QQ_PKG) || activityInfo.name.contains(PkgMrgUtil.QQ_PKG)
+            		|| activityInfo.packageName.contains(PkgMrgUtil.SINA_WEIBO_PKG) || activityInfo.name.contains(PkgMrgUtil.SINA_WEIBO_PKG)
+            		|| activityInfo.packageName.contains(PkgMrgUtil.TENCENT_WEIBO_PKG) || activityInfo.name.contains(PkgMrgUtil.TENCENT_WEIBO_PKG)
+            		|| activityInfo.packageName.contains(PkgMrgUtil.WEIXIN_PKG) || activityInfo.name.contains(PkgMrgUtil.WEIXIN_PKG)) {
+            	targeted.putExtra(Intent.EXTRA_TEXT, this.getString(R.string.share_text, mActionBarTitle.getText()));
+            	targeted.setPackage(activityInfo.packageName);
+                targetedShareIntents.add(targeted);
+            }
+        }
+        
+        Intent chooserIntent = Intent.createChooser(targetedShareIntents.remove(0), getString(R.string.share_to));
+        if (chooserIntent == null) return;
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toArray(new Parcelable[] {}));
+        try {
+            startActivity(chooserIntent);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this, "Can't find share component to share", Toast.LENGTH_SHORT).show();
+        }
 	}
 }

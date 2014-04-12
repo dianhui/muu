@@ -1,10 +1,12 @@
 package com.muu.ui;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
+import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
 
@@ -20,7 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +38,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
 public class BooksListActivity extends Activity {
@@ -61,8 +61,6 @@ public class BooksListActivity extends Activity {
 		setupActionBar();
 		updateViewsOnListType(getIntent().getIntExtra(sListTypeKey, 0));
 		setupViews();
-		getListData();
-//		setupBooksList();
 	}
 	
 	@Override
@@ -132,6 +130,7 @@ public class BooksListActivity extends Activity {
 		
 		if (listType == sListRecent) {
 			backText.setText(R.string.recent_read);
+			setupBooksList(getHistoryCartoons());
 			return;
 		}
 		
@@ -144,6 +143,8 @@ public class BooksListActivity extends Activity {
 			ImageButton searchBtn = (ImageButton) this
 					.findViewById(R.id.imbtn_search);
 			searchBtn.setVisibility(View.INVISIBLE);
+			
+			setupBooksList(getRandomCartoons(3));
 		}
 	}
 	
@@ -164,11 +165,6 @@ public class BooksListActivity extends Activity {
 			RelativeLayout searchHeader = (RelativeLayout) this
 					.findViewById(R.id.rl_search_header);
 			searchHeader.setVisibility(View.VISIBLE);
-
-			RelativeLayout shakeChange = (RelativeLayout) this
-					.findViewById(R.id.rl_shake_change);
-			shakeChange.setVisibility(View.VISIBLE);
-
 			dragMore.setVisibility(View.GONE);
 
 			mSensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -183,29 +179,10 @@ public class BooksListActivity extends Activity {
 		listView.setAdapter(listAdapter);
 	}
 	
-	private void getListData() {
-		Intent intent = getIntent();
-		int listType = intent.getIntExtra(sListTypeKey, 0);
-		if (listType == sListCategory) {
-			return;
-		}
-		
-		if (listType == sListRecent) {
-			return;
-		}
-		
-		if (listType == sListSearch) {
-			return;
-		}
-	}
-	
 	private class BooksListAdapter extends BaseAdapter {
 		private Context mCtx;
 		private LayoutInflater mInflater;
 		ArrayList<CartoonInfo> mList;
-		
-		// TODO: need data.
-//		private 
 		
 		public BooksListAdapter(Context ctx, ArrayList<CartoonInfo> list) {
 			mCtx = ctx.getApplicationContext();
@@ -229,7 +206,7 @@ public class BooksListActivity extends Activity {
         }
 
 		@Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
 			ViewHolder holder = null;
 
 			if (convertView == null) {
@@ -259,14 +236,53 @@ public class BooksListActivity extends Activity {
 			convertView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					Intent intent = new Intent();
-					intent.setClass(mCtx, DetailsPageActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					mCtx.startActivity(intent);
+					onItemClicked(position);
 				}
 			});
 			return convertView;
         }
+		
+		private void onItemClicked(int position) {
+			Intent intent = new Intent();
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			
+			DatabaseMgr dbMgr = new DatabaseMgr(BooksListActivity.this);
+			Cursor cur = getHistoryCursor(dbMgr, mList.get(position).id);
+			if (cur == null || !cur.moveToFirst()) {
+				intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, mList.get(position).id);
+				intent.setClass(mCtx, DetailsPageActivity.class);
+				mCtx.startActivity(intent);
+				
+				if (cur != null) cur.close();
+				dbMgr.closeDatabase();
+				return;
+			}
+			
+			int chapterIdx = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
+			int pageIdx = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
+			intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, mList.get(position).id);
+			intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
+			intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
+			intent.setClass(mCtx, ReadPageActivity.class);
+			mCtx.startActivity(intent);
+			if (cur != null) cur.close();
+			dbMgr.closeDatabase();
+		}
+		
+		private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
+			Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
+					String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
+			if (cur == null) {
+				return null;
+			}
+			
+			if (cur.getCount() < 1) {
+				cur.close();
+				return null;
+			}
+			
+			return cur;
+		}
 		
 		private class ViewHolder {
 			ImageView icon;
@@ -284,9 +300,9 @@ public class BooksListActivity extends Activity {
 				mVibrator.vibrate(300);
 				Animation shake = AnimationUtils.loadAnimation(
 						BooksListActivity.this, R.anim.shake);
-				findViewById(R.id.rl_shake_change).startAnimation(shake);
+				findViewById(R.id.imv_search_header).startAnimation(shake);
 
-				//TODO: change list.
+				setupBooksList(getRandomCartoons(3));
 				break;
 			}
 		}
@@ -328,8 +344,8 @@ public class BooksListActivity extends Activity {
 	}
 	
 	private void onSearchAction(TextView v) {
-		Toast.makeText(this, v.getText().toString(), Toast.LENGTH_LONG).show();
-		 
+		setupBooksList(getSearchedCartoons(v.getText().toString()));
+
 		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
 	}
@@ -352,14 +368,93 @@ public class BooksListActivity extends Activity {
 		
 		ArrayList<CartoonInfo> list = new ArrayList<CartoonInfo>();
 		while (cur.moveToNext()) {
+			list.add(new CartoonInfo(cur));
+		}
+		cur.close();
+		dbMgr.closeDatabase();
+		
+		return list;
+	}
+	
+	private ArrayList<CartoonInfo> getRandomCartoons(int count) {
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Cursor cur = dbMgr.query(DatabaseMgr.MUU_CARTOONS_ALL_URL, null, null,
+				null, null);
+		if (cur == null) {
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		ArrayList<CartoonInfo> list = new ArrayList<CartoonInfo>();
+		Random random = new Random(System.currentTimeMillis());
+		while (list.size() < count) {
+			int tmp = Math.abs(random.nextInt()) % cur.getCount();
+			if (!cur.moveToPosition(tmp - 1)) {
+				continue;
+			}
+			
+			CartoonInfo info = new CartoonInfo(cur);
+			if (!list.contains(info)) {
+				list.add(info);
+			}
+		}
+		
+		return list;
+	}
+	
+	private ArrayList<CartoonInfo> getSearchedCartoons(String searchStr) {
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Cursor cur = dbMgr.query(DatabaseMgr.MUU_CARTOONS_ALL_URL, null,
+				CARTOONS_COLUMN.NAME + " LIKE \"%" + searchStr + "%\"", null,
+				null);
+		if (cur == null) {
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		ArrayList<CartoonInfo> list = new ArrayList<CartoonInfo>();
+		while (cur.moveToNext()) {
+			list.add(new CartoonInfo(cur));
+		}
+		cur.close();
+		dbMgr.closeDatabase();
+		
+		return list;
+	}
+	
+	private ArrayList<CartoonInfo> getHistoryCartoons() {
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
+				null, null, null);
+		if (cur == null) {
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			dbMgr.closeDatabase();
+			return null;
+		}
+		
+		ArrayList<CartoonInfo> list = new ArrayList<CartoonInfo>();
+		while (cur.moveToNext()) {
 			CartoonInfo info = new CartoonInfo();
-			info.id = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.ID));
-			info.name = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.NAME));
-			info.author = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.AUTHOR));
-			info.date = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.UPDATE_DATE));
-			info.abst = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.ABSTRACT));
-			info.category = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.CATEGORY));
-			info.isComplete = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.IS_COMPLETE));
+			info.id = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CARTOON_ID));
+			info.name = cur.getString(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CARTOON_NAME));
+			info.author = cur.getString(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CARTOON_AUTHOR));
 			
 			list.add(info);
 		}

@@ -6,7 +6,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,6 +16,9 @@ public class DatabaseMgr {
 	private static final String DATA_BASE_NAME = "cartoon.db";
 	private static final String TABLE_CARTOONS = "cartoons";
 	private static final String TABLE_CHAPTERS = "chapters";
+	private static final String TABLE_RECENT_READ = "recent_read";
+	
+	private static final String VIEW_RECENT_HISTORY = "v_recent_history";
 	
 	private DatabaseHelper mDbHelper = null;
 	
@@ -38,10 +40,29 @@ public class DatabaseMgr {
 		public static final String PAGE_COUNT = "page_count";
 	}
 	
+	public interface RECENT_READ_COLUMN {
+		public static final String ID = "_id";
+		public static final String CARTOON_ID = "cartoon_id";
+		public static final String CHAPTER_IDX = "chapter_idx";
+		public static final String PAGE_IDX = "page_idx";
+	}
+	
+	public interface RECENT_HISTORY_COLUMN {
+		public static final String CARTOON_ID = "cartoon_id";
+		public static final String CARTOON_NAME = "cartoon_name";
+		public static final String CARTOON_AUTHOR = "cartoon_author";
+		public static final String CHAPTER_IDX = "chapter_idx";
+		public static final String PAGE_IDX = "page_idx";
+	}
+	
 	public static final Uri MUU_CARTOONS_ALL_URL = Uri.parse(String.format(
 			"content://%s", TABLE_CARTOONS));
 	public static final Uri CHAPTER_ALL_URL = Uri.parse(String.format(
 			"content://%s", TABLE_CHAPTERS));
+	public static final Uri RECENT_READ_ALL_URL = Uri.parse(String.format(
+			"content://%s", TABLE_RECENT_READ));
+	public static final Uri RECENT_HISTORY_ALL_URL = Uri.parse(String.format(
+			"content://%s", VIEW_RECENT_HISTORY));
 	
 	public DatabaseMgr(Context ctx) {
 		mDbHelper = new DatabaseHelper(ctx);
@@ -68,6 +89,9 @@ public class DatabaseMgr {
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
 			break;
+		case MUU_RECENT_READ_ALL:
+			table = TABLE_RECENT_READ;
+			break;
 		default:
 			table = TABLE_CARTOONS;
 			break;
@@ -93,24 +117,28 @@ public class DatabaseMgr {
 		Log.v(TAG, "Query uri=" + uri + ", match=" + match);
 		
 		String table = null;
-		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 		switch (match) {
 		case MUU_CARTOON_ALL:
 			table = TABLE_CARTOONS;
 			break;
 		case MUU_CARTOON_ID:
 			table = TABLE_CARTOONS;
-			queryBuilder.appendWhere(String.format("(%s = %s)",
+			selection = concatSelections(selection, String.format("(%s = %s)",
 					CARTOONS_COLUMN.ID, uri.getLastPathSegment()));
 			break;
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
 			break;
+		case MUU_RECENT_READ_ALL:
+			table = TABLE_RECENT_READ;
+			break;
+		case MUU_RECENT_HISTORY_ALL:
+			table = VIEW_RECENT_HISTORY;
+			break;
 		default:
 			break;
 		}
 		
-		queryBuilder.setTables(table);
 		SQLiteDatabase db = mDbHelper.getReadableDatabase();
 		return db.query(table, projection, selection, selectionArgs, null, null, sortOrder);
 	}
@@ -132,6 +160,9 @@ public class DatabaseMgr {
 			break;
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
+			break;
+		case MUU_RECENT_READ_ALL:
+			table = TABLE_RECENT_READ;
 			break;
 		default:
 			break;
@@ -167,6 +198,28 @@ public class DatabaseMgr {
 							CARTOONS_COLUMN.ID, CHAPTERS_COLUMN.INDEX,
 							CHAPTERS_COLUMN.CARTOON_ID);
 			db.execSQL(createChaptersTable);
+			
+			String createRecentReadTable = String
+					.format("create table if not exists %s (%s integer primary key, %s integer, %s integer, %s integer, foreign key(%s) references %s(%s), UNIQUE(%s));",
+							TABLE_RECENT_READ, RECENT_READ_COLUMN.ID,
+							RECENT_READ_COLUMN.CARTOON_ID,
+							RECENT_READ_COLUMN.CHAPTER_IDX,
+							RECENT_READ_COLUMN.PAGE_IDX,
+							RECENT_READ_COLUMN.CARTOON_ID, TABLE_CARTOONS,
+							CARTOONS_COLUMN.ID, RECENT_READ_COLUMN.CARTOON_ID);
+			db.execSQL(createRecentReadTable);
+			
+			String createRecentHistoryView = String
+					.format("create view if not exists %s as select %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s from %s, %s where %s.%s=%s.%s",
+							VIEW_RECENT_HISTORY,
+							TABLE_CARTOONS, CARTOONS_COLUMN.ID, RECENT_HISTORY_COLUMN.CARTOON_ID,
+							TABLE_CARTOONS, CARTOONS_COLUMN.NAME, RECENT_HISTORY_COLUMN.CARTOON_NAME,
+							TABLE_CARTOONS, CARTOONS_COLUMN.AUTHOR, RECENT_HISTORY_COLUMN.CARTOON_AUTHOR,
+							TABLE_RECENT_READ, RECENT_READ_COLUMN.CHAPTER_IDX, RECENT_HISTORY_COLUMN.CHAPTER_IDX,
+							TABLE_RECENT_READ, RECENT_READ_COLUMN.PAGE_IDX, RECENT_HISTORY_COLUMN.PAGE_IDX,
+							TABLE_RECENT_READ, TABLE_CARTOONS,
+							TABLE_RECENT_READ, RECENT_READ_COLUMN.CARTOON_ID, TABLE_CARTOONS, CARTOONS_COLUMN.ID);
+			db.execSQL(createRecentHistoryView);
 		}
 
 		@Override
@@ -182,6 +235,8 @@ public class DatabaseMgr {
 	private static final int MUU_CARTOON_ALL = 0;
 	private static final int MUU_CARTOON_ID = 1;
 	private static final int MUU_CHAPTER_ALL = 2;
+	private static final int MUU_RECENT_READ_ALL = 3;
+	private static final int MUU_RECENT_HISTORY_ALL = 4;
 	
 	private static final UriMatcher
 		sURLMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -189,6 +244,8 @@ public class DatabaseMgr {
 		sURLMatcher.addURI("cartoons", null, MUU_CARTOON_ALL);
 		sURLMatcher.addURI("cartoons", "#", MUU_CARTOON_ID);
 		sURLMatcher.addURI("chapters", null, MUU_CHAPTER_ALL);
+		sURLMatcher.addURI("recent_read", null, MUU_RECENT_READ_ALL);
+		sURLMatcher.addURI("v_recent_history", null, MUU_RECENT_HISTORY_ALL);
 	}
 	
 	private static String concatSelections(String selection1, String selection2) {

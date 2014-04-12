@@ -53,7 +53,7 @@
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/tv_search_header"
             android:contentDescription="@string/content_des_place_holder"
-            android:src="@drawable/ic_they_searching" />
+            android:src="@drawable/ic_shake" />
         
     </RelativeLayout>
 
@@ -68,35 +68,6 @@
         android:divider="@color/white"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
-    
-    <RelativeLayout
-        android:id="@+id/rl_shake_change"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/white"
-        android:visibility="gone"
-        android:minHeight="120dp" >
-
-        <ImageView
-            android:id="@+id/imv_shake"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:contentDescription="@string/content_des_place_holder"
-            android:src="@drawable/ic_shake" />
-
-        <TextView 
-            android:id="@+id/tv_shake_change"
-            android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:text="@string/shake_change"
-        	android:layout_below="@id/imv_shake"
-        	android:layout_centerHorizontal="true"
-            />
-        
-    </RelativeLayout>
     
     <TextView
         android:id="@+id/tv_load_more"

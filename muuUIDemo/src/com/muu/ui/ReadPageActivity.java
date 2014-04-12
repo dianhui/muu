@@ -2,17 +2,26 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
+import com.muu.data.CartoonInfo;
+import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.RECENT_READ_COLUMN;
 import com.muu.uidemo.R;
 import com.muu.util.PkgMrgUtil;
+import com.muu.util.ShareUtil;
 import com.muu.util.TempDataLoader;
 import com.muu.widget.TouchImageView;
 import com.muu.widget.TouchImageView.OnGestureListener;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,6 +50,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	private int mPageIdx = -1;
 	private int mPageCount = 0;
 	private ArrayList<String> mChaptersList = null;
+	private CartoonInfo mCartoonInfo = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +61,63 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		mChapterIdx = getIntent().getIntExtra(sChapterIdxExtraKey, 1);
 		mPageIdx = getIntent().getIntExtra(sPageIdxExtraKey, 1);
 		
+		retrieveCartoonInfo();
 		setupActionBar();
 		setupContentView();
 		setupBottomView();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 		
+		recordReadHistory();
+	}
+	
+	private void recordReadHistory() {
+		ContentValues values = new ContentValues();
+		values.put(RECENT_READ_COLUMN.CARTOON_ID, mCartoonId);
+		values.put(RECENT_READ_COLUMN.CHAPTER_IDX, mChapterIdx);
+		values.put(RECENT_READ_COLUMN.PAGE_IDX, mPageIdx);
+		
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Cursor cursor = dbMgr.query(DatabaseMgr.RECENT_READ_ALL_URL, null, RECENT_READ_COLUMN.CARTOON_ID+"="+mCartoonId, null, null);
+		if (cursor == null) {
+			dbMgr.insert(DatabaseMgr.RECENT_READ_ALL_URL, values);
+			return;
+		}
+		
+		if (cursor.moveToFirst()) {
+			dbMgr.update(DatabaseMgr.RECENT_READ_ALL_URL, values, RECENT_READ_COLUMN.CARTOON_ID+"="+mCartoonId, null);
+		} else {
+			dbMgr.insert(DatabaseMgr.RECENT_READ_ALL_URL, values);
+		}
+		
+		cursor.close();
+		dbMgr.closeDatabase();
 	}
 
+	private void retrieveCartoonInfo() {
+		if (mCartoonId == -1) {
+			Log.d("ReadPageActivity", "Input cartoon id is not available.");
+			return;
+		}
+		
+		DatabaseMgr dbMgr = new DatabaseMgr(this);
+		Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), mCartoonId));
+		Cursor cur = dbMgr.query(uri, null, null, null, null);
+		if (cur == null) return;
+		
+		if (!cur.moveToFirst()) {
+			cur.close();
+			return;
+		}
+		
+		mCartoonInfo = new CartoonInfo(cur);
+		cur.close();
+		dbMgr.closeDatabase();
+	}
+	
 	private void setupActionBar() {
 		mActionBarLayout = (RelativeLayout)this.findViewById(R.id.rl_action_bar);
 		RelativeLayout backBtn = (RelativeLayout)this.findViewById(R.id.rl_back);
@@ -66,6 +127,9 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 				ReadPageActivity.this.finish();
 			}
 		});
+		
+		TextView tv = (TextView)this.findViewById(R.id.tv_title);
+		tv.setText(mCartoonInfo.name);
 		
 		final ImageButton recommentBtn = (ImageButton)this.findViewById(R.id.imv_btn_recomment);
 		recommentBtn.setOnClickListener(new OnClickListener() {
@@ -102,6 +166,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 				R.layout.share_drop_down_layout, null);
 		ImageView imv = (ImageView) mShareDropView
 				.findViewById(R.id.imv_sina_weibo);
+		setupShareClicking(imv, PkgMrgUtil.SINA_WEIBO_PKG);
 		if (isSinaWbInstalled) {
 			imv.setVisibility(View.VISIBLE);
 		} else {
@@ -109,6 +174,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		}
 		
 		imv = (ImageView)mShareDropView.findViewById(R.id.imv_qq_weibo);
+		setupShareClicking(imv, PkgMrgUtil.TENCENT_WEIBO_PKG);
 		if (isQQWbInstalled) {
 			imv.setVisibility(View.VISIBLE);
 		} else {
@@ -116,6 +182,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		}
 		
 		imv = (ImageView)mShareDropView.findViewById(R.id.imv_qq);
+		setupShareClicking(imv, PkgMrgUtil.QQ_PKG);
 		if (isQQInstalled) {
 			imv.setVisibility(View.VISIBLE);
 		} else {
@@ -123,6 +190,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		}
 		
 		imv = (ImageView)mShareDropView.findViewById(R.id.imv_wechat);
+		setupShareClicking(imv, PkgMrgUtil.WEIXIN_PKG);
 		if (isWeichatInstalled) {
 			imv.setVisibility(View.VISIBLE);
 		} else {
@@ -143,6 +211,24 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			}
 		});
 		
+	}
+	
+	private void setupShareClicking(ImageView imv, final String pkg) {
+		imv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent shareIntent = ShareUtil.getShareIntent(ReadPageActivity.this, pkg);
+				if (shareIntent == null) {
+					return;
+				}
+				
+				shareIntent.putExtra(Intent.EXTRA_SUBJECT,
+						ReadPageActivity.this.getString(R.string.share_sub));
+				shareIntent.putExtra(Intent.EXTRA_TEXT, ReadPageActivity.this
+						.getString(R.string.share_text, mCartoonInfo.name));
+				ReadPageActivity.this.startActivity(shareIntent);
+			}
+		});
 	}
 
 	private void setupContentView() {

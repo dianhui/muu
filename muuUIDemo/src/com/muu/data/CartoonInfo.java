@@ -31,12 +31,6 @@ public class CartoonInfo {
 			return;
 		}
 		
-		if (!cur.moveToFirst()) {
-			Log.d(TAG, "Invalid cursor.");
-			cur.close();
-			return;
-		}
-		
 		id = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.ID));
 		name = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.NAME));
 		author = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.AUTHOR));
@@ -44,8 +38,6 @@ public class CartoonInfo {
 		abst = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.ABSTRACT));
 		category = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.CATEGORY));
 		isComplete = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.IS_COMPLETE));
-		
-		cur.close();
 	}
 
 	public ContentValues toContentValues() {

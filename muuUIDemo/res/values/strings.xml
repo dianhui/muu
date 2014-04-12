@@ -25,8 +25,9 @@
     <string name="it_is_start">到头了</string>
     <string name="read_finish">这部看完啦~</string>
 	<string name="share_sub">慢悠悠漫画，看你想看的</string>
-	<string name="share_text">我正在看%1$s,推荐给你%2$s</string>
+	<string name="share_text">我正使用慢悠悠看漫画:%s,推荐给你</string>
 	<string name="no_app_share">没有安装可用来分享的程序</string>
+	<string name="share_to">分享到</string>
     
     <string name="introduction">Cartoon description.</string>
     <string name="chapter_idx_comma">%d,</string>

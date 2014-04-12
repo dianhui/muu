@@ -246,7 +246,6 @@ public class TempDataLoader {
 		File[] fileList = dirFile.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File f) {
-//				Log.d(TAG, "file: "+f.toString());
 				return p.matcher(f.getName()).matches();
 			}
 		});
