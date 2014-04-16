@@ -41,16 +41,15 @@
             android:layout_marginBottom="2dp"
             android:src="@drawable/ic_status_complete"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="-4dp"
-            />
+            android:layout_marginLeft="-4dp" />
 
         <RelativeLayout
             android:id="@+id/rl_book_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:minHeight="155dp"
-            android:layout_toRightOf="@id/imv_icon" >
+            android:layout_toRightOf="@id/imv_icon"
+            android:minHeight="155dp" >
 
             <TextView
                 android:id="@+id/tv_category"

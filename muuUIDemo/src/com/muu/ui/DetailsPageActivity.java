@@ -128,6 +128,17 @@ public class DetailsPageActivity extends Activity {
 			}
 		});
 		
+		final ImageButton moreBtn = (ImageButton)this.findViewById(R.id.imv_btn_more);
+		moreBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_introduction);
+				tv.setMaxLines(50);
+				
+				moreBtn.setVisibility(View.INVISIBLE);
+			}
+		});
+		
 		ImageButton shareBtn = (ImageButton)this.findViewById(R.id.imv_btn_share);
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
