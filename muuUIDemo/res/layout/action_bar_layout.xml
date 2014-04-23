@@ -56,6 +56,9 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:maxWidth="220dp"
         android:text="@string/book_name" />
     
     <RelativeLayout

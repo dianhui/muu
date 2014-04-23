@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
-        android:scaleType="centerInside"
+        android:scaleType="matrix"
         android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/content_img" />
     
