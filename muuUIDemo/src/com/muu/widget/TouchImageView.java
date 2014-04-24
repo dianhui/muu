@@ -28,7 +28,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 //import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -414,7 +413,8 @@ public class TouchImageView extends ImageView {
     	//
         float scaleX = (float) viewWidth / drawableWidth;
         float scaleY = (float) viewHeight / drawableHeight;
-        float scale = Math.max(scaleX, scaleY);
+//        float scale = Math.max(scaleX, scaleY);
+        float scale = scaleX;
         
         //
         // Center the image
@@ -428,7 +428,10 @@ public class TouchImageView extends ImageView {
         	// Stretch and center image to fit view
         	//
         	matrix.setScale(scale, scale);
-//        	matrix.postTranslate(redundantXSpace / 2, redundantYSpace / 2);
+        	if (scaleY > scale) {
+        		matrix.postTranslate(0, redundantYSpace / 2);
+			}
+        	
         	normalizedScale = 1;
         	setImageCalledRecenterImage = false;
         	
@@ -595,14 +598,13 @@ public class TouchImageView extends ImageView {
 			if (getCurrentZoom() > 1)
 				return false;
     		
-    		if (distanceX > 30 && Math.abs(distanceY) < 20) {
+    		if (distanceX > 25 && Math.abs(distanceY) < 20) {
     			mScrolling = true;
     			mGestureListener.onSwipNext();
     			return true;
             }
     		
-    		if (distanceX < -30 && Math.abs(distanceY) < 20) {
-    			Log.d("XXX", "distanceX: "+distanceX + " distanceY: "+distanceY);
+    		if (distanceX < -25 && Math.abs(distanceY) < 20) {
     			mScrolling = true;
     			mGestureListener.onSwipPrevious();
     			return true;
