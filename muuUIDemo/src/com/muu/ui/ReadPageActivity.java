@@ -68,8 +68,8 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	}
 	
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onPause() {
+		super.onPause();
 		
 		recordReadHistory();
 	}
@@ -79,6 +79,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		values.put(RECENT_READ_COLUMN.CARTOON_ID, mCartoonId);
 		values.put(RECENT_READ_COLUMN.CHAPTER_IDX, mChapterIdx);
 		values.put(RECENT_READ_COLUMN.PAGE_IDX, mPageIdx);
+		values.put(RECENT_READ_COLUMN.READ_DATE, System.currentTimeMillis());
 		
 		DatabaseMgr dbMgr = new DatabaseMgr(this);
 		Cursor cursor = dbMgr.query(DatabaseMgr.RECENT_READ_ALL_URL, null, RECENT_READ_COLUMN.CARTOON_ID+"="+mCartoonId, null, null);

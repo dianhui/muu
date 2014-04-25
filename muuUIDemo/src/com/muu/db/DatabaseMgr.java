@@ -45,6 +45,7 @@ public class DatabaseMgr {
 		public static final String CARTOON_ID = "cartoon_id";
 		public static final String CHAPTER_IDX = "chapter_idx";
 		public static final String PAGE_IDX = "page_idx";
+		public static final String READ_DATE = "date";
 	}
 	
 	public interface RECENT_HISTORY_COLUMN {
@@ -53,6 +54,7 @@ public class DatabaseMgr {
 		public static final String CARTOON_AUTHOR = "cartoon_author";
 		public static final String CHAPTER_IDX = "chapter_idx";
 		public static final String PAGE_IDX = "page_idx";
+		public static final String READ_DATE = "date";
 	}
 	
 	public static final Uri MUU_CARTOONS_ALL_URL = Uri.parse(String.format(
@@ -131,9 +133,11 @@ public class DatabaseMgr {
 			break;
 		case MUU_RECENT_READ_ALL:
 			table = TABLE_RECENT_READ;
+			sortOrder = String.format("%s DESC", RECENT_READ_COLUMN.READ_DATE);
 			break;
 		case MUU_RECENT_HISTORY_ALL:
 			table = VIEW_RECENT_HISTORY;
+			sortOrder = String.format("%s DESC", RECENT_HISTORY_COLUMN.READ_DATE);
 			break;
 		default:
 			break;
@@ -200,23 +204,25 @@ public class DatabaseMgr {
 			db.execSQL(createChaptersTable);
 			
 			String createRecentReadTable = String
-					.format("create table if not exists %s (%s integer primary key, %s integer, %s integer, %s integer, foreign key(%s) references %s(%s), UNIQUE(%s));",
+					.format("create table if not exists %s (%s integer primary key, %s integer, %s integer, %s integer, %s integer, foreign key(%s) references %s(%s), UNIQUE(%s));",
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.ID,
 							RECENT_READ_COLUMN.CARTOON_ID,
 							RECENT_READ_COLUMN.CHAPTER_IDX,
 							RECENT_READ_COLUMN.PAGE_IDX,
+							RECENT_READ_COLUMN.READ_DATE,
 							RECENT_READ_COLUMN.CARTOON_ID, TABLE_CARTOONS,
 							CARTOONS_COLUMN.ID, RECENT_READ_COLUMN.CARTOON_ID);
 			db.execSQL(createRecentReadTable);
 			
 			String createRecentHistoryView = String
-					.format("create view if not exists %s as select %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s from %s, %s where %s.%s=%s.%s",
+					.format("create view if not exists %s as select %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s from %s, %s where %s.%s=%s.%s",
 							VIEW_RECENT_HISTORY,
 							TABLE_CARTOONS, CARTOONS_COLUMN.ID, RECENT_HISTORY_COLUMN.CARTOON_ID,
 							TABLE_CARTOONS, CARTOONS_COLUMN.NAME, RECENT_HISTORY_COLUMN.CARTOON_NAME,
 							TABLE_CARTOONS, CARTOONS_COLUMN.AUTHOR, RECENT_HISTORY_COLUMN.CARTOON_AUTHOR,
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.CHAPTER_IDX, RECENT_HISTORY_COLUMN.CHAPTER_IDX,
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.PAGE_IDX, RECENT_HISTORY_COLUMN.PAGE_IDX,
+							TABLE_RECENT_READ, RECENT_READ_COLUMN.READ_DATE, RECENT_HISTORY_COLUMN.READ_DATE,
 							TABLE_RECENT_READ, TABLE_CARTOONS,
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.CARTOON_ID, TABLE_CARTOONS, CARTOONS_COLUMN.ID);
 			db.execSQL(createRecentHistoryView);

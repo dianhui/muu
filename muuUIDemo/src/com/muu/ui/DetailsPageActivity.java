@@ -6,6 +6,7 @@ import java.util.List;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.uidemo.R;
 import com.muu.util.PkgMrgUtil;
 import com.muu.util.TempDataLoader;
@@ -53,6 +54,13 @@ public class DetailsPageActivity extends Activity {
 		setupCommentsView();
 		
 		new RetrieveChaptersTask().execute(mCartoonId);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		setupReadButton();
 	}
 	
 	private void setupActionBar() {
@@ -115,19 +123,6 @@ public class DetailsPageActivity extends Activity {
 	}
 	
 	private void setupContentViews() {
-		Button btnRead = (Button)this.findViewById(R.id.btn_read);
-		btnRead.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent();
-				intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
-				intent.putExtra(sCartoonIdExtraKey, mCartoonId);
-				intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, 1);
-				intent.putExtra(ReadPageActivity.sPageIdxExtraKey, 1);
-				DetailsPageActivity.this.startActivity(intent);
-			}
-		});
-		
 		final ImageButton moreBtn = (ImageButton)this.findViewById(R.id.imv_btn_more);
 		moreBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -179,6 +174,54 @@ public class DetailsPageActivity extends Activity {
 		tv.setText(info.abst);
 		
 		mActionBarTitle.setText(info.name);
+	}
+	
+	private void setupReadButton() {
+		DatabaseMgr dbMgr = new DatabaseMgr(DetailsPageActivity.this);
+		Cursor cursor = getHistoryCursor(dbMgr, mCartoonId);
+		String btnTxt = cursor == null ? getString(R.string.read)
+				: getString(R.string.continue_read);
+		
+		Button btnRead = (Button)this.findViewById(R.id.btn_read);
+		btnRead.setText(btnTxt);
+		
+		int chapterIdx = 1;
+		int pageIdx = 1;
+		if (cursor != null && cursor.moveToFirst()) {
+			chapterIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
+			pageIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
+			
+			cursor.close();
+		}
+		
+		final int finalChapterIdx = chapterIdx;
+		final int finalPageIdx = pageIdx;
+		btnRead.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
+				intent.putExtra(sCartoonIdExtraKey, mCartoonId);
+				intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, finalChapterIdx);
+				intent.putExtra(ReadPageActivity.sPageIdxExtraKey, finalPageIdx);
+				DetailsPageActivity.this.startActivity(intent);
+			}
+		});
+	}
+	
+	private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
+		Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
+				String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
+		if (cur == null) {
+			return null;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			return null;
+		}
+		
+		return cur;
 	}
 	
 	private void setupCommentsView() {

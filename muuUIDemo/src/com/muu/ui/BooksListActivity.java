@@ -59,7 +59,6 @@ public class BooksListActivity extends Activity {
 		setContentView(R.layout.book_list_layout);
 		
 		setupActionBar();
-		updateViewsOnListType(getIntent().getIntExtra(sListTypeKey, 0));
 		setupViews();
 	}
 	
@@ -67,11 +66,15 @@ public class BooksListActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
-		if (mSensorMgr != null) {
-			mSensorMgr.registerListener(mSensorListener,
-					mSensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-					SensorManager.SENSOR_DELAY_NORMAL);
+		updateViewsOnListType(getIntent().getIntExtra(sListTypeKey, 0));
+		
+		if (mSensorMgr == null) {
+			return;
 		}
+		
+		mSensorMgr.registerListener(mSensorListener,
+				mSensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+				SensorManager.SENSOR_DELAY_NORMAL);
 	}
 	
 	@Override
@@ -192,6 +195,8 @@ public class BooksListActivity extends Activity {
 		
 		@Override
         public int getCount() {
+			if (mList == null) return 0;
+			
 	        return mList.size();
         }
 

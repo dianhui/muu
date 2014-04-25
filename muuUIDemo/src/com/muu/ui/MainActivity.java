@@ -16,7 +16,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -235,8 +234,6 @@ public class MainActivity extends Activity {
 		cur.close();
 		dbMgr.closeDatabase();
 		
-		Log.d("XXX", "cartoon info: "+info.toString());
-		
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no1_icon);
 		Bitmap bmp = new TempDataLoader().getCartoonCover(firstId);
 		imv.setImageBitmap(bmp);
@@ -265,8 +262,6 @@ public class MainActivity extends Activity {
 		CartoonInfo info = new CartoonInfo(cur);
 		cur.close();
 		dbMgr.closeDatabase();
-		
-		Log.d("XXX", "cartoon info: "+info.toString());
 		
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no2_icon);
 		Bitmap bmp = new TempDataLoader().getCartoonCover(secondId);
@@ -376,6 +371,8 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(ArrayList<Integer> result) {
 			mProgress.setVisibility(View.GONE);
 			mCartoonsContainer.setVisibility(View.VISIBLE);
+			
+			if (result == null || result.size() < 1) return;
 			
 			setupFirstCartoon(result.remove(0));
 			setupSecondCartoon(result.remove(0));
