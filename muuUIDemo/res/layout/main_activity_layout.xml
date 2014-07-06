@@ -16,20 +16,25 @@
         android:contentDescription="@string/content_des_place_holder"
         android:src="@color/light_gray" />
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider"
+        android:text="@string/empty"
         android:layout_centerInParent="true"
+        android:gravity="center"
         android:visibility="gone"
          />
     
-    <ScrollView
-        android:id="@+id/sv_middle_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/divider" >
+	<com.handmark.pulltorefresh.library.PullToRefreshScrollView
+	    xmlns:ptr="http://schemas.android.com/apk/res-auto"
+	    android:id="@+id/sv_middle_content"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_below="@id/divider"
+	    ptr:ptrAnimationStyle="flip"
+	    ptr:ptrMode="pullFromEnd" >
 
         <RelativeLayout
             android:id="@+id/rl_middle_conent"
@@ -54,16 +59,13 @@
                         android:layout_height="254dp"
                         android:contentDescription="@string/content_des_place_holder"
                         android:src="@drawable/no1_icon" />
-
-                    <TextView
-                        android:id="@+id/tv_no1_tag"
-                        style="@style/BookTagAppearence"
-                        android:layout_width="60dp"
+                    
+                    <ImageView
+                        android:id="@+id/imv_no1_tag"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@color/cartoon_name_bg"
-                        android:gravity="left"
-                        android:paddingLeft="18dp"
-                        android:text="@string/humer" />
+                        android:contentDescription="@string/content_des_place_holder"
+                        android:src="@drawable/ic_category_tag_01" />
 
                     <ImageView
                         android:id="@+id/imv_name_bg"
@@ -106,15 +108,12 @@
                         android:contentDescription="@string/content_des_place_holder"
                         android:src="@drawable/no1_icon" />
 
-                    <TextView
-                        android:id="@+id/tv_no2_tag"
-                        style="@style/BookTagAppearence"
-                        android:layout_width="60dp"
+                    <ImageView
+                        android:id="@+id/imv_no2_tag"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@color/cartoon_name_bg"
-                        android:gravity="left"
-                        android:paddingLeft="18dp"
-                        android:text="@string/humer" />
+                        android:contentDescription="@string/content_des_place_holder"
+                        android:src="@drawable/ic_category_tag_01" />
 
                     <ImageView
                         android:id="@+id/no2_imv_name_bg"
@@ -144,7 +143,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/rl_top3" />
             
-            <TextView
+            <!-- <TextView
                 android:id="@+id/tv_load_more"
                 style="@style/DragForMoreAppearence"
                 android:layout_width="match_parent"
@@ -153,9 +152,19 @@
                 android:layout_below="@id/rl_others"
                 android:gravity="center_horizontal"
                 android:background="@color/light_gray"
-                android:text="@string/drag_for_more" />
+                android:text="@string/drag_for_more" /> -->
             
         </RelativeLayout>
-    </ScrollView>
-
+    </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
+	
+	<ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+	
+	
 </RelativeLayout>

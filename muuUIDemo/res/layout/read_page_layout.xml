@@ -114,36 +114,6 @@
             style="@style/BottomChapterTextAppearence"
             android:text="@string/page"
             />
-        
-    </RelativeLayout>
-    
-    <RelativeLayout
-        android:id="@+id/rl_page_index"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="120dp"
-        android:minHeight="31dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/transparent_black"
-        android:gravity="center_vertical" >
-
-        <TextView
-            android:id="@+id/tv_chapter"
-            style="@style/PageIdxAppearence"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="@string/chapter_idx_comma" />
-
-        <TextView
-            android:id="@+id/tv_page_idx"
-            style="@style/PageIdxAppearence"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:visibility="gone"
-            android:layout_toRightOf="@id/tv_chapter"
-            android:text="@string/page" />
     </RelativeLayout>
 
 </RelativeLayout>

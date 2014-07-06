@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="50dp"
-    android:background="@drawable/category_list_bg" >
+    android:minHeight="60dp"
+    android:background="@color/white" >
     
     <TextView
         android:id="@+id/tv_category_text"
@@ -11,7 +11,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="40dp"
+        android:drawableLeft="@drawable/ic_slide_search"
+        android:drawablePadding="10dp"
         android:text="@string/category_item_text" />
+    
+    <ImageView 
+        android:id="@+id/imv_divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:src="@color/light_gray"
+        android:contentDescription="@string/content_des_place_holder"
+        />
 
 </RelativeLayout>

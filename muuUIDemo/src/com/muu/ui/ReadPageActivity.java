@@ -14,37 +14,28 @@ import com.muu.widget.TouchImageView.OnGestureListener;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.RelativeLayout.LayoutParams;
 
 public class ReadPageActivity extends Activity implements OnGestureListener {
 	public static final String sChapterIdxExtraKey = "chapter_idx";
 	public static final String sPageIdxExtraKey = "page_idx";
 	
 	private RelativeLayout mActionBarLayout = null;
-	private RelativeLayout mPageIdxLayout = null;
 	private RelativeLayout mBottomLayout = null;
 	private TouchImageView mContentImage = null;
 	private Boolean mTouchedMode = false;
 	private Boolean mRecomment = false;
-	private View mShareDropView = null;
-	private PopupWindow mSharePopup = null;
 	private int mCartoonId = -1;
 	private int mChapterIdx = -1;
 	private int mPageIdx = -1;
@@ -163,73 +154,14 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			return;
 		}
 		
-		mShareDropView = LayoutInflater.from(this).inflate(
-				R.layout.share_drop_down_layout, null);
-		ImageView imv = (ImageView) mShareDropView
-				.findViewById(R.id.imv_sina_weibo);
-		setupShareClicking(imv, PkgMrgUtil.SINA_WEIBO_PKG);
-		if (isSinaWbInstalled) {
-			imv.setVisibility(View.VISIBLE);
-		} else {
-			imv.setVisibility(View.GONE);
-		}
-		
-		imv = (ImageView)mShareDropView.findViewById(R.id.imv_qq_weibo);
-		setupShareClicking(imv, PkgMrgUtil.TENCENT_WEIBO_PKG);
-		if (isQQWbInstalled) {
-			imv.setVisibility(View.VISIBLE);
-		} else {
-			imv.setVisibility(View.GONE);
-		}
-		
-		imv = (ImageView)mShareDropView.findViewById(R.id.imv_qq);
-		setupShareClicking(imv, PkgMrgUtil.QQ_PKG);
-		if (isQQInstalled) {
-			imv.setVisibility(View.VISIBLE);
-		} else {
-			imv.setVisibility(View.GONE);
-		}
-		
-		imv = (ImageView)mShareDropView.findViewById(R.id.imv_wechat);
-		setupShareClicking(imv, PkgMrgUtil.WEIXIN_PKG);
-		if (isWeichatInstalled) {
-			imv.setVisibility(View.VISIBLE);
-		} else {
-			imv.setVisibility(View.GONE);
-		}
-		
-		mSharePopup = new PopupWindow(mShareDropView,
-		        LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
-		mSharePopup.setTouchable(true);
-		mSharePopup.setOutsideTouchable(true);
-		mSharePopup.setBackgroundDrawable(new ColorDrawable(0));
-		
 		shareBtn.setVisibility(View.VISIBLE);
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mSharePopup.showAsDropDown(shareBtn, -28, 24);
+				ShareUtil.onShareClicked(ReadPageActivity.this, mCartoonInfo.name);
 			}
 		});
 		
-	}
-	
-	private void setupShareClicking(ImageView imv, final String pkg) {
-		imv.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent shareIntent = ShareUtil.getShareIntent(ReadPageActivity.this, pkg);
-				if (shareIntent == null) {
-					return;
-				}
-				
-				shareIntent.putExtra(Intent.EXTRA_SUBJECT,
-						ReadPageActivity.this.getString(R.string.share_sub));
-				shareIntent.putExtra(Intent.EXTRA_TEXT, ReadPageActivity.this
-						.getString(R.string.share_text, mCartoonInfo.name));
-				ReadPageActivity.this.startActivity(shareIntent);
-			}
-		});
 	}
 
 	private void setupContentView() {
@@ -245,13 +177,9 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	private void setupBottomView() {
 		new RetrieveChapterListTask().execute(mCartoonId);
 		new RetrievePageCountTask().execute(mCartoonId, mChapterIdx);
-		
-		mPageIdxLayout = (RelativeLayout)this.findViewById(R.id.rl_page_index);
-		TextView tv = (TextView)this.findViewById(R.id.tv_chapter);
-		tv.setText(getString(R.string.chapter_idx_comma, mChapterIdx));
-		
+
 		mBottomLayout = (RelativeLayout)this.findViewById(R.id.rl_bottom_chapter);
-		tv = (TextView)this.findViewById(R.id.tv_chapter_num);
+		TextView tv = (TextView)this.findViewById(R.id.tv_chapter_num);
 		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
 	}
 	
@@ -266,9 +194,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			return;
 		}
 		
-		TextView tv = (TextView)this.findViewById(R.id.tv_chapter);
-		tv.setText(getString(R.string.chapter_idx_comma, mChapterIdx));
-		tv = (TextView)this.findViewById(R.id.tv_chapter_num);
+		TextView tv = (TextView)this.findViewById(R.id.tv_chapter_num);
 		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
 		tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
 		if (mChaptersList != null) {
@@ -287,9 +213,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			dialog.show();
 		}
 		
-		TextView tv = (TextView)this.findViewById(R.id.tv_chapter);
-		tv.setText(getString(R.string.chapter_idx_comma, mChapterIdx));
-		tv = (TextView)this.findViewById(R.id.tv_chapter_num);
+		TextView tv = (TextView)this.findViewById(R.id.tv_chapter_num);
 		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
 		tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
 		if (mChaptersList != null) {
@@ -301,9 +225,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		TempDataLoader dataLoader = new TempDataLoader();
 		if (mPageIdx < mPageCount - 1) {
 			mPageIdx++;
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_page_idx);
-			tv.setText(getString(R.string.page, mPageIdx, mPageCount));
-			tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
+			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
 			tv.setText(getString(R.string.page, mPageIdx, mPageCount));
 			
 			return dataLoader.getCartoonImage(mCartoonId, mChapterIdx,
@@ -324,9 +246,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		TempDataLoader dataLoader = new TempDataLoader();
 		if (mPageIdx > 1) {
 			mPageIdx--;
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_page_idx);
-			tv.setText(getString(R.string.page, mPageIdx, mPageCount));
-			tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
+			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
 			tv.setText(getString(R.string.page, mPageIdx, mPageCount));
 			return dataLoader.getCartoonImage(mCartoonId, mChapterIdx,
 					mPageIdx);
@@ -348,11 +268,9 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	public void onSingleTapUp() {
 		if (mTouchedMode) {
 			mActionBarLayout.setVisibility(View.VISIBLE);
-			mPageIdxLayout.setVisibility(View.GONE);
 			mBottomLayout.setVisibility(View.VISIBLE);
         } else {
         	mActionBarLayout.setVisibility(View.GONE);
-    		mPageIdxLayout.setVisibility(View.VISIBLE);
     		mBottomLayout.setVisibility(View.GONE);
         }
 		mTouchedMode = !mTouchedMode;
@@ -387,10 +305,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			AsyncTask<Integer, Integer, Integer> {
 		@Override
 		protected void onPreExecute() {
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_page_idx);
-			tv.setVisibility(View.GONE);
-			
-			tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
+			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
 			tv.setVisibility(View.GONE);
 		}
 
@@ -405,11 +320,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 
 		@Override
 		protected void onPostExecute(Integer result) {
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_page_idx);
-			tv.setVisibility(View.VISIBLE);
-			tv.setText(getString(R.string.page, mPageIdx, result));
-			
-			tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
+			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
 			tv.setVisibility(View.VISIBLE);
 			tv.setText(getString(R.string.page, mPageIdx, result));
 		}

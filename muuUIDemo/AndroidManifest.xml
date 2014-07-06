@@ -29,7 +29,31 @@
         </activity>
         
         <activity 
-            android:name="com.muu.ui.BooksListActivity"
+            android:name="com.muu.ui.CategoryCartoonsListActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="nosensor"/>
+        
+        <activity 
+            android:name="com.muu.ui.SearchActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="nosensor"/>
+        
+        <activity 
+            android:name="com.muu.ui.RecentReadListActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="nosensor"/>
+        
+        <activity 
+            android:name="com.muu.ui.OfflineReadActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="nosensor"/>
+        
+        <activity 
+            android:name="com.muu.ui.SettingsActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="nosensor"/>
@@ -43,6 +67,12 @@
         <activity 
             android:name="com.muu.ui.ReadPageActivity"
             android:hardwareAccelerated="false"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="nosensor"/>
+        
+        <activity 
+            android:name="com.muu.ui.CategoryActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="nosensor"/>

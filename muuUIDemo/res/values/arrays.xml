@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string-array name="category_text_array">
+	<string-array name="slid_menu_items_array">
+		<item>搜索</item>
 		<item>首页</item>
-		<item>搞笑</item>
+		<item>分类</item>
+		<item>离线阅读</item>
+		<item>设置</item>
+	</string-array>
+	
+	<string-array name="category_string_array">
+	    <item>搞笑</item>
 		<item>恋爱</item>
 		<item>生活</item>
 		<item>热血</item>
@@ -17,4 +24,5 @@
 		<item>其他</item>
         <item>同人</item>
 	</string-array>
+	
 </resources>

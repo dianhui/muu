@@ -4,17 +4,24 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
+import com.muu.uidemo.R;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.Log;
 
 public class TempDataLoader {
@@ -23,34 +30,51 @@ public class TempDataLoader {
 	private static final String MUU_TMP = "muu_tmp";
 	private static final String CARTOONS = "cartoons";
 	private static final String IMAGES = "images";
-	private static final String INFO = "info";
+//	private static final String INFO = "info";
 	private static final String COVER = "cover";
 	private static final String CONTENTS = "contents";
 	private static final String COMMENTS50 = "comments50";
-	private static final String TXT_POSTFIX = ".txt";
-	private static final String PNG_POSTFIX = ".png";
-	private static final String JPG_POSTFIX = ".jpg";
-
+	
 	public static final String WEEK_TOP20 = "week_top20";
 	public static final String HOT_TOP20 = "hot_top20";
 	public static final String NEW_TOP20 = "new_top20";
 	public static final ArrayList<String> sFakeCommentsPool = new ArrayList<String>();
 	
-	public void loadTempData(Context ctx) {
-		Log.d(TAG, "Load temp data ...");
-		loadList(ctx, WEEK_TOP20);
-		loadList(ctx, HOT_TOP20);
-		loadList(ctx, NEW_TOP20);
-		loadFakeComments();
+	/**
+	 * store cartoons into db. 
+	 * if the cartoon already in db, check if need update, if no update then ignore.
+	 * @param
+	 *  - ctx, application context, NOT NULL.
+	 * 	- cartoonsList - list of cartoons to be store.
+	 * */
+	public void storeCartoonsToDB(Context ctx, ArrayList<CartoonInfo> cartoonsList) {
+		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+		for (CartoonInfo cartoonInfo : cartoonsList) {
+			Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), cartoonInfo.id));
+			Cursor cur = dbMgr.query(uri, null, null, null, null);
+			if (cur != null && cur.moveToFirst()) {
+				CartoonInfo cartoon = new CartoonInfo(cur);
+				
+				cur.close();
+				if (cartoonInfo.equals(cartoon)) continue;
+				
+				dbMgr.update(uri, cartoonInfo.toContentValues(), null, null);
+				continue;
+			}
+			
+			if (cur != null) cur.close();
+			dbMgr.insert(uri, cartoonInfo.toContentValues());
+		}
+		dbMgr.closeDatabase();
 	}
 
 	public ArrayList<Integer> getCartoonIds(String whichList) {
 		ArrayList<Integer> cartoonIds = new ArrayList<Integer>();
 		String path = android.os.Environment.getExternalStorageDirectory()
 				+ File.separator + MUU_TMP + File.separator + whichList
-				+ TXT_POSTFIX;
+				+ FileFormatUtil.TXT_POSTFIX;
 		try {
-			for (String str : FileReaderUtils.getFileContent(path)
+			for (String str : FileReaderUtil.getFileContent(path)
 					.split("；|;")) {
 				cartoonIds.add(Integer.parseInt(str));
 			}
@@ -60,60 +84,89 @@ public class TempDataLoader {
 		return cartoonIds;
 	}
 	
-	public Bitmap getCartoonCover(int id) {
+	public Boolean isCoverExist(int id) {
 		String path = android.os.Environment.getExternalStorageDirectory()
 				+ File.separator + MUU_TMP + File.separator + CARTOONS
-				+ File.separator + id + File.separator + COVER + PNG_POSTFIX;
+				+ File.separator + id + File.separator + COVER + FileFormatUtil.PNG_POSTFIX;
 		File file = new File(path);
-		if (!file.exists()) {
-			path = android.os.Environment.getExternalStorageDirectory()
-					+ File.separator + MUU_TMP + File.separator + CARTOONS
-					+ File.separator + id + File.separator + COVER + JPG_POSTFIX;
-			
-			file = new File(path);
-			if (!file.exists()) {
-				Log.d(TAG, ".... File not exists: " + path);
-				return null;
-			}
+		if (file.exists()) return true;
+		
+		path = android.os.Environment.getExternalStorageDirectory()
+				+ File.separator + MUU_TMP + File.separator + CARTOONS
+				+ File.separator + id + File.separator + COVER + FileFormatUtil.JPG_POSTFIX;
+		file = new File(path);
+		if (file.exists()) return true;
+		
+		path = android.os.Environment.getExternalStorageDirectory()
+				+ File.separator + MUU_TMP + File.separator + CARTOONS
+				+ File.separator + id + File.separator + COVER + FileFormatUtil.GIF_POSTFIX;
+		file = new File(path);
+		if (file.exists()) return true;
+		
+		return false;
+	}
+	
+	public Bitmap getCartoonCover(int id) {
+		String path = PropertyMgr.getInstance().getCoverPath() + id
+				+ FileFormatUtil.JPG_POSTFIX;
+		File file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
 		}
 		
+		path = PropertyMgr.getInstance().getCoverPath() + id + FileFormatUtil.PNG_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getCoverPath() + id + FileFormatUtil.GIF_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		Log.d(TAG, ".... File not exists: " + path);
+		return null;
+	}
+	
+	private Bitmap getBitmap(String path) {
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inSampleSize = 2;
 		return BitmapFactory.decodeFile(path, opts);
 	}
 	
-	private void loadList(Context ctx, String whichList) {
-		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
-		for (Integer id : getCartoonIds(whichList)) {
-			Log.d(TAG, getCartoonInfo(id).toString());
-			CartoonInfo info = getCartoonInfo(id);
-			dbMgr.insert(DatabaseMgr.MUU_CARTOONS_ALL_URL, info.toContentValues());
-		}
-		dbMgr.closeDatabase();
-	}
+//	private void loadList(Context ctx, String whichList) {
+//		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+//		for (Integer id : getCartoonIds(whichList)) {
+//			Log.d(TAG, getCartoonInfo(id).toString());
+//			CartoonInfo info = getCartoonInfo(id);
+//			dbMgr.insert(DatabaseMgr.MUU_CARTOONS_ALL_URL, info.toContentValues());
+//		}
+//		dbMgr.closeDatabase();
+//	}
 
-	private CartoonInfo getCartoonInfo(int cartoonId) {
-		CartoonInfo info = new CartoonInfo();
-		String path = android.os.Environment.getExternalStorageDirectory()
-				+ File.separator + MUU_TMP + File.separator + CARTOONS
-				+ File.separator + cartoonId + File.separator + INFO
-				+ TXT_POSTFIX;
-		Log.d(TAG, "path: "+path);
-		try {
-			String[] list = FileReaderUtils.getFileContent(path).split("；|;");
-//			info.id = Integer.parseInt(list[0]);
-			info.id = cartoonId;
-			info.name = list[1];
-			info.author = list[2];
-			info.date = list[3];
-			info.abst = list[4];
-			info.category = list[5];
-			info.isComplete = 1;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return info;
-	}
+//	private CartoonInfo getCartoonInfo(int cartoonId) {
+//		CartoonInfo info = new CartoonInfo();
+//		String path = android.os.Environment.getExternalStorageDirectory()
+//				+ File.separator + MUU_TMP + File.separator + CARTOONS
+//				+ File.separator + cartoonId + File.separator + INFO
+//				+ FileFormatUtil.TXT_POSTFIX;
+//		Log.d(TAG, "path: "+path);
+//		try {
+//			String[] list = FileReaderUtil.getFileContent(path).split("；|;");
+//			info.id = cartoonId;
+//			info.name = list[1];
+//			info.author = list[2];
+//			info.updateDate = list[3];
+//			info.abst = list[4];
+//			info.topicCode = list[5];
+//			info.isComplete = 1;
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		return info;
+//	}
 	
 	public static void recycleBmp(Bitmap bmp) {
 		if (bmp == null || bmp.isRecycled()) {
@@ -145,9 +198,9 @@ public class TempDataLoader {
 		String path = android.os.Environment.getExternalStorageDirectory()
 				+ File.separator + MUU_TMP + File.separator + CARTOONS
 				+ File.separator + id + File.separator + CONTENTS
-				+ TXT_POSTFIX;
+				+ FileFormatUtil.TXT_POSTFIX;
 		try {
-			String[] list = FileReaderUtils.getFileContent(path).split("；|;");
+			String[] list = FileReaderUtil.getFileContent(path).split("；|;");
 			int i = 1;
 			for (String str : list) {
 				chapterList.add(i++ + ". " + str);
@@ -165,9 +218,9 @@ public class TempDataLoader {
 	public void loadFakeComments() {
 		String path = android.os.Environment.getExternalStorageDirectory()
 				+ File.separator + MUU_TMP + File.separator + COMMENTS50
-				+ TXT_POSTFIX;
+				+ FileFormatUtil.TXT_POSTFIX;
 		try {
-			for (String str : FileReaderUtils.getLines(path)) {
+			for (String str : FileReaderUtil.getLines(path)) {
 				sFakeCommentsPool.add(str);
 			}
 		} catch (IOException e) {
@@ -256,5 +309,60 @@ public class TempDataLoader {
 		}
 		
 		return size/(1024.0f*1024.0f);
+	}
+	
+	private static final HashMap<String, String> sCodeTopicStrMap = new HashMap<String, String>();
+	private static final HashMap<String, String> sTopicStrCodeMap = new HashMap<String, String>();
+	public void initCategoryMap(Context ctx) {
+		sCodeTopicStrMap.put("01", ctx.getString(R.string.humer));
+		sCodeTopicStrMap.put("02", ctx.getString(R.string.hot_blood));
+		sCodeTopicStrMap.put("04", ctx.getString(R.string.science_fiction));
+		sCodeTopicStrMap.put("06", ctx.getString(R.string.fantasy));
+		sCodeTopicStrMap.put("08", ctx.getString(R.string.love));
+		sCodeTopicStrMap.put("09", ctx.getString(R.string.life));
+		sCodeTopicStrMap.put("11", ctx.getString(R.string.sport));
+		sCodeTopicStrMap.put("12", ctx.getString(R.string.ratiocination));
+		sCodeTopicStrMap.put("13", ctx.getString(R.string.terror));
+		sCodeTopicStrMap.put("14", ctx.getString(R.string.history));
+		sCodeTopicStrMap.put("15", ctx.getString(R.string.tanbi));
+		sCodeTopicStrMap.put("16", ctx.getString(R.string.other));
+		sCodeTopicStrMap.put("17", ctx.getString(R.string.homosex));
+		
+		
+		sTopicStrCodeMap.put(ctx.getString(R.string.humer), "01");
+		sTopicStrCodeMap.put(ctx.getString(R.string.hot_blood), "02");
+		sTopicStrCodeMap.put(ctx.getString(R.string.science_fiction), "04");
+		sTopicStrCodeMap.put(ctx.getString(R.string.fantasy), "06");
+		sTopicStrCodeMap.put(ctx.getString(R.string.love), "08");
+		sTopicStrCodeMap.put(ctx.getString(R.string.life), "09");
+		sTopicStrCodeMap.put(ctx.getString(R.string.sport), "11");
+		sTopicStrCodeMap.put(ctx.getString(R.string.ratiocination), "12");
+		sTopicStrCodeMap.put(ctx.getString(R.string.terror), "13");
+		sTopicStrCodeMap.put(ctx.getString(R.string.history), "14");
+		sTopicStrCodeMap.put(ctx.getString(R.string.tanbi), "15");
+		sTopicStrCodeMap.put(ctx.getString(R.string.other), "16");
+		sTopicStrCodeMap.put(ctx.getString(R.string.homosex), "17");
+	}
+	
+	public static Drawable getTopicTagDrawable(Context ctx, String topicCode) {
+		Resources res = ctx.getResources();
+		int resId = res.getIdentifier(
+				String.format("ic_category_tag_%s", topicCode), "drawable",
+				ctx.getPackageName());
+		Drawable drawable = res.getDrawable(resId);
+		drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+		return drawable;
+	}
+	
+	public static Object[] getTopicsArray() {
+		return sCodeTopicStrMap.values().toArray();
+	}
+	
+	public static String getTopicString(String topicCode) {
+		return sCodeTopicStrMap.get(topicCode);
+	}
+	
+	public static String getTopicCode(String topicStr) {
+		return sTopicStrCodeMap.get(topicStr);
 	}
 }

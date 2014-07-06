@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white" >
+    
+    <include
+        android:id="@+id/action_bar"
+        layout="@layout/action_bar_layout" />
+    
+    <ImageView
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/action_bar"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/light_gray" />
+    
+    
+    <ImageView
+        android:id="@+id/divider_1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/divider"
+        android:layout_marginTop="40dp"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/light_gray" />
+    
+    <TextView 
+        android:id="@+id/tv_select_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="40dp"
+        android:clickable="true"
+        android:layout_below="@id/divider_1"
+        android:text="@string/select_path"
+        android:textColor="@color/black"
+        android:textSize="19sp"
+        android:gravity="center"
+        />
+    
+    <ImageView
+        android:id="@+id/divider_2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/tv_select_path"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/light_gray" />
+    
+    
+    <ImageView
+        android:id="@+id/divider_3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/divider_2"
+        android:layout_marginTop="40dp"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/light_gray" />
+    
+    <TextView 
+        android:id="@+id/tv_check_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="40dp"
+        android:clickable="true"
+        android:layout_below="@id/divider_3"
+        android:text="@string/check_new_version"
+        android:textColor="@color/black"
+        android:textSize="19sp"
+        android:gravity="center"
+        />
+    
+    <ImageView
+        android:id="@+id/divider_4"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/tv_check_update"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/light_gray" />
+    
+    <TextView 
+        android:id="@+id/tv_about"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:minHeight="40dp"
+        android:layout_below="@id/divider_4"
+        android:text="@string/about"
+        android:textColor="@color/black"
+        android:textSize="19sp"
+        android:gravity="center"
+        />
+    
+    <ImageView
+        android:id="@+id/divider_5"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/tv_about"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/light_gray" />
+    
+
+</RelativeLayout>

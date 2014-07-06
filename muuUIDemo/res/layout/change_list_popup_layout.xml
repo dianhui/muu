@@ -8,7 +8,7 @@
     android:minHeight="96dp" >
 
     <LinearLayout
-        android:id="@+id/ll_week_top"
+        android:id="@+id/ll_random_read"
         android:layout_width="173dp"
         android:layout_height="47dp"
         android:gravity="center"
@@ -17,12 +17,14 @@
         android:background="@color/gray">
 
         <TextView
-            android:id="@+id/tv_week_top"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_random"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_list_random"
+            android:drawablePadding="10dp"
             android:gravity="center"
             style="@style/WeekTopDropAppearence"
-            android:text="@string/weekly_top" />
+            android:text="@string/random_read" />
     </LinearLayout>
     
     <ImageView
@@ -30,33 +32,8 @@
         android:layout_width="173dp"
         android:layout_height="1dp"
         android:contentDescription="@string/content_des_place_holder"
-        android:src="@color/white"
+        android:src="@color/light_gray"
         android:visibility="gone" />
-    
-    <LinearLayout
-        android:id="@+id/ll_new"
-        android:layout_width="173dp"
-        android:layout_height="47dp"
-        android:gravity="center"
-        android:clickable="true"
-        android:background="@color/gray">
-
-        <TextView
-            android:id="@+id/tv_new"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            style="@style/WeekTopDropAppearence"
-            android:text="@string/recent_update" />
-    </LinearLayout>
-    
-    <ImageView 
-        android:id="@+id/imv_divider_2"
-        android:layout_width="173dp"
-        android:layout_height="1dp"
-        android:src="@color/white"
-        android:contentDescription="@string/content_des_place_holder"
-        />
     
     <LinearLayout
         android:id="@+id/ll_hot"
@@ -68,13 +45,42 @@
 
         <TextView
             android:id="@+id/tv_hot"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:drawableLeft="@drawable/ic_list_hot"
+            android:drawablePadding="10dp"
             style="@style/WeekTopDropAppearence"
             android:text="@string/hot_list" />
         
     </LinearLayout>
     
+    <ImageView 
+        android:id="@+id/imv_divider_2"
+        android:layout_width="173dp"
+        android:layout_height="1dp"
+        android:src="@color/light_gray"
+        android:contentDescription="@string/content_des_place_holder"
+        />
+    
+    <LinearLayout
+        android:id="@+id/ll_new"
+        android:layout_width="173dp"
+        android:layout_height="47dp"
+        android:gravity="center"
+        android:paddingLeft="10dp"
+        android:clickable="true"
+        android:background="@color/gray">
+
+        <TextView
+            android:id="@+id/tv_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:drawableLeft="@drawable/ic_list_new"
+            android:drawablePadding="10dp"
+            style="@style/WeekTopDropAppearence"
+            android:text="@string/recent_update" />
+    </LinearLayout>
     
 </LinearLayout>

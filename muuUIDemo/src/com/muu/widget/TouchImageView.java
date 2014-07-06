@@ -598,13 +598,13 @@ public class TouchImageView extends ImageView {
 			if (getCurrentZoom() > 1)
 				return false;
     		
-    		if (distanceX > 25 && Math.abs(distanceY) < 20) {
+    		if (distanceX > 15 && Math.abs(distanceY) < 15) {
     			mScrolling = true;
     			mGestureListener.onSwipNext();
     			return true;
             }
     		
-    		if (distanceX < -25 && Math.abs(distanceY) < 20) {
+    		if (distanceX < -15 && Math.abs(distanceY) < 15) {
     			mScrolling = true;
     			mGestureListener.onSwipPrevious();
     			return true;

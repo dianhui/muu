@@ -2,6 +2,8 @@ package com.muu.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,21 +17,22 @@ public class CategoryListAdapter extends BaseAdapter {
 
 	private Context mCtx;
 	private LayoutInflater mInflater;
-	private String[] mCategoryTextArray;
+	private String[] mMenuItems;
 	private SlidingMenu mSlidingMenu;
+	private int mCurIdx = 1;
 
 	public CategoryListAdapter(Context ctx, SlidingMenu slidingMenu) {
 		mCtx = ctx.getApplicationContext();
 		mSlidingMenu = slidingMenu;
 		
 		mInflater = LayoutInflater.from(ctx);
-		mCategoryTextArray = ctx.getResources().getStringArray(
-		        R.array.category_text_array);
+		mMenuItems = ctx.getResources().getStringArray(
+		        R.array.slid_menu_items_array);
 	}
 
 	@Override
 	public int getCount() {
-		return mCategoryTextArray.length;
+		return mMenuItems.length;
 	}
 
 	@Override
@@ -42,6 +45,11 @@ public class CategoryListAdapter extends BaseAdapter {
 		return position;
 	}
 
+	private final static int sSearchIdx = 0;
+	private final static int sFirstPageIdx = 1;
+	private final static int sCategoryIdx = 2;
+	private final static int sOffLineReadIdx = 3;
+	private final static int sSettingsIdx = 4;
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
@@ -57,28 +65,42 @@ public class CategoryListAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		holder.text.setText(mCategoryTextArray[position]);
+		holder.text.setText(mMenuItems[position]);
+		holder.text.setCompoundDrawables(getLeftDrawable(position), null, null, null);
+		if (position == mCurIdx) {
+			holder.text.setSelected(true);
+		} else {
+			holder.text.setSelected(false);
+		}
+		
 		convertView.setClickable(true);
 		convertView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if (position == 0) {
+				mCurIdx = position;
+				CategoryListAdapter.this.notifyDataSetChanged();
+				
+				switch (position) {
+				case sSearchIdx:
+					startActivity(SearchActivity.class);
+					break;
+				case sFirstPageIdx:
 					mSlidingMenu.toggle();
-				} else {
-					Intent intent = new Intent(mCtx, BooksListActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					intent.putExtra(BooksListActivity.sListTypeKey,
-							BooksListActivity.sListCategory);
-					intent.putExtra(BooksListActivity.sCategoryIdx, position);
-					mCtx.startActivity(intent);
+					break;
+				case sCategoryIdx:
+					startActivity(CategoryActivity.class);
+					break;
+				case sOffLineReadIdx:
+					startActivity(OfflineReadActivity.class);
+					break;
+				case sSettingsIdx:
+					startActivity(SettingsActivity.class);
+					break;
+
+				default:
+					break;
 				}
 				
-//				new Handler().postDelayed(new Runnable() {
-//					@Override
-//					public void run() {
-//						mSlidingMenu.toggle();
-//					}
-//				}, 100);
 			}
 		});
 
@@ -87,5 +109,40 @@ public class CategoryListAdapter extends BaseAdapter {
 
 	static class ViewHolder {
 		TextView text;
+	}
+	
+	private void startActivity(Class<?> activityClass) {
+		Intent intent = new Intent(mCtx.getApplicationContext(), activityClass);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mCtx.startActivity(intent);
+	}
+	
+	private Drawable getLeftDrawable(int pos) {
+		Resources res = mCtx.getResources();
+		Drawable drawable = null;
+		switch (pos) {
+		case sSearchIdx:
+			drawable = res.getDrawable(R.drawable.ic_slide_search);
+			break;
+		case sFirstPageIdx:
+			drawable = res.getDrawable(R.drawable.ic_slide_first_page);
+			break;
+		case sCategoryIdx:
+			drawable = res.getDrawable(R.drawable.ic_slide_category);
+			break;
+		case sOffLineReadIdx:
+			drawable = res.getDrawable(R.drawable.ic_slide_offline_read);
+			break;
+		case sSettingsIdx:
+			drawable = res.getDrawable(R.drawable.ic_slide_settings);
+			break;
+
+		default:
+			drawable = res.getDrawable(R.drawable.ic_slide_search);
+			break;
+		}
+		
+		drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+		return drawable;
 	}
 }

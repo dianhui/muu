@@ -72,8 +72,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/WeekTopAppearence"
-            android:text="@string/weekly_top"
+            android:text="@string/random_read"
+            android:drawableLeft="@drawable/ic_list_random_selected"
             android:drawableRight="@drawable/ic_change_list"
+            android:drawablePadding="5dp"
             android:layout_centerInParent="true"
             />
     </RelativeLayout>
@@ -83,7 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="20dp"
         android:layout_toLeftOf="@+id/imbtn_search"
         android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/ic_recent_history"
@@ -109,7 +111,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:clickable="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="15dp"
         style="@style/ActionBarBackTextAppearence"
         android:visibility="gone"
         android:text="@string/chapter_contents" />

@@ -14,14 +14,12 @@
         android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/book_icon" />
 
-    <TextView
-        android:id="@+id/tv_tag"
-        style="@style/BookTagAppearence"
-        android:layout_width="60dp"
-        android:layout_height="21dp"
-        android:background="@color/cartoon_name_bg"
-        android:gravity="center"
-        android:text="@string/humer" />
+    <ImageView 
+        android:id="@+id/imv_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@drawable/ic_category_tag_01"/>
 
     <TextView
         android:id="@+id/tv_name"

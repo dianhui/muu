@@ -2,20 +2,24 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshScrollView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
-import com.muu.db.DatabaseMgr;
+import com.muu.server.MuuClient.ListType;
+import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,15 +33,23 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
+	private static final String TAG = "MainActivity";
+	
 	private ImageButton mMenuBtn = null;
 	private SlidingMenu mSlidingMenu = null;
 	private View mChangeListView = null;
 	private PopupWindow mChangeListPopup = null;
 	
 	private ProgressBar mProgress = null;
+	private TextView mEmpty = null;
 	private ScrollView mCartoonsContainer = null;
+	private PullToRefreshScrollView mPullRefreshScrollView = null;
+	
+	private ListType mCurrentList = null;
+	private int mCurrentPage = -1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,14 +57,32 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main_activity_layout);
 		
 		mProgress = (ProgressBar)this.findViewById(R.id.progress_bar);
-		mCartoonsContainer = (ScrollView)this.findViewById(R.id.sv_middle_content);
+		mEmpty = (TextView)this.findViewById(R.id.tv_empty);
+		mPullRefreshScrollView = (PullToRefreshScrollView)this.findViewById(R.id.sv_middle_content);
+		mCartoonsContainer = mPullRefreshScrollView.getRefreshableView();
+		mPullRefreshScrollView.setOnRefreshListener(new OnRefreshListener<ScrollView>() {
+			@Override
+			public void onRefresh(PullToRefreshBase<ScrollView> refreshView) {
+				new RetrieveCartoonListTask().execute(mCurrentList);
+			}
+		});
 		
 		setupSlideMenu();
 		setupActionBar();
 		setupDropdownView();
+		changeList(ListType.RANDOM);
+	}
+	
+	private void changeList(ListType type) {
+		if (mCurrentList != null) {
+			Log.d(TAG, String.format("current type: %s type: %s", mCurrentList, type));
+		}
+		if (mCurrentList == type) return;
 		
+		mCurrentPage = -1;
+		mCurrentList = type;
 		RetrieveCartoonListTask task = new RetrieveCartoonListTask();
-		task.execute(sTypeWeekTop);
+		task.execute(type);
 	}
 
 	private void setupSlideMenu() {
@@ -84,29 +114,22 @@ public class MainActivity extends Activity {
 		
 		ImageButton recentBtn = (ImageButton) this
 				.findViewById(R.id.imbtn_recent_history);
+		RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)recentBtn.getLayoutParams();
+		layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		recentBtn.setLayoutParams(layoutParams);
+		
 		recentBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getApplicationContext(),
-						BooksListActivity.class);
-				intent.putExtra(BooksListActivity.sListTypeKey,
-						BooksListActivity.sListRecent);
+						RecentReadListActivity.class);
 				MainActivity.this.startActivity(intent);
 			}
 		});
 		
 		ImageButton searchBtn = (ImageButton) this
 				.findViewById(R.id.imbtn_search);
-		searchBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(getApplicationContext(),
-						BooksListActivity.class);
-				intent.putExtra(BooksListActivity.sListTypeKey,
-						BooksListActivity.sListSearch);
-				MainActivity.this.startActivity(intent);
-			}
-		});
+		searchBtn.setVisibility(View.GONE);
 	}
 	
 	private void setupDropdownView() {
@@ -132,14 +155,24 @@ public class MainActivity extends Activity {
 		
 		final TextView listTitle = (TextView)this.findViewById(R.id.tv_title);
 		
-		LinearLayout weekTopLayout = (LinearLayout) mChangeListView
-				.findViewById(R.id.ll_week_top);
-		weekTopLayout.setOnClickListener(new OnClickListener() {
+		LinearLayout randomReadLayout = (LinearLayout) mChangeListView
+				.findViewById(R.id.ll_random_read);
+		randomReadLayout.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				listTitle.setText(R.string.weekly_top);
-				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_week_top);
+				listTitle.setText(R.string.random_read);
+				Drawable leftDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_list_random_selected);
+				leftDrawable.setBounds(0, 0, leftDrawable.getMinimumWidth(),
+						leftDrawable.getMinimumHeight());
+				Drawable rightDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_change_list);
+				rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(),
+						rightDrawable.getMinimumHeight());
+				listTitle.setCompoundDrawables(leftDrawable, null, rightDrawable, null);
+				
+				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_random_read);
 				ll.setVisibility(View.GONE);
 				
 				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
@@ -155,8 +188,7 @@ public class MainActivity extends Activity {
 				ll.setVisibility(View.VISIBLE);
 				mChangeListPopup.dismiss();
 				
-				RetrieveCartoonListTask task = new RetrieveCartoonListTask();
-				task.execute(sTypeWeekTop);
+				changeList(ListType.RANDOM);
 			}
 		});
 		
@@ -167,7 +199,17 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				listTitle.setText(R.string.recent_update);
-				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_week_top);
+				Drawable leftDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_list_new_selected);
+				leftDrawable.setBounds(0, 0, leftDrawable.getMinimumWidth(),
+						leftDrawable.getMinimumHeight());
+				Drawable rightDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_change_list);
+				rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(),
+						rightDrawable.getMinimumHeight());
+				listTitle.setCompoundDrawables(leftDrawable, null, rightDrawable, null);
+				
+				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_random_read);
 				ll.setVisibility(View.VISIBLE);
 				
 				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
@@ -183,8 +225,7 @@ public class MainActivity extends Activity {
 				ll.setVisibility(View.VISIBLE);
 				mChangeListPopup.dismiss();
 				
-				RetrieveCartoonListTask task = new RetrieveCartoonListTask();
-				task.execute(sTypeNew);
+				changeList(ListType.NEW);
 			}
 		});
 		
@@ -195,7 +236,17 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				listTitle.setText(R.string.hot_list);
-				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_week_top);
+				Drawable leftDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_list_hot_selected);
+				leftDrawable.setBounds(0, 0, leftDrawable.getMinimumWidth(),
+						leftDrawable.getMinimumHeight());
+				Drawable rightDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_change_list);
+				rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(),
+						rightDrawable.getMinimumHeight());
+				listTitle.setCompoundDrawables(leftDrawable, null, rightDrawable, null);
+				
+				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_random_read);
 				ll.setVisibility(View.VISIBLE);
 				
 				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
@@ -211,90 +262,106 @@ public class MainActivity extends Activity {
 				ll.setVisibility(View.GONE);
 				mChangeListPopup.dismiss();
 				
-				RetrieveCartoonListTask task = new RetrieveCartoonListTask();
-				task.execute(sTypeHot);
+				changeList(ListType.TOP);
 			}
 		});
 	}
 	
-	private void setupFirstCartoon(int firstId) {
+	private void setupFirstCartoon(CartoonInfo info) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
-		setClickEvent(layout, firstId);
-		
-		DatabaseMgr dbMgr = new DatabaseMgr(this);
-		Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), firstId));
-		Cursor cur = dbMgr.query(uri, null, null, null, null);
-		if (cur == null) return;
-		if (!cur.moveToFirst()) {
-			cur.close();
-			return;
-		}
-		
-		CartoonInfo info = new CartoonInfo(cur);
-		cur.close();
-		dbMgr.closeDatabase();
+		setClickEvent(layout, info.id);
 		
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no1_icon);
-		Bitmap bmp = new TempDataLoader().getCartoonCover(firstId);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
 		imv.setImageBitmap(bmp);
 		
-		TextView tv = (TextView)layout.findViewById(R.id.tv_no1_tag);
-		tv.setText(info.category);
+		imv = (ImageView) layout.findViewById(R.id.imv_no1_tag);
+		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
+				getApplicationContext(), info.topicCode));
 		
-		tv = (TextView)layout.findViewById(R.id.tv_no1_name);
+		
+		TextView tv = (TextView)layout.findViewById(R.id.tv_no1_name);
 		tv.setText(info.name);
 	}
 	
-	private void setupSecondCartoon(int secondId) {
+	private void setupSecondCartoon(CartoonInfo info) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
-		setClickEvent(layout, secondId);
-		
-		DatabaseMgr dbMgr = new DatabaseMgr(this);
-		Uri uri = Uri.parse(String.format("%s/%d",
-				DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), secondId));
-		Cursor cur = dbMgr.query(uri, null, null, null, null);
-		if (cur == null) return;
-		if (!cur.moveToFirst()) {
-			cur.close();
-			return;
-		}
-		
-		CartoonInfo info = new CartoonInfo(cur);
-		cur.close();
-		dbMgr.closeDatabase();
+		setClickEvent(layout, info.id);
 		
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no2_icon);
-		Bitmap bmp = new TempDataLoader().getCartoonCover(secondId);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
 		imv.setImageBitmap(bmp);
 		
-		TextView tv = (TextView)layout.findViewById(R.id.tv_no2_tag);
-		tv.setText(info.category);
+		imv = (ImageView) layout.findViewById(R.id.imv_no2_tag);
+		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
+				getApplicationContext(), info.topicCode));
 		
-		tv = (TextView)layout.findViewById(R.id.tv_no2_name);
+		TextView tv = (TextView)layout.findViewById(R.id.tv_no2_name);
 		tv.setText(info.name);
 	}
 	
-	private void setupOtherCartoons(ArrayList<Integer> list) {
+	private static final int sBaseCartoonViewId = 9999;
+//	private void setupOtherCartoons(ArrayList<CartoonInfo> list) {
+//		RelativeLayout othersLayout = (RelativeLayout) this
+//				.findViewById(R.id.rl_others);
+//		othersLayout.removeAllViews();
+//
+//		for (int i = 0; i < list.size(); i++) {
+//			LayoutInflater inflater = LayoutInflater.from(this);
+//			RelativeLayout layout = (RelativeLayout) inflater.inflate(
+//					R.layout.book_item_layout, null);
+//			layout.setId(sBaseCartoonViewId + i);
+//			setupCartoonView(layout, list.get(i));
+//			setClickEvent(layout, list.get(i).id);
+//
+//			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
+//					LayoutParams.WRAP_CONTENT);
+//
+//			if (i > 0) {
+//				params.addRule(RelativeLayout.RIGHT_OF, sBaseCartoonViewId + i - 1);
+//			}
+//
+//			if (i > 2) {
+//				params.addRule(RelativeLayout.BELOW, sBaseCartoonViewId + i - 3);
+//			}
+//
+//			if (i % 3 == 0) {
+//				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//			}
+//
+//			layout.setLayoutParams(params);
+//			othersLayout.addView(layout);
+//		}
+//	}
+	
+	private void addMoreCartoons(ArrayList<CartoonInfo> list, Boolean isFirstList) {
 		RelativeLayout othersLayout = (RelativeLayout) this
 				.findViewById(R.id.rl_others);
-
+		int baseCartoonViewId = sBaseCartoonViewId;
+		if (isFirstList) {
+			othersLayout.removeAllViews();
+		} else {
+			baseCartoonViewId = othersLayout.getChildAt(othersLayout.getChildCount() - 1).getId() + 1;
+		}
+		
+		Log.d(TAG, "baseViewId: " + baseCartoonViewId);
 		for (int i = 0; i < list.size(); i++) {
 			LayoutInflater inflater = LayoutInflater.from(this);
 			RelativeLayout layout = (RelativeLayout) inflater.inflate(
 					R.layout.book_item_layout, null);
-			layout.setId(9999 + i);
+			layout.setId(baseCartoonViewId + i);
 			setupCartoonView(layout, list.get(i));
-			setClickEvent(layout, list.get(i));
+			setClickEvent(layout, list.get(i).id);
 
 			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
 					LayoutParams.WRAP_CONTENT);
 
 			if (i > 0) {
-				params.addRule(RelativeLayout.RIGHT_OF, 9999 + i - 1);
+				params.addRule(RelativeLayout.RIGHT_OF, baseCartoonViewId + i - 1);
 			}
-
-			if (i > 2) {
-				params.addRule(RelativeLayout.BELOW, 9999 + i - 3);
+			
+			if (!isFirstList || i > 2) {
+				params.addRule(RelativeLayout.BELOW, baseCartoonViewId + i - 3);
 			}
 
 			if (i % 3 == 0) {
@@ -306,29 +373,16 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	private void setupCartoonView(RelativeLayout layout, Integer id) {
-		DatabaseMgr dbMgr = new DatabaseMgr(this);
-		Uri uri = Uri.parse(String.format("%s/%d",
-				DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), id));
-		Cursor cur = dbMgr.query(uri, null, null, null, null);
-		if (cur == null)
-			return;
-		if (!cur.moveToFirst()) {
-			cur.close();
-			return;
-		}
-		
-		CartoonInfo info = new CartoonInfo(cur);
-		cur.close();
-		dbMgr.closeDatabase();
+	private void setupCartoonView(RelativeLayout layout, CartoonInfo info) {
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_icon);
-		Bitmap bmp = new TempDataLoader().getCartoonCover(id);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
 		imv.setImageBitmap(bmp);
 		
-		TextView tv = (TextView)layout.findViewById(R.id.tv_tag);
-		tv.setText(info.category);
+		imv = (ImageView) layout.findViewById(R.id.imv_tag);
+		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
+				getApplicationContext(), info.topicCode));
 		
-		tv = (TextView)layout.findViewById(R.id.tv_name);
+		TextView tv = (TextView)layout.findViewById(R.id.tv_name);
 		tv.setText(info.name);
 	}
 	
@@ -346,59 +400,79 @@ public class MainActivity extends Activity {
 		});
 	}
 	
-	private static final int sTypeWeekTop = 0;
-	private static final int sTypeNew = 1;
-	private static final int sTypeHot = 2;
 	private class RetrieveCartoonListTask extends
-			AsyncTask<Integer, Integer, ArrayList<Integer>> {
-		private int mListType = sTypeWeekTop;
+			AsyncTask<ListType, Integer, ArrayList<CartoonInfo>> {
+		private ListType mListType = ListType.RANDOM;
 		
 		@Override
 		protected void onPreExecute() {
 			mProgress.setVisibility(View.VISIBLE);
-			mCartoonsContainer.setVisibility(View.GONE);
+			if (mCurrentPage == -1) {
+				mCartoonsContainer.setVisibility(View.GONE);
+			}
 		}
 		
 		@Override
-		protected ArrayList<Integer> doInBackground(Integer... params) {
-			//TODO: retrieve data from server.
-			
+		protected ArrayList<CartoonInfo> doInBackground(ListType... params) {
 			mListType = params[0];
 			return retrieveCartoonList(mListType);
 		}
 		
 		@Override
-		protected void onPostExecute(ArrayList<Integer> result) {
+		protected void onPostExecute(ArrayList<CartoonInfo> result) {
+			mPullRefreshScrollView.onRefreshComplete();
 			mProgress.setVisibility(View.GONE);
+			mEmpty.setVisibility(View.GONE);
 			mCartoonsContainer.setVisibility(View.VISIBLE);
 			
-			if (result == null || result.size() < 1) return;
+			if (result == null || result.size() < 1) {
+				if (mCurrentPage == -1) {
+					mCartoonsContainer.setVisibility(View.GONE);
+					mEmpty.setVisibility(View.VISIBLE);
+				} else {
+					Toast.makeText(getApplicationContext(),
+							MainActivity.this.getString(R.string.no_more_data),
+							Toast.LENGTH_SHORT).show();
+				}
+				
+				return;
+			}
 			
-			setupFirstCartoon(result.remove(0));
-			setupSecondCartoon(result.remove(0));
-			setupOtherCartoons(result);
+			mCurrentPage++;
+			if (mCurrentPage == 0) {
+				setupFirstCartoon(result.remove(0));
+				setupSecondCartoon(result.remove(0));
+				addMoreCartoons(result, true);
+			} else {
+				addMoreCartoons(result, false);
+			}
 		}
 	}
 	
-	private ArrayList<Integer> retrieveCartoonList(Integer type) {
-		ArrayList<Integer> list = null;
-		TempDataLoader dataLoader = new TempDataLoader();
-		
+	private ArrayList<CartoonInfo> retrieveCartoonList(ListType type) {
+		ArrayList<CartoonInfo> list = null;
+		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
+//		TempDataLoader dataLoader = new TempDataLoader();
+		int requestCount = mCurrentPage == -1 ? 20 : 9;
 		switch (type) {
-		case sTypeWeekTop:
-			list = dataLoader.getCartoonIds(TempDataLoader.WEEK_TOP20);
+		case RANDOM:
+			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
+			
+//			list = dataLoader.getCartoonIds(TempDataLoader.WEEK_TOP20);
 			break;
-		case sTypeNew:
-			list = dataLoader.getCartoonIds(TempDataLoader.NEW_TOP20);
+		case NEW:
+			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
+			
+//			list = dataLoader.getCartoonIds(TempDataLoader.NEW_TOP20);
 			break;
-		case sTypeHot:
-			list = dataLoader.getCartoonIds(TempDataLoader.HOT_TOP20);
+		case TOP:
+			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
+//			list = dataLoader.getCartoonIds(TempDataLoader.HOT_TOP20);
 			break;
 
 		default:
 			break;
 		}
-		//TODO: retrieve cartoon list from server.
 		return list;
 	}
 }

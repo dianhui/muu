@@ -30,6 +30,7 @@ public class DatabaseMgr {
 		public static final String ABSTRACT = "abstract";
 		public static final String CATEGORY = "category";
 		public static final String IS_COMPLETE = "is_complete";
+		public static final String CHAPTER_COUNT = "chapter_count"; 
 	}
 	
 	public interface CHAPTERS_COLUMN {
@@ -185,12 +186,13 @@ public class DatabaseMgr {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			String createCartoonsTable = String
-					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer);",
+					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer, %s int);",
 							TABLE_CARTOONS, CARTOONS_COLUMN.ID,
 							CARTOONS_COLUMN.NAME, CARTOONS_COLUMN.AUTHOR,
 							CARTOONS_COLUMN.UPDATE_DATE,
 							CARTOONS_COLUMN.ABSTRACT, CARTOONS_COLUMN.CATEGORY,
-							CARTOONS_COLUMN.IS_COMPLETE);
+							CARTOONS_COLUMN.IS_COMPLETE,
+							CARTOONS_COLUMN.CHAPTER_COUNT);
 			db.execSQL(createCartoonsTable);
 			
 			String createChaptersTable = String
@@ -262,5 +264,11 @@ public class DatabaseMgr {
 		} else {
 			return selection1 + " AND " + selection2;
 		}
+	}
+	
+	@Override
+	public void finalize() throws Throwable {
+		super.finalize();
+		mDbHelper.close();
 	}
 }

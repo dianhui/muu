@@ -1,27 +1,23 @@
 package com.muu.ui;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.uidemo.R;
-import com.muu.util.PkgMrgUtil;
+//import com.muu.util.ShareUtil;
 import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class DetailsPageActivity extends Activity {
 	public static final String sCartoonIdExtraKey = "cartoon_id";
@@ -51,7 +46,7 @@ public class DetailsPageActivity extends Activity {
 
 		setupActionBar();
 		setupContentViews();
-		setupCommentsView();
+//		setupCommentsView();
 		
 		new RetrieveChaptersTask().execute(mCartoonId);
 	}
@@ -60,7 +55,7 @@ public class DetailsPageActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
-		setupReadButton();
+//		setupReadButton();
 	}
 	
 	private void setupActionBar() {
@@ -124,7 +119,8 @@ public class DetailsPageActivity extends Activity {
 	
 	private void setupContentViews() {
 		final ImageButton moreBtn = (ImageButton)this.findViewById(R.id.imv_btn_more);
-		moreBtn.setOnClickListener(new OnClickListener() {
+		RelativeLayout introLayout = (RelativeLayout)this.findViewById(R.id.rl_intro);
+		introLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_introduction);
@@ -134,13 +130,13 @@ public class DetailsPageActivity extends Activity {
 			}
 		});
 		
-		ImageButton shareBtn = (ImageButton)this.findViewById(R.id.imv_btn_share);
-		shareBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onShareClicked();
-			}
-		});
+//		ImageButton shareBtn = (ImageButton)this.findViewById(R.id.imv_btn_share);
+//		shareBtn.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				ShareUtil.onShareClicked(DetailsPageActivity.this, mActionBarTitle.getText().toString());
+//			}
+//		});
 		
 		if (mCartoonId < 0) return;
 		DatabaseMgr dbMgr = new DatabaseMgr(this);
@@ -159,14 +155,20 @@ public class DetailsPageActivity extends Activity {
 		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
 		imv.setImageBitmap(bmp);
 		
+		imv = (ImageView)this.findViewById(R.id.imv_status);
+		int resId = info.isComplete == 0 ? R.drawable.ic_status_continue
+				: R.drawable.ic_status_complete;
+		imv.setImageResource(resId);
+		
 		TextView tv = (TextView)this.findViewById(R.id.tv_category);
-		tv.setText(getString(R.string.category, info.category));
+		tv.setText(getString(R.string.category, TempDataLoader.getTopicString(info.topicCode)));
 		
 		tv = (TextView)this.findViewById(R.id.tv_author);
 		tv.setText(getString(R.string.author, info.author));
 		
 		tv = (TextView)this.findViewById(R.id.tv_update_time);
-		tv.setText(getString(R.string.update_time, info.date));
+		tv.setText(getString(R.string.update_time,
+				info.updateDate.substring(0, info.updateDate.indexOf(' '))));
 		
 //		tv = (TextView)this.findViewById(R.id.tv_size);
 		
@@ -179,12 +181,6 @@ public class DetailsPageActivity extends Activity {
 	private void setupReadButton() {
 		DatabaseMgr dbMgr = new DatabaseMgr(DetailsPageActivity.this);
 		Cursor cursor = getHistoryCursor(dbMgr, mCartoonId);
-		String btnTxt = cursor == null ? getString(R.string.read)
-				: getString(R.string.continue_read);
-		
-		Button btnRead = (Button)this.findViewById(R.id.btn_read);
-		btnRead.setText(btnTxt);
-		
 		int chapterIdx = 1;
 		int pageIdx = 1;
 		if (cursor != null && cursor.moveToFirst()) {
@@ -196,17 +192,30 @@ public class DetailsPageActivity extends Activity {
 		
 		final int finalChapterIdx = chapterIdx;
 		final int finalPageIdx = pageIdx;
+		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
+		imv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startReadActivity(finalChapterIdx, finalPageIdx);
+			}
+		});
+		
+		Button btnRead = (Button)this.findViewById(R.id.btn_read);
 		btnRead.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent();
-				intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
-				intent.putExtra(sCartoonIdExtraKey, mCartoonId);
-				intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, finalChapterIdx);
-				intent.putExtra(ReadPageActivity.sPageIdxExtraKey, finalPageIdx);
-				DetailsPageActivity.this.startActivity(intent);
+				startReadActivity(finalChapterIdx, finalPageIdx);
 			}
 		});
+	}
+	
+	private void startReadActivity(int chapterIdx, int pageIdx) {
+		Intent intent = new Intent();
+		intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
+		intent.putExtra(sCartoonIdExtraKey, mCartoonId);
+		intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
+		intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
+		DetailsPageActivity.this.startActivity(intent);
 	}
 	
 	private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
@@ -224,23 +233,23 @@ public class DetailsPageActivity extends Activity {
 		return cur;
 	}
 	
-	private void setupCommentsView() {
-		ArrayList<String> list = new TempDataLoader().getRandomComments(5);
-		TextView tv = (TextView)this.findViewById(R.id.tv_comment_1);
-		tv.setText(list.get(0));
-		
-		tv = (TextView)this.findViewById(R.id.tv_comment_2);
-		tv.setText(list.get(1));
-		
-		tv = (TextView)this.findViewById(R.id.tv_comment_3);
-		tv.setText(list.get(2));
-		
-		tv = (TextView)this.findViewById(R.id.tv_comment_4);
-		tv.setText(list.get(3));
-		
-		tv = (TextView)this.findViewById(R.id.tv_comment_5);
-		tv.setText(list.get(4));
-	}
+//	private void setupCommentsView() {
+//		ArrayList<String> list = new TempDataLoader().getRandomComments(5);
+//		TextView tv = (TextView)this.findViewById(R.id.tv_comment_1);
+//		tv.setText(list.get(0));
+//		
+//		tv = (TextView)this.findViewById(R.id.tv_comment_2);
+//		tv.setText(list.get(1));
+//		
+//		tv = (TextView)this.findViewById(R.id.tv_comment_3);
+//		tv.setText(list.get(2));
+//		
+//		tv = (TextView)this.findViewById(R.id.tv_comment_4);
+//		tv.setText(list.get(3));
+//		
+//		tv = (TextView)this.findViewById(R.id.tv_comment_5);
+//		tv.setText(list.get(4));
+//	}
 	
 	private class ChapterListAdapter extends BaseAdapter {
 		private Context mCtx;
@@ -336,40 +345,5 @@ public class DetailsPageActivity extends Activity {
 			tv.setVisibility(View.VISIBLE);
 			tv.setText(getString(R.string.size, result));
 		}
-	}
-	
-	private void onShareClicked() {
-		Intent intent = new Intent(Intent.ACTION_SEND);
-		intent.setType("text/plain");
-		List<ResolveInfo> infoList = getPackageManager().queryIntentActivities(intent, 0);
-		if (infoList == null) {
-			return;
-		}
-		
-		List<Intent> targetedShareIntents = new ArrayList<Intent>();
-        for (ResolveInfo info : infoList) {
-            Intent targeted = new Intent(Intent.ACTION_SEND);
-            targeted.setType("text/plain");
-            ActivityInfo activityInfo = info.activityInfo;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-            // judgments : activityInfo.packageName, activityInfo.name, etc.
-            if (activityInfo.packageName.contains(PkgMrgUtil.QQ_PKG) || activityInfo.name.contains(PkgMrgUtil.QQ_PKG)
-            		|| activityInfo.packageName.contains(PkgMrgUtil.SINA_WEIBO_PKG) || activityInfo.name.contains(PkgMrgUtil.SINA_WEIBO_PKG)
-            		|| activityInfo.packageName.contains(PkgMrgUtil.TENCENT_WEIBO_PKG) || activityInfo.name.contains(PkgMrgUtil.TENCENT_WEIBO_PKG)
-            		|| activityInfo.packageName.contains(PkgMrgUtil.WEIXIN_PKG) || activityInfo.name.contains(PkgMrgUtil.WEIXIN_PKG)) {
-            	targeted.putExtra(Intent.EXTRA_TEXT, this.getString(R.string.share_text, mActionBarTitle.getText()));
-            	targeted.setPackage(activityInfo.packageName);
-                targetedShareIntents.add(targeted);
-            }
-        }
-        
-        Intent chooserIntent = Intent.createChooser(targetedShareIntents.remove(0), getString(R.string.share_to));
-        if (chooserIntent == null) return;
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toArray(new Parcelable[] {}));
-        try {
-            startActivity(chooserIntent);
-        } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, "Can't find share component to share", Toast.LENGTH_SHORT).show();
-        }
 	}
 }
