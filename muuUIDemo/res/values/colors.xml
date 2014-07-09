@@ -16,5 +16,7 @@
     <color name="slide_category_list_text_selected">#ef6a30</color>
     <color name="action_bar_title">#ef6a30</color>
     <color name="cartoon_name_bg">#66d4d4d4</color>
+    
+    <color name="settings_bg_color">#999999</color>
 
 </resources>

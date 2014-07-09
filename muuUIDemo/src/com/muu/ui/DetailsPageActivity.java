@@ -4,10 +4,12 @@ import java.util.ArrayList;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
+import com.muu.data.ChapterInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
+import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
-//import com.muu.util.ShareUtil;
+import com.muu.util.ShareUtil;
 import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
@@ -18,6 +20,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,7 +45,6 @@ public class DetailsPageActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.details_page_layout);
 		mCartoonId = getIntent().getIntExtra(sCartoonIdExtraKey, -1);
-		new CaculateCartoonSizeTask().execute(mCartoonId);
 
 		setupActionBar();
 		setupContentViews();
@@ -98,11 +100,11 @@ public class DetailsPageActivity extends Activity {
 		});
 	}
 	
-	private void setupSlidingView(ArrayList<String> chapters) {
+	private void setupSlidingView(ArrayList<ChapterInfo> chapters) {
 		mChaptersSlideView = new SlidingMenu(this);
 		mChaptersSlideView.setMode(SlidingMenu.RIGHT);
 		mChaptersSlideView.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-		mChaptersSlideView.setShadowWidthRes(R.dimen.shadow_width);
+		mChaptersSlideView.setShadowWidthRes(R.dimen.chapter_shadow_width);
 		mChaptersSlideView.setShadowDrawable(R.drawable.img_menu_shadow);
 		mChaptersSlideView.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		mChaptersSlideView.setFadeDegree(0.35f);
@@ -118,25 +120,37 @@ public class DetailsPageActivity extends Activity {
 	}
 	
 	private void setupContentViews() {
-		final ImageButton moreBtn = (ImageButton)this.findViewById(R.id.imv_btn_more);
 		RelativeLayout introLayout = (RelativeLayout)this.findViewById(R.id.rl_intro);
 		introLayout.setOnClickListener(new OnClickListener() {
+			Boolean ellipSizable = true;
+
 			@Override
 			public void onClick(View v) {
 				TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_introduction);
-				tv.setMaxLines(50);
+				ImageButton moreBtn = (ImageButton)DetailsPageActivity.this.findViewById(R.id.imv_btn_more);
 				
-				moreBtn.setVisibility(View.INVISIBLE);
+				if (ellipSizable) {
+					ellipSizable = false;
+					tv.setEllipsize(null);
+					tv.setMaxLines(Integer.MAX_VALUE);
+					moreBtn.setVisibility(View.INVISIBLE);
+				} else {
+					ellipSizable = true;
+					tv.setEllipsize(TextUtils.TruncateAt.END);
+					tv.setMaxLines(3);
+					moreBtn.setVisibility(View.VISIBLE);
+				}
 			}
 		});
 		
-//		ImageButton shareBtn = (ImageButton)this.findViewById(R.id.imv_btn_share);
-//		shareBtn.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				ShareUtil.onShareClicked(DetailsPageActivity.this, mActionBarTitle.getText().toString());
-//			}
-//		});
+		TextView shareBtn = (TextView) this.findViewById(R.id.tv_share);
+		shareBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ShareUtil.onShareClicked(DetailsPageActivity.this,
+						mActionBarTitle.getText().toString());
+			}
+		});
 		
 		if (mCartoonId < 0) return;
 		DatabaseMgr dbMgr = new DatabaseMgr(this);
@@ -170,7 +184,8 @@ public class DetailsPageActivity extends Activity {
 		tv.setText(getString(R.string.update_time,
 				info.updateDate.substring(0, info.updateDate.indexOf(' '))));
 		
-//		tv = (TextView)this.findViewById(R.id.tv_size);
+		tv = (TextView)this.findViewById(R.id.tv_size);
+		tv.setText(getString(R.string.size, info.size/(1024.0f*1024.0f)));
 		
 		tv = (TextView)this.findViewById(R.id.tv_introduction);
 		tv.setText(info.abst);
@@ -254,22 +269,22 @@ public class DetailsPageActivity extends Activity {
 	private class ChapterListAdapter extends BaseAdapter {
 		private Context mCtx;
 		private LayoutInflater mInflater;
-		private ArrayList<String> mTextsList;
+		private ArrayList<ChapterInfo> mChapters;
 		
-		public ChapterListAdapter(Context ctx, ArrayList<String> texts) {
+		public ChapterListAdapter(Context ctx, ArrayList<ChapterInfo> chapters) {
 			mCtx = ctx;
 			mInflater = LayoutInflater.from(ctx);
-			mTextsList = texts;
+			mChapters = chapters;
 		}
 		
 		@Override
         public int getCount() {
-	        return mTextsList.size();
+	        return mChapters.size();
         }
 
 		@Override
         public Object getItem(int position) {
-	        return mTextsList.get(position);
+	        return mChapters.get(position);
         }
 
 		@Override
@@ -293,7 +308,8 @@ public class DetailsPageActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			holder.text.setText(mTextsList.get(position));
+			holder.text.setText(String.format("%d. %s", position + 1,
+					mChapters.get(position).name));
 			convertView.setClickable(false);
 			convertView.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -304,7 +320,7 @@ public class DetailsPageActivity extends Activity {
 					intent.putExtra(ReadPageActivity.sChapterIdxExtraKey,
 							position + 1);
 					intent.putExtra(ReadPageActivity.sPageIdxExtraKey, 1);
-					mCtx.startActivity(intent);
+//					mCtx.startActivity(intent);
 				}
 			});
 
@@ -317,33 +333,16 @@ public class DetailsPageActivity extends Activity {
 	}
 	
 	private class RetrieveChaptersTask extends
-			AsyncTask<Integer, Integer, ArrayList<String>> {
+			AsyncTask<Integer, Integer, ArrayList<ChapterInfo>> {
 		@Override
-		protected ArrayList<String> doInBackground(Integer... params) {
-			int cartoonId = params[0];
-			TempDataLoader dataLoader = new TempDataLoader();
-			return dataLoader.getChapters(cartoonId);
+		protected ArrayList<ChapterInfo> doInBackground(Integer... params) {
+			return new MuuServerWrapper(getApplicationContext())
+					.getChapterInfo(mCartoonId, 0, 20);
 		}
 		
 		@Override
-		protected void onPostExecute(ArrayList<String> result) {
+		protected void onPostExecute(ArrayList<ChapterInfo> result) {
 			setupSlidingView(result);
-		}
-	}
-	
-	private class CaculateCartoonSizeTask extends AsyncTask<Integer, Integer, Float> {
-		
-		@Override
-		protected Float doInBackground(Integer... params) {
-			int cartoonId = params[0];
-			return new TempDataLoader().getCartoonSize(cartoonId);
-		}
-		
-		@Override
-		protected void onPostExecute(Float result) {
-			TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_size);
-			tv.setVisibility(View.VISIBLE);
-			tv.setText(getString(R.string.size, result));
 		}
 	}
 }

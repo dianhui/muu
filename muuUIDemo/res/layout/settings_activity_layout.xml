@@ -34,8 +34,8 @@
         android:clickable="true"
         android:layout_below="@id/divider_1"
         android:text="@string/select_path"
-        android:textColor="@color/black"
-        android:textSize="19sp"
+        style="@style/SettingsTextAppearence"
+        android:background="@color/settings_bg_color"
         android:gravity="center"
         />
     
@@ -65,8 +65,8 @@
         android:clickable="true"
         android:layout_below="@id/divider_3"
         android:text="@string/check_new_version"
-        android:textColor="@color/black"
-        android:textSize="19sp"
+        style="@style/SettingsTextAppearence"
+        android:background="@color/settings_bg_color"
         android:gravity="center"
         />
     
@@ -86,8 +86,8 @@
         android:minHeight="40dp"
         android:layout_below="@id/divider_4"
         android:text="@string/about"
-        android:textColor="@color/black"
-        android:textSize="19sp"
+        style="@style/SettingsTextAppearence"
+        android:background="@color/settings_bg_color"
         android:gravity="center"
         />
     
@@ -98,6 +98,5 @@
         android:layout_below="@id/tv_about"
         android:contentDescription="@string/content_des_place_holder"
         android:src="@color/light_gray" />
-    
 
 </RelativeLayout>

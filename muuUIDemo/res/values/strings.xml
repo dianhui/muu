@@ -23,7 +23,7 @@
     <string name="drag_for_more">向上拖动加载更多</string>
     <string name="author">作者: %s</string>
     <string name="category">题材: %s</string>
-    <string name="size">大小: %.2f MB</string>
+    <string name="size">大小: %.2f M</string>
     <string name="update_time">更新: %s</string>
     <string name="new_comment">最新吐槽</string>
     <string name="read">开始阅读</string>

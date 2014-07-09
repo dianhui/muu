@@ -22,7 +22,8 @@ public class MuuClient {
 	private static final String sRandomListPath = "/cartoon/top";
 	private static final String sTopListPath = "/cartoon/top";
 	private static final String sNewListPath = "/cartoon/hot";
-	private static final String sTopicListPath = "/cartoons/topic"; 
+	private static final String sTopicListPath = "/cartoons/topic";
+	private static final String sChapterInfoPath = "/cartoon/chapters";
 	
 	public static enum ListType {
 		RANDOM("random", sRandomListPath),
@@ -114,8 +115,30 @@ public class MuuClient {
 		return null;
 	}
 	
-	public JSONObject getChapterInfoByCartoonId(int cartoonId) {
-		return null;
+	/**
+	 * get chapter info by given cartoon id.
+	 * 
+	 * @param
+	 * 	- cartoonId: id of cartoon.
+	 * 	- idx: page index.
+	 * 	- count: count of required cartoon.
+	 * */
+	public JSONArray getChapterInfoByCartoonId(int cartoonId, int idx, int count) {
+		JSONArray json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, String
+					.format("%s/%d/%d/%d", sChapterInfoPath, cartoonId, idx,
+							count));
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONArray(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 	
 	public Bitmap getBitmapByIdx(int cartoonId, int chapterIdx, int pageIdx) {

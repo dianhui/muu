@@ -72,7 +72,7 @@
             android:screenOrientation="nosensor"/>
         
         <activity 
-            android:name="com.muu.ui.CategoryActivity"
+            android:name="com.muu.ui.TopicsActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="nosensor"/>

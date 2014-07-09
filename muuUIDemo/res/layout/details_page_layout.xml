@@ -96,7 +96,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_update_time"
                 android:layout_marginTop="10dp"
-                android:visibility="gone"
                 android:text="@string/size" />
 
         </RelativeLayout>
@@ -138,7 +137,7 @@
         android:layout_below="@id/rl_book_fields"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp" >
+        android:layout_marginTop="15dp" >
 
         <RelativeLayout
             android:id="@+id/rl_intro"

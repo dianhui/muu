@@ -37,12 +37,17 @@
     
     <style name="SlidingCategoryAppearence">
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/category_text_color</item>
+        <item name="android:textColor">@color/slide_settings_text_color</item>
     </style>
     
     <style name="BookTagAppearence">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="TopicTextAppearence">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">@color/topic_text_color</item>
     </style>
     
     <style name="BookNameAppearence">
@@ -100,6 +105,11 @@
         <item name="android:textColor">@color/black</item>
     </style>
     
+    <style name="ChapterListTextAppearence">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
     <style name="PageIdxAppearence">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/white</item>
@@ -113,6 +123,11 @@
     <style name="FloatDialogTitleAppearence">
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+    
+    <style name="SettingsTextAppearence">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
     
 </resources>

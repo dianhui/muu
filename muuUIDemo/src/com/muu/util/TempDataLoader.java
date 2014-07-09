@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 import com.muu.data.CartoonInfo;
+import com.muu.data.ChapterInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
 import com.muu.uidemo.R;
@@ -45,7 +45,7 @@ public class TempDataLoader {
 	 * if the cartoon already in db, check if need update, if no update then ignore.
 	 * @param
 	 *  - ctx, application context, NOT NULL.
-	 * 	- cartoonsList - list of cartoons to be store.
+	 * 	- cartoonsList - list of cartoons to be stored.
 	 * */
 	public void storeCartoonsToDB(Context ctx, ArrayList<CartoonInfo> cartoonsList) {
 		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
@@ -67,7 +67,35 @@ public class TempDataLoader {
 		}
 		dbMgr.closeDatabase();
 	}
-
+	
+	/**
+	 * store chapters into db.
+	 * if the chapter already in db, check if need update, if no update then ignore.
+	 * 
+	 * @param
+	 * 	- ctx, application context, not null.
+	 * 	- chaptersList, list of chapters to be stored.
+	 * */
+	public void storeChaptersToDB(Context ctx, ArrayList<ChapterInfo> chaptersList) {
+		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+		for (ChapterInfo chapterInfo : chaptersList) {
+			Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.CHAPTER_ALL_URL.toString(), chapterInfo.id));
+			Cursor cur = dbMgr.query(uri, null, null, null, null);
+			if (cur != null && cur.moveToFirst()) {
+				ChapterInfo chapter = new ChapterInfo(cur);
+				cur.close();
+				if (chapterInfo.equals(chapter)) continue;
+				
+				dbMgr.update(uri, chapterInfo.toContentValues(), null, null);
+				continue;
+			}
+			
+			if (cur != null) cur.close();
+			dbMgr.insert(uri, chapterInfo.toContentValues());
+		}
+		dbMgr.closeDatabase();
+	}
+	
 	public ArrayList<Integer> getCartoonIds(String whichList) {
 		ArrayList<Integer> cartoonIds = new ArrayList<Integer>();
 		String path = android.os.Environment.getExternalStorageDirectory()
@@ -82,28 +110,6 @@ public class TempDataLoader {
 			Log.d(TAG, "Exception: " + e.getMessage());
 		}
 		return cartoonIds;
-	}
-	
-	public Boolean isCoverExist(int id) {
-		String path = android.os.Environment.getExternalStorageDirectory()
-				+ File.separator + MUU_TMP + File.separator + CARTOONS
-				+ File.separator + id + File.separator + COVER + FileFormatUtil.PNG_POSTFIX;
-		File file = new File(path);
-		if (file.exists()) return true;
-		
-		path = android.os.Environment.getExternalStorageDirectory()
-				+ File.separator + MUU_TMP + File.separator + CARTOONS
-				+ File.separator + id + File.separator + COVER + FileFormatUtil.JPG_POSTFIX;
-		file = new File(path);
-		if (file.exists()) return true;
-		
-		path = android.os.Environment.getExternalStorageDirectory()
-				+ File.separator + MUU_TMP + File.separator + CARTOONS
-				+ File.separator + id + File.separator + COVER + FileFormatUtil.GIF_POSTFIX;
-		file = new File(path);
-		if (file.exists()) return true;
-		
-		return false;
 	}
 	
 	public Bitmap getCartoonCover(int id) {
@@ -135,38 +141,6 @@ public class TempDataLoader {
 		opts.inSampleSize = 2;
 		return BitmapFactory.decodeFile(path, opts);
 	}
-	
-//	private void loadList(Context ctx, String whichList) {
-//		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
-//		for (Integer id : getCartoonIds(whichList)) {
-//			Log.d(TAG, getCartoonInfo(id).toString());
-//			CartoonInfo info = getCartoonInfo(id);
-//			dbMgr.insert(DatabaseMgr.MUU_CARTOONS_ALL_URL, info.toContentValues());
-//		}
-//		dbMgr.closeDatabase();
-//	}
-
-//	private CartoonInfo getCartoonInfo(int cartoonId) {
-//		CartoonInfo info = new CartoonInfo();
-//		String path = android.os.Environment.getExternalStorageDirectory()
-//				+ File.separator + MUU_TMP + File.separator + CARTOONS
-//				+ File.separator + cartoonId + File.separator + INFO
-//				+ FileFormatUtil.TXT_POSTFIX;
-//		Log.d(TAG, "path: "+path);
-//		try {
-//			String[] list = FileReaderUtil.getFileContent(path).split("；|;");
-//			info.id = cartoonId;
-//			info.name = list[1];
-//			info.author = list[2];
-//			info.updateDate = list[3];
-//			info.abst = list[4];
-//			info.topicCode = list[5];
-//			info.isComplete = 1;
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return info;
-//	}
 	
 	public static void recycleBmp(Bitmap bmp) {
 		if (bmp == null || bmp.isRecycled()) {
@@ -283,34 +257,6 @@ public class TempDataLoader {
 		return BitmapFactory.decodeFile(path);
 	}
 	
-	public float getCartoonSize(int cartoonId) {
-		String path = android.os.Environment.getExternalStorageDirectory()
-				+ File.separator + MUU_TMP + File.separator + IMAGES
-				+ File.separator;
-		Log.d(TAG, "path: "+path);
-		File dirFile = new File(path);
-		if (!dirFile.exists() || !dirFile.isDirectory()) {
-			Log.d(TAG, "No temp folder: " + path);
-			return 0;
-		}
-		final Pattern p = Pattern.compile(String.format("%d_\\d{1,}_\\d{1,}.jpg",
-				cartoonId));
-		Log.d(TAG, "pattern: "+p.toString());
-		File[] fileList = dirFile.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File f) {
-				return p.matcher(f.getName()).matches();
-			}
-		});
-		
-		int size = 0;
-		for (File file : fileList) {
-			size += file.length();
-		}
-		
-		return size/(1024.0f*1024.0f);
-	}
-	
 	private static final HashMap<String, String> sCodeTopicStrMap = new HashMap<String, String>();
 	private static final HashMap<String, String> sTopicStrCodeMap = new HashMap<String, String>();
 	public void initCategoryMap(Context ctx) {
@@ -347,7 +293,17 @@ public class TempDataLoader {
 	public static Drawable getTopicTagDrawable(Context ctx, String topicCode) {
 		Resources res = ctx.getResources();
 		int resId = res.getIdentifier(
-				String.format("ic_category_tag_%s", topicCode), "drawable",
+				String.format("ic_topic_tag_%s", topicCode), "drawable",
+				ctx.getPackageName());
+		Drawable drawable = res.getDrawable(resId);
+		drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+		return drawable;
+	}
+	
+	public static Drawable getTopicBgDrawable(Context ctx, String topicCode) {
+		Resources res = ctx.getResources();
+		int resId = res.getIdentifier(
+				String.format("bg_topic_%s", topicCode), "drawable",
 				ctx.getPackageName());
 		Drawable drawable = res.getDrawable(resId);
 		drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());

@@ -65,7 +65,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/content_des_place_holder"
-                        android:src="@drawable/ic_category_tag_01" />
+                        android:src="@drawable/ic_topic_tag_01" />
 
                     <ImageView
                         android:id="@+id/imv_name_bg"
@@ -113,7 +113,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/content_des_place_holder"
-                        android:src="@drawable/ic_category_tag_01" />
+                        android:src="@drawable/ic_topic_tag_01" />
 
                     <ImageView
                         android:id="@+id/no2_imv_name_bg"
@@ -142,18 +142,6 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/rl_top3" />
-            
-            <!-- <TextView
-                android:id="@+id/tv_load_more"
-                style="@style/DragForMoreAppearence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_below="@id/rl_others"
-                android:gravity="center_horizontal"
-                android:background="@color/light_gray"
-                android:text="@string/drag_for_more" /> -->
-            
         </RelativeLayout>
     </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
 	

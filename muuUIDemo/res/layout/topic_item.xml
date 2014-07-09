@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_topic_item"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_topic_01"
+    android:layout_gravity="center">
+   
+    <TextView 
+        android:id="@+id/tv_topic"
+        android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:minHeight="25dp"
+    	android:text="@string/humer"
+		android:layout_alignParentBottom="true"
+		android:gravity="center"
+		style="@style/TopicTextAppearence"
+		android:background="@color/transparent_black"
+        />
+
+</RelativeLayout>

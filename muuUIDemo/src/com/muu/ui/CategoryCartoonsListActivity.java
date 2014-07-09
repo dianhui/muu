@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -53,9 +54,9 @@ public class CategoryCartoonsListActivity extends Activity {
 		mPullToRefreshListView = (PullToRefreshListView) this
 				.findViewById(R.id.lv_books_list);
 		mPullToRefreshListView.setOnRefreshListener(
-				new OnRefreshListener() {
+				new OnRefreshListener<ListView>() {
 					@Override
-					public void onRefresh(PullToRefreshBase refreshView) {
+					public void onRefresh(PullToRefreshBase<ListView> refreshView) {
 						new RetrieveTopicCartoonListTask().execute(mTopicStr.toString());
 					}
 				});

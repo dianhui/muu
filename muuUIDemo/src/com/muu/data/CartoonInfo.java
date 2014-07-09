@@ -22,17 +22,17 @@ public class CartoonInfo {
 	public int isComplete;
 	public String coverUrl;
 	public int chapterCount;
+	public int size;  //in Bytes
 	
 	public String toString() {
 		return id + "|" + name + "|" + author + "|" + updateDate + "|" + abst + "|"
 				+ topicCode + "|" + isComplete + "|" + coverUrl + "|"
-				+ chapterCount;
+				+ chapterCount + "|" + size;
 	}
 
 	public CartoonInfo() {
 	}
 	
-	//TBD: remove this method after finishing integration with server api.
 	public CartoonInfo(Cursor cur) {
 		if (cur == null) {
 			Log.d(TAG, "Invalid cursor.");
@@ -47,6 +47,7 @@ public class CartoonInfo {
 		topicCode = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.CATEGORY));
 		isComplete = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.IS_COMPLETE));
 		chapterCount = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.CHAPTER_COUNT));
+		size = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.SIZE));
 	}
 	
 	/**
@@ -67,6 +68,8 @@ public class CartoonInfo {
 			topicCode = cartoonInfo.getString("topicCode").replaceAll("\\\\", "");
 			coverUrl = cartoonInfo.getString("cover").replaceAll("\\\\", "");
 			chapterCount = cartoonInfo.getInt("chapterCount");
+//			size = cartoonInfo.getInt("size");
+			size = 0;
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -81,7 +84,8 @@ public class CartoonInfo {
 		}
 		return false;
 	}
-	
+
+	// no need to save cover url to db.
 	public ContentValues toContentValues() {
 		ContentValues values = new ContentValues();
 		values.put(CARTOONS_COLUMN.ID, id);
@@ -91,8 +95,8 @@ public class CartoonInfo {
 		values.put(CARTOONS_COLUMN.ABSTRACT, abst);
 		values.put(CARTOONS_COLUMN.CATEGORY, topicCode);
 		values.put(CARTOONS_COLUMN.IS_COMPLETE, isComplete);
-		// no need to save cover url to db. 
 		values.put(CARTOONS_COLUMN.CHAPTER_COUNT, chapterCount);
+		values.put(CARTOONS_COLUMN.SIZE, size);
 		
 		return values;
 	}

@@ -2,4 +2,6 @@
     <!-- Sliding Menu -->
     <dimen name="slidingmenu_offset">125dp</dimen>
     <dimen name="shadow_width">10dp</dimen>
+    
+    <dimen name="chapter_shadow_width">4dp</dimen>
 </resources>

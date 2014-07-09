@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.muu.data.CartoonInfo;
+import com.muu.data.ChapterInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.util.TempDataLoader;
 
@@ -65,4 +66,23 @@ public class MuuServerWrapper {
 		return cartoonList;
 	}
 	
+	public ArrayList<ChapterInfo> getChapterInfo(int cartoonId, int idx, int count) {
+		JSONArray jsonArray = mMuuClient.getChapterInfoByCartoonId(cartoonId, idx, count);
+		if (jsonArray == null) return null;
+		
+		ArrayList<ChapterInfo> chapterList = new ArrayList<ChapterInfo>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			try {
+				JSONObject info = jsonArray.getJSONObject(i);
+				
+				ChapterInfo chapterInfo = new ChapterInfo(info, cartoonId, idx);
+				chapterList.add(chapterInfo);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		mTmpDataLoader.storeChaptersToDB(mCtx, chapterList);
+		return chapterList;
+	}
 }

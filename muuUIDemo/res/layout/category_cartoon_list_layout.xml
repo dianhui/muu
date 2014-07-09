@@ -29,8 +29,8 @@
         android:background="@color/white"
         android:dividerHeight="10dp"
         android:divider="@color/white"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         ptr:ptrAnimationStyle="flip"
 	    ptr:ptrMode="pullFromEnd" />
     

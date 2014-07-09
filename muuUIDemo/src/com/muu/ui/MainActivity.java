@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
 		ListView appList = (ListView) mSlidingMenu
 		        .findViewById(R.id.lv_categories);
 		appList.setDividerHeight(0);
-		appList.setAdapter(new CategoryListAdapter(MainActivity.this,
+		appList.setAdapter(new SlideSettingsListAdapter(MainActivity.this,
 		        mSlidingMenu));
 	}
 	
@@ -301,39 +301,6 @@ public class MainActivity extends Activity {
 	}
 	
 	private static final int sBaseCartoonViewId = 9999;
-//	private void setupOtherCartoons(ArrayList<CartoonInfo> list) {
-//		RelativeLayout othersLayout = (RelativeLayout) this
-//				.findViewById(R.id.rl_others);
-//		othersLayout.removeAllViews();
-//
-//		for (int i = 0; i < list.size(); i++) {
-//			LayoutInflater inflater = LayoutInflater.from(this);
-//			RelativeLayout layout = (RelativeLayout) inflater.inflate(
-//					R.layout.book_item_layout, null);
-//			layout.setId(sBaseCartoonViewId + i);
-//			setupCartoonView(layout, list.get(i));
-//			setClickEvent(layout, list.get(i).id);
-//
-//			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
-//					LayoutParams.WRAP_CONTENT);
-//
-//			if (i > 0) {
-//				params.addRule(RelativeLayout.RIGHT_OF, sBaseCartoonViewId + i - 1);
-//			}
-//
-//			if (i > 2) {
-//				params.addRule(RelativeLayout.BELOW, sBaseCartoonViewId + i - 3);
-//			}
-//
-//			if (i % 3 == 0) {
-//				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//			}
-//
-//			layout.setLayoutParams(params);
-//			othersLayout.addView(layout);
-//		}
-//	}
-	
 	private void addMoreCartoons(ArrayList<CartoonInfo> list, Boolean isFirstList) {
 		RelativeLayout othersLayout = (RelativeLayout) this
 				.findViewById(R.id.rl_others);
@@ -348,7 +315,7 @@ public class MainActivity extends Activity {
 		for (int i = 0; i < list.size(); i++) {
 			LayoutInflater inflater = LayoutInflater.from(this);
 			RelativeLayout layout = (RelativeLayout) inflater.inflate(
-					R.layout.book_item_layout, null);
+					R.layout.cartoon_item_layout, null);
 			layout.setId(baseCartoonViewId + i);
 			setupCartoonView(layout, list.get(i));
 			setClickEvent(layout, list.get(i).id);
@@ -449,27 +416,22 @@ public class MainActivity extends Activity {
 		}
 	}
 	
+	private static final int sFirstRetrieveCount = 8;
+	private static final int sRetrieveMoreCount = 9;
 	private ArrayList<CartoonInfo> retrieveCartoonList(ListType type) {
 		ArrayList<CartoonInfo> list = null;
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
-//		TempDataLoader dataLoader = new TempDataLoader();
-		int requestCount = mCurrentPage == -1 ? 20 : 9;
+		int requestCount = mCurrentPage == -1 ? sFirstRetrieveCount : sRetrieveMoreCount;
 		switch (type) {
 		case RANDOM:
 			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
-			
-//			list = dataLoader.getCartoonIds(TempDataLoader.WEEK_TOP20);
 			break;
 		case NEW:
 			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
-			
-//			list = dataLoader.getCartoonIds(TempDataLoader.NEW_TOP20);
 			break;
 		case TOP:
 			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
-//			list = dataLoader.getCartoonIds(TempDataLoader.HOT_TOP20);
 			break;
-
 		default:
 			break;
 		}

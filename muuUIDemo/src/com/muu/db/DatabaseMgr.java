@@ -30,7 +30,8 @@ public class DatabaseMgr {
 		public static final String ABSTRACT = "abstract";
 		public static final String CATEGORY = "category";
 		public static final String IS_COMPLETE = "is_complete";
-		public static final String CHAPTER_COUNT = "chapter_count"; 
+		public static final String CHAPTER_COUNT = "chapter_count";
+		public static final String SIZE = "size";
 	}
 	
 	public interface CHAPTERS_COLUMN {
@@ -90,6 +91,7 @@ public class DatabaseMgr {
 			table = TABLE_CARTOONS;
 			break;
 		case MUU_CHAPTER_ALL:
+		case MUU_CHAPTER_ID:
 			table = TABLE_CHAPTERS;
 			break;
 		case MUU_RECENT_READ_ALL:
@@ -132,6 +134,11 @@ public class DatabaseMgr {
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
 			break;
+		case MUU_CHAPTER_ID:
+			table = TABLE_CHAPTERS;
+			selection = concatSelections(selection, String.format("(%s = %s)",
+					CHAPTERS_COLUMN.ID, uri.getLastPathSegment()));
+			break;
 		case MUU_RECENT_READ_ALL:
 			table = TABLE_RECENT_READ;
 			sortOrder = String.format("%s DESC", RECENT_READ_COLUMN.READ_DATE);
@@ -166,6 +173,11 @@ public class DatabaseMgr {
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
 			break;
+		case MUU_CHAPTER_ID:
+			table = TABLE_CHAPTERS;
+			selection = concatSelections(selection, String.format("(%s = %s)",
+					CHAPTERS_COLUMN.ID, uri.getLastPathSegment()));
+			break;
 		case MUU_RECENT_READ_ALL:
 			table = TABLE_RECENT_READ;
 			break;
@@ -186,13 +198,13 @@ public class DatabaseMgr {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			String createCartoonsTable = String
-					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer, %s int);",
+					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer, %s integer, %s integer);",
 							TABLE_CARTOONS, CARTOONS_COLUMN.ID,
 							CARTOONS_COLUMN.NAME, CARTOONS_COLUMN.AUTHOR,
 							CARTOONS_COLUMN.UPDATE_DATE,
 							CARTOONS_COLUMN.ABSTRACT, CARTOONS_COLUMN.CATEGORY,
 							CARTOONS_COLUMN.IS_COMPLETE,
-							CARTOONS_COLUMN.CHAPTER_COUNT);
+							CARTOONS_COLUMN.CHAPTER_COUNT, CARTOONS_COLUMN.SIZE);
 			db.execSQL(createCartoonsTable);
 			
 			String createChaptersTable = String
@@ -243,8 +255,9 @@ public class DatabaseMgr {
 	private static final int MUU_CARTOON_ALL = 0;
 	private static final int MUU_CARTOON_ID = 1;
 	private static final int MUU_CHAPTER_ALL = 2;
-	private static final int MUU_RECENT_READ_ALL = 3;
-	private static final int MUU_RECENT_HISTORY_ALL = 4;
+	private static final int MUU_CHAPTER_ID = 3;
+	private static final int MUU_RECENT_READ_ALL = 4;
+	private static final int MUU_RECENT_HISTORY_ALL = 5;
 	
 	private static final UriMatcher
 		sURLMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -252,6 +265,7 @@ public class DatabaseMgr {
 		sURLMatcher.addURI("cartoons", null, MUU_CARTOON_ALL);
 		sURLMatcher.addURI("cartoons", "#", MUU_CARTOON_ID);
 		sURLMatcher.addURI("chapters", null, MUU_CHAPTER_ALL);
+		sURLMatcher.addURI("chapters", "#", MUU_CHAPTER_ID);
 		sURLMatcher.addURI("recent_read", null, MUU_RECENT_READ_ALL);
 		sURLMatcher.addURI("v_recent_history", null, MUU_RECENT_HISTORY_ALL);
 	}

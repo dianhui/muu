@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.uidemo.R;
 
-public class CategoryListAdapter extends BaseAdapter {
+public class SlideSettingsListAdapter extends BaseAdapter {
 
 	private Context mCtx;
 	private LayoutInflater mInflater;
@@ -21,7 +21,7 @@ public class CategoryListAdapter extends BaseAdapter {
 	private SlidingMenu mSlidingMenu;
 	private int mCurIdx = 1;
 
-	public CategoryListAdapter(Context ctx, SlidingMenu slidingMenu) {
+	public SlideSettingsListAdapter(Context ctx, SlidingMenu slidingMenu) {
 		mCtx = ctx.getApplicationContext();
 		mSlidingMenu = slidingMenu;
 		
@@ -78,7 +78,7 @@ public class CategoryListAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View view) {
 				mCurIdx = position;
-				CategoryListAdapter.this.notifyDataSetChanged();
+				SlideSettingsListAdapter.this.notifyDataSetChanged();
 				
 				switch (position) {
 				case sSearchIdx:
@@ -88,7 +88,7 @@ public class CategoryListAdapter extends BaseAdapter {
 					mSlidingMenu.toggle();
 					break;
 				case sCategoryIdx:
-					startActivity(CategoryActivity.class);
+					startActivity(TopicsActivity.class);
 					break;
 				case sOffLineReadIdx:
 					startActivity(OfflineReadActivity.class);
