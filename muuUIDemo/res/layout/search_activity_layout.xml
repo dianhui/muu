@@ -54,16 +54,28 @@
             android:src="@drawable/ic_shake" />
     </RelativeLayout>
 
-    <ListView
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+	    xmlns:ptr="http://schemas.android.com/apk/res-auto"
         android:id="@+id/lv_books_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/rl_search_header"
         android:layout_marginTop="15dp"
         android:background="@color/white"
-        android:divider="@color/white"
         android:dividerHeight="10dp"
+        android:divider="@color/white"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
+        android:paddingRight="10dp"
+        ptr:ptrAnimationStyle="flip"
+	    ptr:ptrMode="pullFromEnd" />
+    
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
 
 </RelativeLayout>

@@ -17,7 +17,7 @@ public class SettingsActivity extends Activity {
 		setContentView(R.layout.settings_activity_layout);
 		
 		setupActionBar();
-		
+		setupContentView();
 	}
 	
 	private void setupActionBar() {
@@ -49,5 +49,14 @@ public class SettingsActivity extends Activity {
 		TextView title = (TextView)this.findViewById(R.id.tv_action_title);
 		title.setVisibility(View.VISIBLE);
 		title.setText(getString(R.string.settings));
+	}
+	
+	private void setupContentView() {
+		TextView tv = (TextView)this.findViewById(R.id.tv_select_path);
+		tv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			}
+		});
 	}
 }

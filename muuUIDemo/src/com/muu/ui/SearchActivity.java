@@ -3,10 +3,13 @@ package com.muu.ui;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
-import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
+import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
 
@@ -18,10 +21,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,16 +42,25 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
 public class SearchActivity extends Activity {
+	private static final int sCountInOnePage = 4;
 	
 	private static final int SENSOR_SHAKE = 10;
 	private SensorManager mSensorMgr;
 	private Vibrator mVibrator;
 	private SensorEventListener mSensorListener;
+	private String mSearchStr;
+	private int mCurPage = -1;
+	private CartoonListAdapter mListAdapter;
+	
+	private ProgressBar mProgress;
+	private PullToRefreshListView mPullToRefreshListView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -116,11 +131,22 @@ public class SearchActivity extends Activity {
 				.findViewById(R.id.rl_search_header);
 		searchHeader.setVisibility(View.VISIBLE);
 
-		setupCartoonsList(getRandomCartoons(3));
-		
 		mSensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 		mSensorListener = new ShakeListener();
+		
+		mProgress = (ProgressBar)this.findViewById(R.id.progress_bar);
+		mPullToRefreshListView = (PullToRefreshListView) this
+				.findViewById(R.id.lv_books_list);
+		mPullToRefreshListView.setOnRefreshListener(
+				new OnRefreshListener<ListView>() {
+					@Override
+					public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+						new RetrieveSearchCartoonsTask().execute(mSearchStr);
+					}
+				});
+		
+		setupCartoonsList(getRandomCartoons(3));
 	}
 	
 	Handler mHandler = new Handler() {
@@ -176,49 +202,27 @@ public class SearchActivity extends Activity {
 	}
 	
 	private void onSearchAction(TextView v) {
-		setupCartoonsList(getSearchedCartoons(v.getText().toString()));
-
 		InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		mgr.hideSoftInputFromWindow(v.getWindowToken(), 0);
 		
-		TextView title = (TextView)this.findViewById(R.id.tv_action_title);
+		mSearchStr = v.getText().toString();
+		if (TextUtils.isEmpty(mSearchStr))
+			return;
+
+		new RetrieveSearchCartoonsTask().execute(mSearchStr);
+
+		TextView title = (TextView) this.findViewById(R.id.tv_action_title);
 		title.setVisibility(View.INVISIBLE);
-		
-		TextView backText = (TextView)this.findViewById(R.id.tv_back_text);
+
+		TextView backText = (TextView) this.findViewById(R.id.tv_back_text);
 		backText.setVisibility(View.VISIBLE);
-		backText.setText(String.format("\"%s\"%s", v.getText().toString(), getString(R.string.search_result)));
+		backText.setText(String.format("\"%s\"%s", v.getText().toString(),
+				getString(R.string.search_result)));
 	}
 	
 	private void setupCartoonsList(ArrayList<CartoonInfo> list) {
-		ListView listView = (ListView)this.findViewById(R.id.lv_books_list);
-		CartoonListAdapter listAdapter = new CartoonListAdapter(this, list);
-		listView.setAdapter(listAdapter);
-	}
-	
-	private ArrayList<CartoonInfo> getSearchedCartoons(String searchStr) {
-		DatabaseMgr dbMgr = new DatabaseMgr(this);
-		Cursor cur = dbMgr.query(DatabaseMgr.MUU_CARTOONS_ALL_URL, null,
-				CARTOONS_COLUMN.NAME + " LIKE \"%" + searchStr + "%\"", null,
-				null);
-		if (cur == null) {
-			dbMgr.closeDatabase();
-			return null;
-		}
-		
-		if (cur.getCount() < 1) {
-			cur.close();
-			dbMgr.closeDatabase();
-			return null;
-		}
-		
-		ArrayList<CartoonInfo> list = new ArrayList<CartoonInfo>();
-		while (cur.moveToNext()) {
-			list.add(new CartoonInfo(cur));
-		}
-		cur.close();
-		dbMgr.closeDatabase();
-		
-		return list;
+		mListAdapter = new CartoonListAdapter(this, list);
+		mPullToRefreshListView.getRefreshableView().setAdapter(mListAdapter);
 	}
 	
 	private ArrayList<CartoonInfo> getRandomCartoons(int count) {
@@ -264,6 +268,14 @@ public class SearchActivity extends Activity {
 			mInflater = LayoutInflater.from(ctx);
 			mList = list;
 			tmpDataLoader = new TempDataLoader();
+		}
+		
+		public void addDataList(ArrayList<CartoonInfo> list) {
+			for (CartoonInfo cartoonInfo : list) {
+				mList.add(cartoonInfo);
+			}
+			
+			this.notifyDataSetChanged();
 		}
 		
 		@Override
@@ -369,4 +381,42 @@ public class SearchActivity extends Activity {
 		}
 	}
 	
+	private class RetrieveSearchCartoonsTask extends
+			AsyncTask<String, Integer, ArrayList<CartoonInfo>> {
+		@Override
+		protected void onPreExecute() {
+			mProgress.setVisibility(View.VISIBLE);
+		}
+		
+		@Override
+		protected ArrayList<CartoonInfo> doInBackground(String... params) {
+			String str = params[0];
+			return new MuuServerWrapper(getApplicationContext())
+					.getSearchCartoons(str, mCurPage + 1, sCountInOnePage);
+		}
+		
+		@Override
+		protected void onPostExecute(ArrayList<CartoonInfo> result) {
+			Log.d("XXX", "search result: "+result.size());
+			mProgress.setVisibility(View.GONE);
+			mPullToRefreshListView.onRefreshComplete();
+			
+			if (result == null || result.size() < 1) {
+				if (mCurPage == -1)
+					Toast.makeText(getApplicationContext(),
+							SearchActivity.this.getString(R.string.no_more_data),
+							Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
+			if (mCurPage == -1) {
+				setupCartoonsList(result);
+			} else {
+				mListAdapter.addDataList(result);
+			}
+			
+			mCurPage++;
+			super.onPostExecute(result);
+		}
+	}
 }

@@ -76,7 +76,6 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="nosensor"/>
-        
     </application>
 
 </manifest>

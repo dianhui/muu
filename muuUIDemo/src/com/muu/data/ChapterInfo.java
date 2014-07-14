@@ -51,6 +51,15 @@ public class ChapterInfo {
 		}
 	}
 	
+	public Boolean equals(ChapterInfo info) {
+		if (this.id == info.id && this.cartoonId == info.cartoonId
+				&& this.name.equals(info.name) && this.idx == info.idx
+				&& this.pageCount == info.pageCount) {
+			return true;
+		}
+		return false;
+	}
+	
 	public ContentValues toContentValues() {
 		ContentValues values = new ContentValues();
 		values.put(CHAPTERS_COLUMN.ID, id);

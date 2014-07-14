@@ -17,7 +17,7 @@ import android.util.Pair;
 
 public class CommHttpClient {
 	private static final String TAG = "CommHttpClient";
-	private static final String HTTP_URL_PREFIX = "http://"; 
+	private static final String HTTP_URL_PREFIX = "http://";
 	
 	public static final BasicHeader HEADER_CONTENT_TYPE = new BasicHeader(
 			"Content-Type", "application/json");

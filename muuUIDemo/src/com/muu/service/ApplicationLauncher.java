@@ -18,25 +18,6 @@ public class ApplicationLauncher extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-//		new TempDataLoader().loadFakeComments();
-//		
-//		Thread thread = new Thread(new Runnable() {
-//			@Override
-//			public void run() {
-//				boolean hasRun = PreferenceUtil.getBoolean(
-//						getApplicationContext(), sHasRun);
-//				if (hasRun) {
-//					return;
-//				}
-//
-//				PreferenceUtil.setBoolean(getApplicationContext(), sHasRun,
-//						true);
-//				TempDataLoader dataLoader = new TempDataLoader();
-//				dataLoader.loadTempData(getApplicationContext());
-//			}
-//		});
-//		thread.start();
 		
 		new TempDataLoader().initCategoryMap(getApplicationContext());
 		loadProperties();

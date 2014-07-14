@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
+import com.muu.data.Comment;
 import com.muu.db.DatabaseMgr;
-import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
+//import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
 import com.muu.util.ShareUtil;
@@ -15,6 +16,7 @@ import com.muu.util.TempDataLoader;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -26,7 +28,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+//import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -48,9 +50,8 @@ public class DetailsPageActivity extends Activity {
 
 		setupActionBar();
 		setupContentViews();
-//		setupCommentsView();
-		
 		new RetrieveChaptersTask().execute(mCartoonId);
+		new RetrieveCommentsTask().execute();
 	}
 	
 	@Override
@@ -193,78 +194,74 @@ public class DetailsPageActivity extends Activity {
 		mActionBarTitle.setText(info.name);
 	}
 	
-	private void setupReadButton() {
-		DatabaseMgr dbMgr = new DatabaseMgr(DetailsPageActivity.this);
-		Cursor cursor = getHistoryCursor(dbMgr, mCartoonId);
-		int chapterIdx = 1;
-		int pageIdx = 1;
-		if (cursor != null && cursor.moveToFirst()) {
-			chapterIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
-			pageIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
-			
-			cursor.close();
-		}
-		
-		final int finalChapterIdx = chapterIdx;
-		final int finalPageIdx = pageIdx;
-		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
-		imv.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startReadActivity(finalChapterIdx, finalPageIdx);
-			}
-		});
-		
-		Button btnRead = (Button)this.findViewById(R.id.btn_read);
-		btnRead.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startReadActivity(finalChapterIdx, finalPageIdx);
-			}
-		});
-	}
-	
-	private void startReadActivity(int chapterIdx, int pageIdx) {
-		Intent intent = new Intent();
-		intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
-		intent.putExtra(sCartoonIdExtraKey, mCartoonId);
-		intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
-		intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
-		DetailsPageActivity.this.startActivity(intent);
-	}
-	
-	private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
-		Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
-				String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
-		if (cur == null) {
-			return null;
-		}
-		
-		if (cur.getCount() < 1) {
-			cur.close();
-			return null;
-		}
-		
-		return cur;
-	}
-	
-//	private void setupCommentsView() {
-//		ArrayList<String> list = new TempDataLoader().getRandomComments(5);
-//		TextView tv = (TextView)this.findViewById(R.id.tv_comment_1);
-//		tv.setText(list.get(0));
+//	private void setupReadButton() {
+//		DatabaseMgr dbMgr = new DatabaseMgr(DetailsPageActivity.this);
+//		Cursor cursor = getHistoryCursor(dbMgr, mCartoonId);
+//		int chapterIdx = 1;
+//		int pageIdx = 1;
+//		if (cursor != null && cursor.moveToFirst()) {
+//			chapterIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
+//			pageIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
+//			
+//			cursor.close();
+//		}
 //		
-//		tv = (TextView)this.findViewById(R.id.tv_comment_2);
-//		tv.setText(list.get(1));
+//		final int finalChapterIdx = chapterIdx;
+//		final int finalPageIdx = pageIdx;
+//		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
+//		imv.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				startReadActivity(finalChapterIdx, finalPageIdx);
+//			}
+//		});
 //		
-//		tv = (TextView)this.findViewById(R.id.tv_comment_3);
-//		tv.setText(list.get(2));
-//		
-//		tv = (TextView)this.findViewById(R.id.tv_comment_4);
-//		tv.setText(list.get(3));
-//		
-//		tv = (TextView)this.findViewById(R.id.tv_comment_5);
-//		tv.setText(list.get(4));
+//		Button btnRead = (Button)this.findViewById(R.id.btn_read);
+//		btnRead.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				startReadActivity(finalChapterIdx, finalPageIdx);
+//			}
+//		});
 //	}
+	
+//	private void startReadActivity(int chapterIdx, int pageIdx) {
+//		Intent intent = new Intent();
+//		intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
+//		intent.putExtra(sCartoonIdExtraKey, mCartoonId);
+//		intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
+//		intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
+//		DetailsPageActivity.this.startActivity(intent);
+//	}
+//	
+//	private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
+//		Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
+//				String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
+//		if (cur == null) {
+//			return null;
+//		}
+//		
+//		if (cur.getCount() < 1) {
+//			cur.close();
+//			return null;
+//		}
+//		
+//		return cur;
+//	}
+	
+	private void setupCommentsView(ArrayList<Comment> commentList) {
+		int maxComments = commentList.size() <= 5 ? commentList.size() : 5;
+		
+		Resources res = this.getResources();
+		for (int i = 0; i < maxComments; i++) {
+			int resId = res.getIdentifier(
+					String.format("tv_comment_%d", i+1), "id",
+					this.getPackageName());
+			
+			TextView tv = (TextView)this.findViewById(resId);
+			tv.setText(commentList.get(i).content);
+		}
+	}
 	
 	private class ChapterListAdapter extends BaseAdapter {
 		private Context mCtx;
@@ -344,5 +341,21 @@ public class DetailsPageActivity extends Activity {
 		protected void onPostExecute(ArrayList<ChapterInfo> result) {
 			setupSlidingView(result);
 		}
+	}
+	
+	private class RetrieveCommentsTask extends
+			AsyncTask<Void, Integer, ArrayList<Comment>> {
+
+		@Override
+		protected ArrayList<Comment> doInBackground(Void... params) {
+			return new MuuServerWrapper(getApplicationContext()).getComments(
+					mCartoonId, 0, 5);
+		}
+		
+		@Override
+		protected void onPostExecute(ArrayList<Comment> result) {
+			setupCommentsView(result);
+		}
+
 	}
 }

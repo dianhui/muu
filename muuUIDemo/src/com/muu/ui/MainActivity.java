@@ -71,6 +71,7 @@ public class MainActivity extends Activity {
 		setupActionBar();
 		setupDropdownView();
 		changeList(ListType.RANDOM);
+		
 	}
 	
 	private void changeList(ListType type) {

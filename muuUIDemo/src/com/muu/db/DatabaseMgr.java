@@ -17,6 +17,7 @@ public class DatabaseMgr {
 	private static final String TABLE_CARTOONS = "cartoons";
 	private static final String TABLE_CHAPTERS = "chapters";
 	private static final String TABLE_RECENT_READ = "recent_read";
+	private static final String TABLE_COMMENTS = "comments";
 	
 	private static final String VIEW_RECENT_HISTORY = "v_recent_history";
 	
@@ -59,6 +60,13 @@ public class DatabaseMgr {
 		public static final String READ_DATE = "date";
 	}
 	
+	public interface COMMENTS_COLUMN {
+		public static final String ID = "_id";
+		public static final String CREATE_TIME = "create_time";
+		public static final String CONTENT = "content";
+		public static final String CARTOON_ID = "cartoon_id";
+	}
+	
 	public static final Uri MUU_CARTOONS_ALL_URL = Uri.parse(String.format(
 			"content://%s", TABLE_CARTOONS));
 	public static final Uri CHAPTER_ALL_URL = Uri.parse(String.format(
@@ -67,6 +75,8 @@ public class DatabaseMgr {
 			"content://%s", TABLE_RECENT_READ));
 	public static final Uri RECENT_HISTORY_ALL_URL = Uri.parse(String.format(
 			"content://%s", VIEW_RECENT_HISTORY));
+	public static final Uri COMMENTS_ALL_URL = Uri.parse(String.format(
+			"content://%s", TABLE_COMMENTS));
 	
 	public DatabaseMgr(Context ctx) {
 		mDbHelper = new DatabaseHelper(ctx);
@@ -94,6 +104,11 @@ public class DatabaseMgr {
 		case MUU_CHAPTER_ID:
 			table = TABLE_CHAPTERS;
 			break;
+		case MUU_COMMENTS_ALL:
+		case MUU_COMMENTS_ID:
+			table = TABLE_COMMENTS;
+			break;
+			
 		case MUU_RECENT_READ_ALL:
 			table = TABLE_RECENT_READ;
 			break;
@@ -130,6 +145,14 @@ public class DatabaseMgr {
 			table = TABLE_CARTOONS;
 			selection = concatSelections(selection, String.format("(%s = %s)",
 					CARTOONS_COLUMN.ID, uri.getLastPathSegment()));
+			break;
+		case MUU_COMMENTS_ALL:
+			table = TABLE_COMMENTS;
+			break;
+		case MUU_COMMENTS_ID:
+			table = TABLE_COMMENTS;
+			selection = concatSelections(selection, String.format("(%s = %s)",
+					COMMENTS_COLUMN.ID, uri.getLastPathSegment()));
 			break;
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
@@ -169,6 +192,14 @@ public class DatabaseMgr {
 			table = TABLE_CARTOONS;
 			selection = concatSelections(selection, String.format("(%s = %s)",
 					CARTOONS_COLUMN.ID, uri.getLastPathSegment()));
+			break;
+		case MUU_COMMENTS_ALL:
+			table = TABLE_COMMENTS;
+			break;
+		case MUU_COMMENTS_ID:
+			table = TABLE_COMMENTS;
+			selection = concatSelections(selection, String.format("(%s = %s)",
+					COMMENTS_COLUMN.ID, uri.getLastPathSegment()));
 			break;
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
@@ -228,6 +259,16 @@ public class DatabaseMgr {
 							CARTOONS_COLUMN.ID, RECENT_READ_COLUMN.CARTOON_ID);
 			db.execSQL(createRecentReadTable);
 			
+			String createCommentsTable = String
+					.format("create table if not exists %s (%s integer primary key, %s integer, %s text, %s text, foreign key(%s) references %s(%s));",
+							TABLE_COMMENTS, COMMENTS_COLUMN.ID,
+							COMMENTS_COLUMN.CARTOON_ID,
+							COMMENTS_COLUMN.CREATE_TIME,
+							COMMENTS_COLUMN.CONTENT,
+							COMMENTS_COLUMN.CARTOON_ID, TABLE_CARTOONS,
+							CARTOONS_COLUMN.ID);
+			db.execSQL(createCommentsTable);
+			
 			String createRecentHistoryView = String
 					.format("create view if not exists %s as select %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s from %s, %s where %s.%s=%s.%s",
 							VIEW_RECENT_HISTORY,
@@ -258,6 +299,8 @@ public class DatabaseMgr {
 	private static final int MUU_CHAPTER_ID = 3;
 	private static final int MUU_RECENT_READ_ALL = 4;
 	private static final int MUU_RECENT_HISTORY_ALL = 5;
+	private static final int MUU_COMMENTS_ALL = 6;
+	private static final int MUU_COMMENTS_ID = 7;
 	
 	private static final UriMatcher
 		sURLMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -268,6 +311,8 @@ public class DatabaseMgr {
 		sURLMatcher.addURI("chapters", "#", MUU_CHAPTER_ID);
 		sURLMatcher.addURI("recent_read", null, MUU_RECENT_READ_ALL);
 		sURLMatcher.addURI("v_recent_history", null, MUU_RECENT_HISTORY_ALL);
+		sURLMatcher.addURI("comments", null, MUU_COMMENTS_ALL);
+		sURLMatcher.addURI("comments", "#", MUU_COMMENTS_ID);
 	}
 	
 	private static String concatSelections(String selection1, String selection2) {

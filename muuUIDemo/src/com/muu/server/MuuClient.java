@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +25,8 @@ public class MuuClient {
 	private static final String sNewListPath = "/cartoon/hot";
 	private static final String sTopicListPath = "/cartoons/topic";
 	private static final String sChapterInfoPath = "/cartoon/chapters";
+	private static final String sCommentsPath = "/cartoon/comments";
+	private static final String sSearchCartoonPath = "/cartoons/name";
 	
 	public static enum ListType {
 		RANDOM("random", sRandomListPath),
@@ -55,7 +58,7 @@ public class MuuClient {
 	 * 		"id":12918,"introduction":"introduction of cartoon","name":"name of cartoon","progress":"false","topicCode":"11",
 	 * 		"updatedTime":"2014-07-05 17:34:58.0"}, ...]
 	 * 
-	 * */
+	 **/
 	public JSONArray getCartoonsListByType(ListType type, int idx, int count) {
 		JSONArray json = null;
 		try {
@@ -80,7 +83,7 @@ public class MuuClient {
 	 * 	-topicCode: given topic code string.
 	 * 	-idx: page index.
 	 *  -count: wanted cartoon count.
-	 * */
+	 **/
 	public JSONArray getCartoonsByTopic(String topicCode, int idx, int count) {
 		JSONArray json = null;
 		try {
@@ -99,8 +102,30 @@ public class MuuClient {
 		return json;
 	}
 	
-	public JSONObject getCaroonsBySearchStr() {
-		return null;
+	/**
+	 * get cartoons name of which contains the search string
+	 * 
+	 * @param
+	 * 	- searchStr: String
+	 * 	- idx: int, page index
+	 * 	- count: int, cartoon count
+	 **/
+	public JSONArray getCartoonsBySearchStr(String searchStr, int idx, int count) {
+		JSONArray json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, String
+					.format("%s/%d/%d?name=%s", sSearchCartoonPath, idx, count,
+							URLEncoder.encode(searchStr, "UTF-8")));
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONArray(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 	
 	public JSONObject getCartoonsRandom(int count) {
@@ -111,8 +136,29 @@ public class MuuClient {
 		return null;
 	}
 	
-	public JSONObject getCommentsByCartoonId(int cartoonId, int count) {
-		return null;
+	/**
+	 * get newest comments of given cartoon id.
+	 * 
+	 * @param
+	 *	- cartoonId: int
+	 *	- count: int, count of comments 
+	 **/
+	public JSONArray getCommentsByCartoonId(int cartoonId, int idx, int count) {
+		JSONArray json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, String
+					.format("%s/%d/%d/%d", sCommentsPath, cartoonId, idx,
+							count));
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONArray(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 	
 	/**
@@ -122,7 +168,7 @@ public class MuuClient {
 	 * 	- cartoonId: id of cartoon.
 	 * 	- idx: page index.
 	 * 	- count: count of required cartoon.
-	 * */
+	 **/
 	public JSONArray getChapterInfoByCartoonId(int cartoonId, int idx, int count) {
 		JSONArray json = null;
 		try {
@@ -158,6 +204,7 @@ public class MuuClient {
 			byte[] image = null;
 			image = resp.getResponseEntity();
             BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2;
             bitmap = BitmapFactory.decodeByteArray(image, 0, image.length, options);
 
             String path = PropertyMgr.getInstance().getCachePath() + "cover/";

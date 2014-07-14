@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
+import com.muu.data.Comment;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
 import com.muu.uidemo.R;
@@ -30,8 +31,6 @@ public class TempDataLoader {
 	private static final String MUU_TMP = "muu_tmp";
 	private static final String CARTOONS = "cartoons";
 	private static final String IMAGES = "images";
-//	private static final String INFO = "info";
-	private static final String COVER = "cover";
 	private static final String CONTENTS = "contents";
 	private static final String COMMENTS50 = "comments50";
 	
@@ -96,6 +95,26 @@ public class TempDataLoader {
 		dbMgr.closeDatabase();
 	}
 	
+	public void storeCommentsToDB(Context ctx, ArrayList<Comment> commentsList) {
+		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+		for (Comment comment : commentsList) {
+			Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.COMMENTS_ALL_URL.toString(), comment.id));
+			Cursor cur = dbMgr.query(uri, null, null, null, null);
+			if (cur != null && cur.moveToFirst()) {
+				Comment commentInDb = new Comment(cur);
+				cur.close();
+				if (comment.equals(commentInDb)) continue;
+				
+				dbMgr.update(uri, comment.toContentValues(), null, null);
+				continue;
+			}
+			
+			if (cur != null) cur.close();
+			dbMgr.insert(uri, comment.toContentValues());
+		}
+		dbMgr.closeDatabase();
+	}
+	
 	public ArrayList<Integer> getCartoonIds(String whichList) {
 		ArrayList<Integer> cartoonIds = new ArrayList<Integer>();
 		String path = android.os.Environment.getExternalStorageDirectory()
@@ -127,6 +146,12 @@ public class TempDataLoader {
 		}
 		
 		path = PropertyMgr.getInstance().getCoverPath() + id + FileFormatUtil.GIF_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getCoverPath() + id;
 		file = new File(path);
 		if (file.exists()) {
 			return getBitmap(path);
