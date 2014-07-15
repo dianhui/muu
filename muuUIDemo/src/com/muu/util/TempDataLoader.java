@@ -1,12 +1,10 @@
 package com.muu.util;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
@@ -15,7 +13,6 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
 import com.muu.uidemo.R;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -29,9 +26,7 @@ public class TempDataLoader {
 	private static final String TAG = "TempDataLoader";
 	
 	private static final String MUU_TMP = "muu_tmp";
-	private static final String CARTOONS = "cartoons";
 	private static final String IMAGES = "images";
-	private static final String CONTENTS = "contents";
 	private static final String COMMENTS50 = "comments50";
 	
 	public static final String WEEK_TOP20 = "week_top20";
@@ -176,41 +171,25 @@ public class TempDataLoader {
 		bmp = null;
 		System.gc();
 	}
-	
-	public void loadChapters(Context ctx, int id) {
+
+	public ArrayList<ChapterInfo> getChapters(Context ctx, int id) {
+		ArrayList<ChapterInfo> chapterList = new ArrayList<ChapterInfo>();
 		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
-		ArrayList<String> chapterList = getChapters(id);
-		for (int i = 0; i < chapterList.size(); i++) {
-			ContentValues values = new ContentValues();
-			values.put(CHAPTERS_COLUMN.CARTOON_ID, id);
-			values.put(CHAPTERS_COLUMN.INDEX, i+1);
-			values.put(CHAPTERS_COLUMN.NAME, chapterList.get(i));
-			values.put(CHAPTERS_COLUMN.PAGE_COUNT, getChatperImgCount(id, i+1));
-			
-			dbMgr.insert(DatabaseMgr.CHAPTER_ALL_URL, values);
+		Cursor cur = dbMgr.query(DatabaseMgr.CHAPTER_ALL_URL, null,
+				String.format("%s=%d", CHAPTERS_COLUMN.CARTOON_ID, id), null,
+				null);
+		if (cur == null) return chapterList;
+		
+		if (cur.getCount() <= 0) {
+			cur.close();
+			return chapterList;
 		}
-		dbMgr.closeDatabase();
-	}
-	
-	public ArrayList<String> getChapters(int id) {
-		ArrayList<String> chapterList = new ArrayList<String>();
-		String path = android.os.Environment.getExternalStorageDirectory()
-				+ File.separator + MUU_TMP + File.separator + CARTOONS
-				+ File.separator + id + File.separator + CONTENTS
-				+ FileFormatUtil.TXT_POSTFIX;
-		try {
-			String[] list = FileReaderUtil.getFileContent(path).split("；|;");
-			int i = 1;
-			for (String str : list) {
-				chapterList.add(i++ + ". " + str);
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		while (cur.moveToNext()) {
+			chapterList.add(new ChapterInfo(cur));
 		}
 		
-		Log.d(TAG, "image count: " + getChatperImgCount(id, 1));
-		
+		cur.close();
 		return chapterList;
 	}
 	
@@ -243,29 +222,6 @@ public class TempDataLoader {
 			list.add(sFakeCommentsPool.get(tmp));
 		}
 		return list;
-	}
-	
-	public int getChatperImgCount(int cartoonId, int chapterId) {
-		String path = android.os.Environment.getExternalStorageDirectory()
-				+ File.separator + MUU_TMP + File.separator + IMAGES
-				+ File.separator;
-		Log.d(TAG, "path: "+path);
-		File dirFile = new File(path);
-		if (!dirFile.exists() || !dirFile.isDirectory()) {
-			Log.d(TAG, "No temp folder: " + path);
-			return 0;
-		}
-		final Pattern p = Pattern.compile(String.format("%d_%d_\\d{1,}.jpg",
-				cartoonId, chapterId));
-		File[] fileList = dirFile.listFiles(new FileFilter() {
-			
-			@Override
-			public boolean accept(File f) {
-				return p.matcher(f.getName()).matches();
-			}
-		});
-		
-		return fileList.length;
 	}
 	
 	public Bitmap getCartoonImage(int cartoonId, int chapterIdx, int pageIdx) {

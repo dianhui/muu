@@ -2,16 +2,6 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
-import com.muu.data.CartoonInfo;
-import com.muu.db.DatabaseMgr;
-import com.muu.db.DatabaseMgr.RECENT_READ_COLUMN;
-import com.muu.uidemo.R;
-import com.muu.util.PkgMrgUtil;
-import com.muu.util.ShareUtil;
-import com.muu.util.TempDataLoader;
-import com.muu.widget.TouchImageView;
-import com.muu.widget.TouchImageView.OnGestureListener;
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -20,12 +10,27 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.muu.data.CartoonInfo;
+import com.muu.data.ChapterInfo;
+import com.muu.data.ImageInfo;
+import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.RECENT_READ_COLUMN;
+import com.muu.server.MuuServerWrapper;
+import com.muu.uidemo.R;
+import com.muu.util.PkgMrgUtil;
+import com.muu.util.ShareUtil;
+import com.muu.util.TempDataLoader;
+import com.muu.widget.TouchImageView;
+import com.muu.widget.TouchImageView.OnGestureListener;
 
 public class ReadPageActivity extends Activity implements OnGestureListener {
 	public static final String sChapterIdxExtraKey = "chapter_idx";
@@ -39,9 +44,10 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	private int mCartoonId = -1;
 	private int mChapterIdx = -1;
 	private int mPageIdx = -1;
-	private int mPageCount = 0;
-	private ArrayList<String> mChaptersList = null;
+	private ArrayList<ChapterInfo> mChaptersList = null;
 	private CartoonInfo mCartoonInfo = null;
+	private SparseArray<ArrayList<ImageInfo>> mChpImgInfoArray;
+	private ProgressBar mProgressBar = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +55,8 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		setContentView(R.layout.read_page_layout);
 
 		mCartoonId = getIntent().getIntExtra(DetailsPageActivity.sCartoonIdExtraKey, -1);
-		mChapterIdx = getIntent().getIntExtra(sChapterIdxExtraKey, 1);
-		mPageIdx = getIntent().getIntExtra(sPageIdxExtraKey, 1);
+		mChapterIdx = getIntent().getIntExtra(sChapterIdxExtraKey, 0);
+		mPageIdx = getIntent().getIntExtra(sPageIdxExtraKey, 0);
 		
 		retrieveCartoonInfo();
 		setupActionBar();
@@ -120,7 +126,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			}
 		});
 		
-		TextView tv = (TextView)this.findViewById(R.id.tv_title);
+		TextView tv = (TextView)this.findViewById(R.id.tv_back_text);
 		tv.setText(mCartoonInfo.name);
 		
 		final ImageButton recommentBtn = (ImageButton)this.findViewById(R.id.imv_btn_recomment);
@@ -168,6 +174,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		mContentImage = (TouchImageView)this.findViewById(R.id.imv_content);
 		mContentImage.setSwipObserver(this);
 		
+		mProgressBar = (ProgressBar)this.findViewById(R.id.progress_bar);
 		Bitmap bmp = new TempDataLoader().getCartoonImage(mCartoonId, mChapterIdx, mPageIdx);
 		if (bmp != null) {
 			mContentImage.setImageBitmap(bmp);
@@ -175,93 +182,81 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	}
 	
 	private void setupBottomView() {
-		new RetrieveChapterListTask().execute(mCartoonId);
-		new RetrievePageCountTask().execute(mCartoonId, mChapterIdx);
+		mChaptersList = getChapterInfo(mCartoonId);
+		new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
+		
+		TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
+		tv.setVisibility(View.VISIBLE);
+		tv.setText(mChaptersList.get(mChapterIdx).name);
+		
+		tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
+		tv.setVisibility(View.VISIBLE);
+		tv.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
 
 		mBottomLayout = (RelativeLayout)this.findViewById(R.id.rl_bottom_chapter);
-		TextView tv = (TextView)this.findViewById(R.id.tv_chapter_num);
+		tv = (TextView)this.findViewById(R.id.tv_chapter_num);
 		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
 	}
 	
 	@Override
 	public void onSwipPrevious() {
-		Bitmap bmp = getPreviousPage();
-		if (bmp != null) {
-			mContentImage.setImageBitmap(bmp);
-		} else {
-			Toast.makeText(getApplicationContext(),
-					getString(R.string.it_is_start), Toast.LENGTH_LONG).show();
+		TextView tvChapterPageIdx = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
+		TextView tvChapterNum = (TextView)this.findViewById(R.id.tv_chapter_num);
+		TextView tvChapterName = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
+		if (mPageIdx >= 1) {
+			mPageIdx--;
+			
+			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
+			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
 			return;
 		}
 		
-		TextView tv = (TextView)this.findViewById(R.id.tv_chapter_num);
-		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
-		tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
-		if (mChaptersList != null) {
-			tv.setText(mChaptersList.get(mChapterIdx - 1));
+		if (mChapterIdx >= 1) {
+			mChapterIdx--;
+			
+			mPageIdx = mChaptersList.get(mChapterIdx).pageCount - 1;
+			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
+			
+			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
+			return;
 		}
+		
+		Toast.makeText(getApplicationContext(),
+				getString(R.string.it_is_start), Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void onSwipNext() {
-		Bitmap bmp = getNextPage();
-		if (bmp != null) {
-			mContentImage.setImageBitmap(bmp);
-		} else {
-			ReadFinishDialog dialog = new ReadFinishDialog(this,
-					R.style.FloatDialogTheme, mCartoonId);
-			dialog.show();
-		}
+		TextView tvChapterPageIdx = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
+		TextView tvChapterNum = (TextView)this.findViewById(R.id.tv_chapter_num);
+		TextView tvChapterName = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
 		
-		TextView tv = (TextView)this.findViewById(R.id.tv_chapter_num);
-		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
-		tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
-		if (mChaptersList != null) {
-			tv.setText(mChaptersList.get(mChapterIdx - 1));
-		}
-	}
-	
-	private Bitmap getNextPage() {
-		TempDataLoader dataLoader = new TempDataLoader();
-		if (mPageIdx < mPageCount - 1) {
+		if (mPageIdx < mChaptersList.get(mChapterIdx).pageCount - 1) {
 			mPageIdx++;
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
-			tv.setText(getString(R.string.page, mPageIdx, mPageCount));
-			
-			return dataLoader.getCartoonImage(mCartoonId, mChapterIdx,
-					mPageIdx);
+			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
+			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
+			return;
 		}
 		
 		if (mChaptersList != null && mChapterIdx < mChaptersList.size() - 1) {
 			mChapterIdx++;
-			new RetrievePageCountTask().execute(mCartoonId, mChapterIdx);
-			mPageIdx = 1;
-			return dataLoader.getCartoonImage(mCartoonId, mChapterIdx, mPageIdx);
+			mPageIdx = 0;
+			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx); 
+			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
+			return;
 		}
 		
-		return null;
-	}
-
-	private Bitmap getPreviousPage() {
-		TempDataLoader dataLoader = new TempDataLoader();
-		if (mPageIdx > 1) {
-			mPageIdx--;
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
-			tv.setText(getString(R.string.page, mPageIdx, mPageCount));
-			return dataLoader.getCartoonImage(mCartoonId, mChapterIdx,
-					mPageIdx);
-		}
-		
-		if (mChapterIdx > 1) {
-			mChapterIdx--;
-			new RetrievePageCountTask().execute(mCartoonId, mChapterIdx);
-			
-			//TODO: remember page count of previous chapter.
-			mPageIdx = 1;
-			return dataLoader.getCartoonImage(mCartoonId, mChapterIdx, mPageIdx);
-		}
-		
-		return null;
+		ReadFinishDialog dialog = new ReadFinishDialog(this,
+				R.style.FloatDialogTheme, mCartoonId);
+		dialog.show();
 	}
 	
 	@Override
@@ -276,53 +271,53 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		mTouchedMode = !mTouchedMode;
 	}
 	
-	private class RetrieveChapterListTask extends
-			AsyncTask<Integer, Integer, ArrayList<String>> {
-		@Override
-		protected void onPreExecute() {
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
-			tv.setVisibility(View.GONE);
-		}
-		
-		@Override
-		protected ArrayList<String> doInBackground(Integer... params) {
-			int cartoonId = params[0];
-			TempDataLoader dataLoader = new TempDataLoader();
-			mChaptersList = dataLoader.getChapters(cartoonId);
-			
-			return mChaptersList;
-		}
-		
-		@Override
-		protected void onPostExecute(ArrayList<String> result) {
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
-			tv.setVisibility(View.VISIBLE);
-			tv.setText(mChaptersList.get(mChapterIdx - 1));
-		}
+	private ArrayList<ChapterInfo> getChapterInfo(int cartoonId) {
+		TempDataLoader dataLoader = new TempDataLoader();
+		return dataLoader.getChapters(ReadPageActivity.this, cartoonId);
 	}
 	
-	private class RetrievePageCountTask extends
-			AsyncTask<Integer, Integer, Integer> {
+	private class RetrieveCartoonImgTask extends AsyncTask<Integer, Integer, Bitmap> {
+		private MuuServerWrapper mServerWrapper;
+
 		@Override
 		protected void onPreExecute() {
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
-			tv.setVisibility(View.GONE);
+			mProgressBar.setVisibility(View.VISIBLE);
 		}
-
+		
 		@Override
-		protected Integer doInBackground(Integer... params) {
-			int cartoonId = params[0];
-			int chapterId = params[1];
-			TempDataLoader dataLoader = new TempDataLoader();
-			mPageCount = dataLoader.getChatperImgCount(cartoonId, chapterId);
-			return mPageCount;
+		protected Bitmap doInBackground(Integer... params) {
+			if (mChpImgInfoArray == null) {
+				mChpImgInfoArray = new SparseArray<ArrayList<ImageInfo>>();
+			}
+			
+			if (mServerWrapper == null) {
+				mServerWrapper = new MuuServerWrapper(getApplicationContext());
+			}
+			
+			int chapterIdx = params[0];
+			int imgIdx = params[1];
+			ChapterInfo chapter = mChaptersList.get(chapterIdx);
+			ArrayList<ImageInfo> chapterImgInfo = mChpImgInfoArray.get(chapter.id);
+			if (chapterImgInfo == null) {
+				chapterImgInfo = mServerWrapper.getChapterImgInfo(chapter.id,
+						0, chapter.pageCount);
+				mChpImgInfoArray.append(chapter.id, chapterImgInfo);
+			}
+
+			if (imgIdx >= chapterImgInfo.size()) {
+				return null;
+			}
+			
+			String imgUrl = chapterImgInfo.get(imgIdx).imgUrl;
+			return mServerWrapper.getBitmapByUrl(imgUrl);
 		}
-
+		
 		@Override
-		protected void onPostExecute(Integer result) {
-			TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
-			tv.setVisibility(View.VISIBLE);
-			tv.setText(getString(R.string.page, mPageIdx, result));
+		protected void onPostExecute(Bitmap bmp) {
+			mProgressBar.setVisibility(View.GONE);
+			if (bmp == null) return;
+			
+			mContentImage.setImageBitmap(bmp);
 		}
 	}
 }

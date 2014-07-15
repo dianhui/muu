@@ -8,7 +8,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
-import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
@@ -27,7 +26,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -335,43 +333,9 @@ public class SearchActivity extends Activity {
 		private void onItemClicked(int position) {
 			Intent intent = new Intent();
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			
-			DatabaseMgr dbMgr = new DatabaseMgr(SearchActivity.this);
-			Cursor cur = getHistoryCursor(dbMgr, mList.get(position).id);
-			if (cur == null || !cur.moveToFirst()) {
-				intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, mList.get(position).id);
-				intent.setClass(mCtx, DetailsPageActivity.class);
-				mCtx.startActivity(intent);
-				
-				if (cur != null) cur.close();
-				dbMgr.closeDatabase();
-				return;
-			}
-			
-			int chapterIdx = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
-			int pageIdx = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
 			intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, mList.get(position).id);
-			intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
-			intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
-			intent.setClass(mCtx, ReadPageActivity.class);
+			intent.setClass(mCtx, DetailsPageActivity.class);
 			mCtx.startActivity(intent);
-			if (cur != null) cur.close();
-			dbMgr.closeDatabase();
-		}
-		
-		private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
-			Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
-					String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
-			if (cur == null) {
-				return null;
-			}
-			
-			if (cur.getCount() < 1) {
-				cur.close();
-				return null;
-			}
-			
-			return cur;
 		}
 		
 		private class ViewHolder {
@@ -397,7 +361,6 @@ public class SearchActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(ArrayList<CartoonInfo> result) {
-			Log.d("XXX", "search result: "+result.size());
 			mProgress.setVisibility(View.GONE);
 			mPullToRefreshListView.onRefreshComplete();
 			

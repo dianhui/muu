@@ -7,6 +7,7 @@ import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
 import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 //import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
@@ -28,6 +29,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 //import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -41,6 +43,7 @@ public class DetailsPageActivity extends Activity {
 	private SlidingMenu mChaptersSlideView = null;
 	private TextView mActionBarTitle = null;
 	private int mCartoonId = -1;
+	private int mChapterCount = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +61,7 @@ public class DetailsPageActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
-//		setupReadButton();
+		setupReadButton();
 	}
 	
 	private void setupActionBar() {
@@ -166,6 +169,7 @@ public class DetailsPageActivity extends Activity {
 		CartoonInfo info = new CartoonInfo(cur);
 		cur.close();
 		dbMgr.closeDatabase();
+		mChapterCount = info.chapterCount;
 		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
 		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
 		imv.setImageBitmap(bmp);
@@ -194,60 +198,60 @@ public class DetailsPageActivity extends Activity {
 		mActionBarTitle.setText(info.name);
 	}
 	
-//	private void setupReadButton() {
-//		DatabaseMgr dbMgr = new DatabaseMgr(DetailsPageActivity.this);
-//		Cursor cursor = getHistoryCursor(dbMgr, mCartoonId);
-//		int chapterIdx = 1;
-//		int pageIdx = 1;
-//		if (cursor != null && cursor.moveToFirst()) {
-//			chapterIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
-//			pageIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
-//			
-//			cursor.close();
-//		}
-//		
-//		final int finalChapterIdx = chapterIdx;
-//		final int finalPageIdx = pageIdx;
-//		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
-//		imv.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				startReadActivity(finalChapterIdx, finalPageIdx);
-//			}
-//		});
-//		
-//		Button btnRead = (Button)this.findViewById(R.id.btn_read);
-//		btnRead.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				startReadActivity(finalChapterIdx, finalPageIdx);
-//			}
-//		});
-//	}
+	private void setupReadButton() {
+		DatabaseMgr dbMgr = new DatabaseMgr(DetailsPageActivity.this);
+		Cursor cursor = getHistoryCursor(dbMgr, mCartoonId);
+		int chapterIdx = 0;
+		int pageIdx = 0;
+		if (cursor != null && cursor.moveToFirst()) {
+			chapterIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
+			pageIdx = cursor.getInt(cursor.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
+			
+			cursor.close();
+		}
+		
+		final int finalChapterIdx = chapterIdx;
+		final int finalPageIdx = pageIdx;
+		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
+		imv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startReadActivity(finalChapterIdx, finalPageIdx);
+			}
+		});
+		
+		Button btnRead = (Button)this.findViewById(R.id.btn_read);
+		btnRead.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startReadActivity(finalChapterIdx, finalPageIdx);
+			}
+		});
+	}
 	
-//	private void startReadActivity(int chapterIdx, int pageIdx) {
-//		Intent intent = new Intent();
-//		intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
-//		intent.putExtra(sCartoonIdExtraKey, mCartoonId);
-//		intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
-//		intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
-//		DetailsPageActivity.this.startActivity(intent);
-//	}
-//	
-//	private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
-//		Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
-//				String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
-//		if (cur == null) {
-//			return null;
-//		}
-//		
-//		if (cur.getCount() < 1) {
-//			cur.close();
-//			return null;
-//		}
-//		
-//		return cur;
-//	}
+	private void startReadActivity(int chapterIdx, int pageIdx) {
+		Intent intent = new Intent();
+		intent.setClass(DetailsPageActivity.this, ReadPageActivity.class);
+		intent.putExtra(sCartoonIdExtraKey, mCartoonId);
+		intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
+		intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
+		DetailsPageActivity.this.startActivity(intent);
+	}
+	
+	private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
+		Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
+				String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
+		if (cur == null) {
+			return null;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			return null;
+		}
+		
+		return cur;
+	}
 	
 	private void setupCommentsView(ArrayList<Comment> commentList) {
 		int maxComments = commentList.size() <= 5 ? commentList.size() : 5;
@@ -315,9 +319,9 @@ public class DetailsPageActivity extends Activity {
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					intent.putExtra(sCartoonIdExtraKey, mCartoonId);
 					intent.putExtra(ReadPageActivity.sChapterIdxExtraKey,
-							position + 1);
-					intent.putExtra(ReadPageActivity.sPageIdxExtraKey, 1);
-//					mCtx.startActivity(intent);
+							position);
+					intent.putExtra(ReadPageActivity.sPageIdxExtraKey, 0);
+					mCtx.startActivity(intent);
 				}
 			});
 
@@ -334,7 +338,7 @@ public class DetailsPageActivity extends Activity {
 		@Override
 		protected ArrayList<ChapterInfo> doInBackground(Integer... params) {
 			return new MuuServerWrapper(getApplicationContext())
-					.getChapterInfo(mCartoonId, 0, 20);
+					.getChapterInfo(mCartoonId, 0, mChapterCount);
 		}
 		
 		@Override

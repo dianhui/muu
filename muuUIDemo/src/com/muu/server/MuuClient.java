@@ -27,6 +27,7 @@ public class MuuClient {
 	private static final String sChapterInfoPath = "/cartoon/chapters";
 	private static final String sCommentsPath = "/cartoon/comments";
 	private static final String sSearchCartoonPath = "/cartoons/name";
+	private static final String sChapterImageInfoPath = "/cartoon/chapter/images";  
 	
 	public static enum ListType {
 		RANDOM("random", sRandomListPath),
@@ -187,8 +188,49 @@ public class MuuClient {
 		return json;
 	}
 	
-	public Bitmap getBitmapByIdx(int cartoonId, int chapterIdx, int pageIdx) {
-		return null;
+	/**
+	 * get all image info of given chapter id.
+	 * 
+	 * @param
+	 * 	- chapterId: id of chapter.
+	 * 	- idx: page index.
+	 * 	- count: count of required image info.
+	 * 
+	 * */
+	public JSONArray getChapterImageInfo(int chapterId, int idx, int count) {
+		JSONArray json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, String
+					.format("%s/%d/%d/%d", sChapterImageInfoPath, chapterId, idx,
+							count));
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONArray(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+	
+	public Bitmap getBitmapByUrl(String url) {
+		Bitmap bitmap = null;
+		
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, url);
+			byte[] image = null;
+			image = resp.getResponseEntity();
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 1;
+            bitmap = BitmapFactory.decodeByteArray(image, 0, image.length, options);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return bitmap;
 	}
 	
 	public void downloadCoverByUrl(int id, String url) {
@@ -200,12 +242,7 @@ public class MuuClient {
 		}
 		
 		try {
-			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, url);
-			byte[] image = null;
-			image = resp.getResponseEntity();
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 2;
-            bitmap = BitmapFactory.decodeByteArray(image, 0, image.length, options);
+            bitmap = getBitmapByUrl(url);
 
             String path = PropertyMgr.getInstance().getCachePath() + "cover/";
             File file = new File(path);

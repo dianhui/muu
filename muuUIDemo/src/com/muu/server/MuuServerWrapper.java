@@ -7,10 +7,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
+import com.muu.data.ImageInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.util.TempDataLoader;
 
@@ -176,5 +178,37 @@ public class MuuServerWrapper {
 		
 		mTmpDataLoader.storeCommentsToDB(mCtx, commentList);
 		return commentList;
+	}
+	
+	/**
+	 * getChapterImgInfo: get image info of given chapter.
+	 * 
+	 * @param
+	 * 	- chapterId: int
+	 * 	- idx: page index.
+	 * 	- count: info count.
+	 * 
+	 * @return
+	 * 	- chapter info list.
+	 * */
+	public ArrayList<ImageInfo> getChapterImgInfo(int chapterId, int idx, int count) {
+		JSONArray jsonArray = mMuuClient.getChapterImageInfo(chapterId, idx, count);
+		if (jsonArray == null) return null;
+		
+		ArrayList<ImageInfo> imgInfoList = new ArrayList<ImageInfo>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject info;
+			try {
+				info = jsonArray.getJSONObject(i);
+				imgInfoList.add(new ImageInfo(info));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		return imgInfoList;
+	}
+	
+	public Bitmap getBitmapByUrl(String url) {
+		return mMuuClient.getBitmapByUrl(url);
 	}
 }
