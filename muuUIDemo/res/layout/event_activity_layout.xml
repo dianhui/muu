@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+	
+    <include
+        android:id="@+id/action_bar_layout"
+        layout="@layout/action_bar_layout" />
+    
+    <ImageView
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/action_bar_layout"
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/light_gray" />
+    
+    <WebView
+        android:id="@+id/wb_activity"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider" />
+
+</RelativeLayout>

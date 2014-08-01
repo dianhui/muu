@@ -27,6 +27,7 @@
             android:id="@+id/middle"
             android:layout_width="1dp"
             android:layout_height="wrap_content"
+            android:minHeight="45dp"
             android:layout_centerHorizontal="true"
             android:layout_alignTop="@+id/btn_downloading"
             android:layout_alignBottom="@+id/btn_downloading"
@@ -34,16 +35,19 @@
         <Button 
             android:id="@+id/btn_downloading"
             android:layout_width="0dp"
+            android:minHeight="45dp"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignRight="@id/middle"
             android:text="@string/downloading_tab"
             android:textColor="@color/dark_gray"
+            android:textSize="18sp"
             android:background="@drawable/tabs_selected_default"
             />
         <Button 
             android:id="@+id/btn_downloaded"
             android:layout_width="0dp"
+            android:minHeight="45dp"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/btn_downloading"
             android:layout_alignBottom="@id/btn_downloading"
@@ -51,9 +55,29 @@
             android:layout_alignLeft="@id/middle"
             android:text="@string/downloaded_tab"
             android:textColor="@color/dark_gray"
+            android:textSize="18sp"
             android:background="@drawable/tabs_unselected_default"
             />
     </RelativeLayout>
     
+    <GridView 
+        android:id="@+id/gv_downloading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tab_btns"
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+    	android:gravity="center"
+        />
+    <GridView 
+        android:id="@+id/gv_downloaded"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tab_btns"
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+    	android:gravity="center"
+    	android:visibility="gone"
+        />
 
 </RelativeLayout>

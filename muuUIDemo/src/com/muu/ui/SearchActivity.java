@@ -355,6 +355,11 @@ public class SearchActivity extends Activity {
 		@Override
 		protected ArrayList<CartoonInfo> doInBackground(String... params) {
 			String str = params[0];
+			
+			if (TextUtils.isEmpty(str)) {
+				return null;
+			}
+			
 			return new MuuServerWrapper(getApplicationContext())
 					.getSearchCartoons(str, mCurPage + 1, sCountInOnePage);
 		}

@@ -39,6 +39,10 @@
 	<string name="share_to">分享到</string>
     <string name="empty">请检查网络</string>
     <string name="no_more_data">没有更多了</string>
+    <string name="download_started">开始下载</string>
+    <string name="download_in_process">正在下载</string>
+    <string name="download_done">已经下载</string>
+    <string name="percent_0">0%</string>
     
     <string name="humer">搞笑</string>
     <string name="hot_blood">热血</string>

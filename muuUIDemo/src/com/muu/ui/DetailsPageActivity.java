@@ -10,6 +10,8 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 //import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
+import com.muu.service.DownloadMgr;
+import com.muu.service.DownloadMgr.DownloadStatus;
 import com.muu.uidemo.R;
 import com.muu.util.ShareUtil;
 import com.muu.util.TempDataLoader;
@@ -36,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DetailsPageActivity extends Activity {
 	public static final String sCartoonIdExtraKey = "cartoon_id";
@@ -153,6 +156,33 @@ public class DetailsPageActivity extends Activity {
 			public void onClick(View v) {
 				ShareUtil.onShareClicked(DetailsPageActivity.this,
 						mActionBarTitle.getText().toString());
+			}
+		});
+		
+		TextView downloadBtn = (TextView) this.findViewById(R.id.tv_download);
+		downloadBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				DownloadStatus status = new DownloadMgr().download(getApplicationContext(), mCartoonId);
+				switch (status) {
+				case OK:
+					Toast.makeText(getApplicationContext(),
+							getString(R.string.download_started),
+							Toast.LENGTH_LONG).show();
+					break;
+				case DOWNLOADING:
+					Toast.makeText(getApplicationContext(),
+							getString(R.string.download_in_process),
+							Toast.LENGTH_LONG).show();
+					break;
+				case DOWANLOADED:
+					Toast.makeText(getApplicationContext(),
+							getString(R.string.download_done),
+							Toast.LENGTH_LONG).show();
+					break;
+				default:
+					break;
+				}
 			}
 		});
 		

@@ -6,6 +6,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshScrollView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.muu.data.ActivityEventInfo;
 import com.muu.data.CartoonInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.server.MuuServerWrapper;
@@ -47,6 +48,7 @@ public class MainActivity extends Activity {
 	private TextView mEmpty = null;
 	private ScrollView mCartoonsContainer = null;
 	private PullToRefreshScrollView mPullRefreshScrollView = null;
+	private ImageView mActivityImageView = null;
 	
 	private ListType mCurrentList = null;
 	private int mCurrentPage = -1;
@@ -66,12 +68,16 @@ public class MainActivity extends Activity {
 				new RetrieveCartoonListTask().execute(mCurrentList);
 			}
 		});
+
+		mActivityImageView = (ImageView)this.findViewById(R.id.imv_activity);
+
 		
 		setupSlideMenu();
 		setupActionBar();
 		setupDropdownView();
 		changeList(ListType.RANDOM);
 		
+		new RetrieveAcitivitiesTask().execute();
 	}
 	
 	private void changeList(ListType type) {
@@ -437,5 +443,48 @@ public class MainActivity extends Activity {
 			break;
 		}
 		return list;
+	}
+	
+	private class RetrieveAcitivitiesTask extends AsyncTask<Void, Integer, ArrayList<ActivityEventInfo>> {
+
+		@Override
+		protected void onPreExecute() {
+			mActivityImageView.setVisibility(View.GONE);
+		}
+		
+		@Override
+		protected ArrayList<ActivityEventInfo> doInBackground(Void... params) {
+			MuuServerWrapper muuWrapper = new MuuServerWrapper(MainActivity.this.getApplicationContext());
+			
+			return muuWrapper.getActivityEventInfos();
+		}
+		
+		@Override
+		protected void onPostExecute(final ArrayList<ActivityEventInfo> result) {
+			if (result == null || result.size() < 1) {
+				return;
+			}
+			
+			Bitmap bmp = new TempDataLoader().getActivityCover("activityCover");
+			if (bmp == null) {
+				Log.d(TAG, "Bitmap of activity cover is null.");
+				return;
+			}
+			
+			mActivityImageView.setVisibility(View.VISIBLE);
+			mActivityImageView.setImageBitmap(bmp);
+			mActivityImageView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent();
+					intent.setClass(getApplicationContext(),
+							EventActivity.class);
+					intent.putExtra(EventActivity.sActivityTitle, result.get(0).activityName);
+					intent.putExtra(EventActivity.sActivityUrl, result.get(0).activityUrl);
+					MainActivity.this.startActivity(intent);
+				}
+			});
+			
+		}
 	}
 }

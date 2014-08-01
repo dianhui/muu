@@ -8,7 +8,9 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
+import com.muu.data.ActivityEventInfo;
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
@@ -192,23 +194,66 @@ public class MuuServerWrapper {
 	 * 	- chapter info list.
 	 * */
 	public ArrayList<ImageInfo> getChapterImgInfo(int chapterId, int idx, int count) {
+		ArrayList<ImageInfo> imgInfoList = mTmpDataLoader.getChapterImageInfos(mCtx, chapterId);
+		if (imgInfoList != null && imgInfoList.size() > 0) {
+			return imgInfoList;
+		}
+		
 		JSONArray jsonArray = mMuuClient.getChapterImageInfo(chapterId, idx, count);
 		if (jsonArray == null) return null;
 		
-		ArrayList<ImageInfo> imgInfoList = new ArrayList<ImageInfo>();
+		imgInfoList = new ArrayList<ImageInfo>();
 		for (int i = 0; i < jsonArray.length(); i++) {
 			JSONObject info;
 			try {
 				info = jsonArray.getJSONObject(i);
-				imgInfoList.add(new ImageInfo(info));
+				imgInfoList.add(new ImageInfo(info, chapterId));
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		mTmpDataLoader.storeImagesToDB(mCtx, imgInfoList, chapterId);
 		return imgInfoList;
+	}
+	
+	public Bitmap getImageByImageInfo(int cartoonId, ImageInfo info) {
+		Bitmap bmp = mTmpDataLoader.getImage(cartoonId, info.id);
+		if (bmp != null) {
+			Log.d("XXX", "get local image success.");
+			return bmp;
+		}
+		
+		
+		return mMuuClient.getBitmapByUrl(info.imgUrl);
 	}
 	
 	public Bitmap getBitmapByUrl(String url) {
 		return mMuuClient.getBitmapByUrl(url);
 	}
+	
+	public void downloadCartoonImage(int cartoonId, int imgId, String url) {
+		mMuuClient.downloadCartoonImage(cartoonId, imgId, url);
+	}
+	
+	public ArrayList<ActivityEventInfo> getActivityEventInfos() {
+		JSONArray jsonArray = mMuuClient.getActivityEventInfos();
+		if (jsonArray == null) return null;
+		
+		ArrayList<ActivityEventInfo> activityEventInfoList = new ArrayList<ActivityEventInfo>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject info;
+			try {
+				info = jsonArray.getJSONObject(i);
+				ActivityEventInfo activityEventInfo = new ActivityEventInfo(info);
+				activityEventInfoList.add(activityEventInfo);
+				//TBD: use "activityCover" first.
+				mMuuClient.downloadActivityCoverByUrl("activityCover", activityEventInfo.imgUrl);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		return activityEventInfoList;
+	}
+	
 }

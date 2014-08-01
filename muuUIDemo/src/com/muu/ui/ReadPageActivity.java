@@ -308,8 +308,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 				return null;
 			}
 			
-			String imgUrl = chapterImgInfo.get(imgIdx).imgUrl;
-			return mServerWrapper.getBitmapByUrl(imgUrl);
+			return mServerWrapper.getImageByImageInfo(mCartoonId, chapterImgInfo.get(imgIdx));
 		}
 		
 		@Override

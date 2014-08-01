@@ -76,6 +76,13 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="nosensor"/>
+        
+        <activity 
+            android:name="com.muu.ui.EventActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="nosensor"/>
+        
     </application>
 
 </manifest>

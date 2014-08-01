@@ -41,8 +41,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+			<ImageView 
+			    android:id="@+id/imv_activity"
+			    android:layout_width="match_parent"
+            	android:layout_height="wrap_content"
+            	android:minHeight="60dp"
+            	android:clickable="true"
+            	android:src="@drawable/no1_icon"
+            	android:contentDescription="@string/content_des_place_holder"
+			    />
+            
             <RelativeLayout
                 android:id="@+id/rl_top3"
+                android:layout_below="@id/imv_activity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
 

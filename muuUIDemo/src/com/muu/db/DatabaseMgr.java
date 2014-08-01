@@ -18,13 +18,15 @@ public class DatabaseMgr {
 	private static final String TABLE_CHAPTERS = "chapters";
 	private static final String TABLE_RECENT_READ = "recent_read";
 	private static final String TABLE_COMMENTS = "comments";
+	private static final String TABLE_IMAGES = "images";
 	
 	private static final String VIEW_RECENT_HISTORY = "v_recent_history";
 	
 	private DatabaseHelper mDbHelper = null;
+	private Context mCtx;
 	
 	public interface CARTOONS_COLUMN {
-		public static final String ID = "id";
+		public static final String ID = "_id";
 		public static final String NAME = "name";
 		public static final String AUTHOR = "author";
 		public static final String UPDATE_DATE = "update_date";
@@ -33,6 +35,8 @@ public class DatabaseMgr {
 		public static final String IS_COMPLETE = "is_complete";
 		public static final String CHAPTER_COUNT = "chapter_count";
 		public static final String SIZE = "size";
+		public static final String IS_DOWNLOAD = "is_download";
+		public static final String DOWNLOAD_PROGRESS = "download_progress";
 	}
 	
 	public interface CHAPTERS_COLUMN {
@@ -67,6 +71,12 @@ public class DatabaseMgr {
 		public static final String CARTOON_ID = "cartoon_id";
 	}
 	
+	public interface IMAGES_COLUMN {
+		public static final String ID = "_id";
+		public static final String URL = "url";
+		public static final String CHAPTER_ID = "chapter_id";
+	}
+	
 	public static final Uri MUU_CARTOONS_ALL_URL = Uri.parse(String.format(
 			"content://%s", TABLE_CARTOONS));
 	public static final Uri CHAPTER_ALL_URL = Uri.parse(String.format(
@@ -77,9 +87,12 @@ public class DatabaseMgr {
 			"content://%s", VIEW_RECENT_HISTORY));
 	public static final Uri COMMENTS_ALL_URL = Uri.parse(String.format(
 			"content://%s", TABLE_COMMENTS));
+	public static final Uri IMAGES_ALL_URL = Uri.parse(String.format(
+			"content://%s", TABLE_IMAGES));
 	
 	public DatabaseMgr(Context ctx) {
 		mDbHelper = new DatabaseHelper(ctx);
+		mCtx = ctx.getApplicationContext();
 	}
 	
 	public void closeDatabase() {
@@ -111,6 +124,10 @@ public class DatabaseMgr {
 			
 		case MUU_RECENT_READ_ALL:
 			table = TABLE_RECENT_READ;
+			break;
+		case MUU_IMAGES_ALL:
+		case MUU_IMAGES_ID:
+			table = TABLE_IMAGES;
 			break;
 		default:
 			table = TABLE_CARTOONS;
@@ -170,6 +187,14 @@ public class DatabaseMgr {
 			table = VIEW_RECENT_HISTORY;
 			sortOrder = String.format("%s DESC", RECENT_HISTORY_COLUMN.READ_DATE);
 			break;
+		case MUU_IMAGES_ALL:
+			table = TABLE_IMAGES;
+			break;
+		case MUU_IMAGES_ID:
+			table = TABLE_IMAGES;
+			selection = concatSelections(selection, String.format("(%s = %s)",
+					IMAGES_COLUMN.ID, uri.getLastPathSegment()));
+			break;
 		default:
 			break;
 		}
@@ -212,12 +237,24 @@ public class DatabaseMgr {
 		case MUU_RECENT_READ_ALL:
 			table = TABLE_RECENT_READ;
 			break;
+		case MUU_IMAGES_ALL:
+			table = TABLE_IMAGES;
+			break;
+		case MUU_IMAGES_ID:
+			table = TABLE_IMAGES;
+			selection = concatSelections(selection, String.format("(%s = %s)",
+					IMAGES_COLUMN.ID, uri.getLastPathSegment()));
+			break;
+			
 		default:
 			break;
 		}
 		
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
-		return db.update(table, values, selection, selectionArgs);
+		int count = db.update(table, values, selection, selectionArgs);
+		mCtx.getContentResolver().notifyChange(uri, null);
+		
+		return count;
 	}
 	
 	private class DatabaseHelper extends SQLiteOpenHelper {
@@ -229,13 +266,14 @@ public class DatabaseMgr {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			String createCartoonsTable = String
-					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer, %s integer, %s integer);",
+					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer, %s integer,%s integer, %s integer, %s integer);",
 							TABLE_CARTOONS, CARTOONS_COLUMN.ID,
 							CARTOONS_COLUMN.NAME, CARTOONS_COLUMN.AUTHOR,
 							CARTOONS_COLUMN.UPDATE_DATE,
 							CARTOONS_COLUMN.ABSTRACT, CARTOONS_COLUMN.CATEGORY,
 							CARTOONS_COLUMN.IS_COMPLETE,
-							CARTOONS_COLUMN.CHAPTER_COUNT, CARTOONS_COLUMN.SIZE);
+							CARTOONS_COLUMN.CHAPTER_COUNT, CARTOONS_COLUMN.SIZE,
+							CARTOONS_COLUMN.IS_DOWNLOAD, CARTOONS_COLUMN.DOWNLOAD_PROGRESS);
 			db.execSQL(createCartoonsTable);
 			
 			String createChaptersTable = String
@@ -244,7 +282,7 @@ public class DatabaseMgr {
 							CHAPTERS_COLUMN.INDEX, CHAPTERS_COLUMN.CARTOON_ID,
 							CHAPTERS_COLUMN.NAME, CHAPTERS_COLUMN.PAGE_COUNT,
 							CHAPTERS_COLUMN.CARTOON_ID, TABLE_CARTOONS,
-							CARTOONS_COLUMN.ID, CHAPTERS_COLUMN.INDEX,
+							CARTOONS_COLUMN.ID, CHAPTERS_COLUMN.ID,
 							CHAPTERS_COLUMN.CARTOON_ID);
 			db.execSQL(createChaptersTable);
 			
@@ -281,7 +319,13 @@ public class DatabaseMgr {
 							TABLE_RECENT_READ, TABLE_CARTOONS,
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.CARTOON_ID, TABLE_CARTOONS, CARTOONS_COLUMN.ID);
 			db.execSQL(createRecentHistoryView);
-		}
+			
+			String createImagesTable = String.format("create table if not exists %s (%s integer primary key, %s text, %s integer, foreign key(%s) references %s(%s));",
+							TABLE_IMAGES, IMAGES_COLUMN.ID, IMAGES_COLUMN.URL,
+							IMAGES_COLUMN.CHAPTER_ID, IMAGES_COLUMN.CHAPTER_ID,
+							TABLE_CHAPTERS, CHAPTERS_COLUMN.ID);
+			db.execSQL(createImagesTable);
+ 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -301,6 +345,8 @@ public class DatabaseMgr {
 	private static final int MUU_RECENT_HISTORY_ALL = 5;
 	private static final int MUU_COMMENTS_ALL = 6;
 	private static final int MUU_COMMENTS_ID = 7;
+	private static final int MUU_IMAGES_ALL = 8;
+	private static final int MUU_IMAGES_ID = 9;
 	
 	private static final UriMatcher
 		sURLMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -313,6 +359,8 @@ public class DatabaseMgr {
 		sURLMatcher.addURI("v_recent_history", null, MUU_RECENT_HISTORY_ALL);
 		sURLMatcher.addURI("comments", null, MUU_COMMENTS_ALL);
 		sURLMatcher.addURI("comments", "#", MUU_COMMENTS_ID);
+		sURLMatcher.addURI("images", null, MUU_IMAGES_ALL);
+		sURLMatcher.addURI("images", "#", MUU_IMAGES_ID);
 	}
 	
 	private static String concatSelections(String selection1, String selection2) {

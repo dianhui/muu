@@ -91,6 +91,14 @@ public class PropertyMgr {
 		return getCachePath() + "cover/";
 	}
 	
+	public String getCartoonPath(int cartoonId) {
+		return getCachePath() + "cartoons/" + cartoonId;
+	}
+	
+	public String getActivityCoverPath() {
+		return getCachePath() + "activities_cover/";
+	}
+	
 	public void setCachePath(String path){
 		mCachePath = path;
 		mProps.setProperty("cache_path", path);

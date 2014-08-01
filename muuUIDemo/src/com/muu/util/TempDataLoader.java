@@ -9,8 +9,10 @@ import java.util.Random;
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
+import com.muu.data.ImageInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
+import com.muu.db.DatabaseMgr.IMAGES_COLUMN;
 import com.muu.uidemo.R;
 
 import android.content.Context;
@@ -110,6 +112,26 @@ public class TempDataLoader {
 		dbMgr.closeDatabase();
 	}
 	
+	public void storeImagesToDB(Context ctx, ArrayList<ImageInfo> imagesList, int chapterId) {
+		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+		for(ImageInfo image : imagesList) {
+			Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.IMAGES_ALL_URL.toString(), image.id));
+			Cursor cur = dbMgr.query(uri, null, null, null, null);
+			if (cur != null && cur.moveToFirst()) {
+				ImageInfo imgInDb = new ImageInfo(cur);
+				cur.close();
+				if (image.equals(imgInDb)) continue;
+				
+				dbMgr.update(uri, image.toContentValues(), null, null);
+				continue;
+			}
+			
+			if (cur != null) cur.close();
+			dbMgr.insert(uri, image.toContentValues());
+		}
+		dbMgr.closeDatabase();
+	}
+	
 	public ArrayList<Integer> getCartoonIds(String whichList) {
 		ArrayList<Integer> cartoonIds = new ArrayList<Integer>();
 		String path = android.os.Environment.getExternalStorageDirectory()
@@ -156,6 +178,67 @@ public class TempDataLoader {
 		return null;
 	}
 	
+	public Bitmap getImage(int cartoonId, int imgId) {
+		
+		String path = PropertyMgr.getInstance().getCartoonPath(cartoonId)+"/" + imgId
+				+ FileFormatUtil.JPG_POSTFIX;
+		File file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getCartoonPath(cartoonId) + imgId + FileFormatUtil.PNG_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getCartoonPath(cartoonId) + imgId + FileFormatUtil.GIF_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getCartoonPath(cartoonId) + imgId;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		Log.d(TAG, ".... File not exists: " + path);
+		return null;
+	}
+	
+	public Bitmap getActivityCover(String title){
+		String path = PropertyMgr.getInstance().getActivityCoverPath() + title
+				+ FileFormatUtil.JPG_POSTFIX;
+		File file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getActivityCoverPath() + title + FileFormatUtil.PNG_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getActivityCoverPath() + title + FileFormatUtil.GIF_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		path = PropertyMgr.getInstance().getActivityCoverPath() + title;
+		file = new File(path);
+		if (file.exists()) {
+			return getBitmap(path);
+		}
+		
+		Log.d(TAG, ".... File not exists: " + path);
+		return null;
+	}
+	
 	private Bitmap getBitmap(String path) {
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inSampleSize = 2;
@@ -191,6 +274,27 @@ public class TempDataLoader {
 		
 		cur.close();
 		return chapterList;
+	}
+	
+	public ArrayList<ImageInfo> getChapterImageInfos(Context ctx, int chapterId) {
+		ArrayList<ImageInfo> imagesList = new ArrayList<ImageInfo>();
+		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+		Cursor cur = dbMgr.query(DatabaseMgr.IMAGES_ALL_URL, null,
+				String.format("%s=%d", IMAGES_COLUMN.CHAPTER_ID, chapterId), null,
+				null);
+		if (cur == null) return imagesList;
+		
+		if (cur.getCount() <= 0) {
+			cur.close();
+			return imagesList;
+		}
+
+		while (cur.moveToNext()) {
+			imagesList.add(new ImageInfo(cur));
+		}
+		
+		cur.close();
+		return imagesList;
 	}
 	
 	public void loadFakeComments() {

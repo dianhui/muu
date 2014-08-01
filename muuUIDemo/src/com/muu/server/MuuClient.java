@@ -20,14 +20,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 public class MuuClient {
-	private static final String sRandomListPath = "/cartoon/top";
+	private static final String sRandomListPath = "/cartoon/random";
 	private static final String sTopListPath = "/cartoon/top";
 	private static final String sNewListPath = "/cartoon/hot";
 	private static final String sTopicListPath = "/cartoons/topic";
 	private static final String sChapterInfoPath = "/cartoon/chapters";
 	private static final String sCommentsPath = "/cartoon/comments";
 	private static final String sSearchCartoonPath = "/cartoons/name";
-	private static final String sChapterImageInfoPath = "/cartoon/chapter/images";  
+	private static final String sChapterImageInfoPath = "/cartoon/chapter/images";
+	private static final String sActivitiesPath = "/activities";
 	
 	public static enum ListType {
 		RANDOM("random", sRandomListPath),
@@ -233,6 +234,63 @@ public class MuuClient {
 		return bitmap;
 	}
 	
+	public JSONArray getActivityEventInfos() {
+		JSONArray json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, sActivitiesPath);
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONArray(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+	
+	public void downloadActivityCoverByUrl(String title, String url) {
+		Bitmap bitmap = new TempDataLoader().getActivityCover(title);
+		if (bitmap != null) {
+			bitmap.recycle();
+			bitmap = null;
+			return;
+		}
+		
+		try {
+            bitmap = getBitmapByUrl(url);
+
+            String path = PropertyMgr.getInstance().getActivityCoverPath();
+            File file = new File(path);
+            if (!file.exists()) file.mkdirs();
+            
+            OutputStream fOut = null;
+            String fileSuffix = FileFormatUtil.getFileSuffixByUrl(url);
+			file = new File(path, title + fileSuffix);
+            fOut = new FileOutputStream(file);
+
+            if (fileSuffix.equals(FileFormatUtil.JPG_POSTFIX)) {
+            	bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+			} else {
+				bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+			}
+            
+            fOut.flush();
+            fOut.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (bitmap == null) {
+				return;
+			}
+			
+			bitmap.recycle();
+			bitmap = null;
+		}
+		return;
+	}
+	
 	public void downloadCoverByUrl(int id, String url) {
 		Bitmap bitmap = new TempDataLoader().getCartoonCover(id);
 		if (bitmap != null) {
@@ -244,13 +302,54 @@ public class MuuClient {
 		try {
             bitmap = getBitmapByUrl(url);
 
-            String path = PropertyMgr.getInstance().getCachePath() + "cover/";
+            String path = PropertyMgr.getInstance().getCoverPath();
             File file = new File(path);
             if (!file.exists()) file.mkdirs();
             
             OutputStream fOut = null;
             String fileSuffix = FileFormatUtil.getFileSuffixByUrl(url);
 			file = new File(path, id + fileSuffix);
+            fOut = new FileOutputStream(file);
+
+            if (fileSuffix.equals(FileFormatUtil.JPG_POSTFIX)) {
+            	bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+			} else {
+				bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+			}
+            
+            fOut.flush();
+            fOut.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (bitmap == null) {
+				return;
+			}
+			
+			bitmap.recycle();
+			bitmap = null;
+		}
+		return;
+	}
+	
+	public void downloadCartoonImage(int cartoonId, int imgId, String url) {
+		Bitmap bitmap = new TempDataLoader().getImage(cartoonId, imgId);
+		if (bitmap != null) {
+			bitmap.recycle();
+			bitmap = null;
+			return;
+		}
+		
+		try {
+            bitmap = getBitmapByUrl(url);
+
+            String path = PropertyMgr.getInstance().getCartoonPath(cartoonId);
+            File file = new File(path);
+            if (!file.exists()) file.mkdirs();
+            
+            OutputStream fOut = null;
+            String fileSuffix = FileFormatUtil.getFileSuffixByUrl(url);
+			file = new File(path, imgId + fileSuffix);
             fOut = new FileOutputStream(file);
 
             if (fileSuffix.equals(FileFormatUtil.JPG_POSTFIX)) {
