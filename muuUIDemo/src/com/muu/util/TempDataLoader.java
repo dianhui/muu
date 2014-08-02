@@ -241,7 +241,7 @@ public class TempDataLoader {
 	
 	private Bitmap getBitmap(String path) {
 		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inSampleSize = 2;
+		opts.inSampleSize = 1;
 		return BitmapFactory.decodeFile(path, opts);
 	}
 	
