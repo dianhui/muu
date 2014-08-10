@@ -1,5 +1,6 @@
 package com.muu.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -16,6 +17,7 @@ import com.muu.util.TempDataLoader;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -49,6 +51,8 @@ public class MainActivity extends Activity {
 	private ScrollView mCartoonsContainer = null;
 	private PullToRefreshScrollView mPullRefreshScrollView = null;
 	private ImageView mActivityImageView = null;
+	private ImageView mFirstImageView = null;
+	private ImageView mSecondImageView = null;
 	
 	private ListType mCurrentList = null;
 	private int mCurrentPage = -1;
@@ -78,6 +82,31 @@ public class MainActivity extends Activity {
 		changeList(ListType.RANDOM);
 		
 		new RetrieveAcitivitiesTask().execute();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		recycleImvBmp(mActivityImageView);
+		recycleImvBmp(mFirstImageView);
+		recycleImvBmp(mSecondImageView);
+		
+		super.onDestroy();
+	}
+	
+	private void recycleImvBmp(ImageView imv) {
+		if (imv == null) {
+			return;
+		}
+		
+		Drawable drawable = (Drawable) imv.getDrawable();
+		if (drawable != null && drawable instanceof BitmapDrawable) {
+			BitmapDrawable bmpDrawable = (BitmapDrawable)drawable;
+			if (bmpDrawable != null && bmpDrawable.getBitmap() != null) {
+				bmpDrawable.getBitmap().recycle();
+			}
+		}
+		
+		imv = null;
 	}
 	
 	private void changeList(ListType type) {
@@ -277,13 +306,13 @@ public class MainActivity extends Activity {
 	private void setupFirstCartoon(CartoonInfo info) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
 		setClickEvent(layout, info.id);
+
+		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
+		mFirstImageView = (ImageView)layout.findViewById(R.id.imv_no1_icon);
+		mFirstImageView.setImageBitmap(bmpRef.get());
 		
-		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no1_icon);
-		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
-		imv.setImageBitmap(bmp);
-		
-		imv = (ImageView) layout.findViewById(R.id.imv_no1_tag);
-		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
+		mFirstImageView = (ImageView) layout.findViewById(R.id.imv_no1_tag);
+		mFirstImageView.setImageDrawable(TempDataLoader.getTopicTagDrawable(
 				getApplicationContext(), info.topicCode));
 		
 		
@@ -295,12 +324,12 @@ public class MainActivity extends Activity {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
 		setClickEvent(layout, info.id);
 		
-		ImageView imv = (ImageView)layout.findViewById(R.id.imv_no2_icon);
-		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
-		imv.setImageBitmap(bmp);
+		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
+		mSecondImageView = (ImageView)layout.findViewById(R.id.imv_no2_icon);
+		mSecondImageView.setImageBitmap(bmpRef.get());
 		
-		imv = (ImageView) layout.findViewById(R.id.imv_no2_tag);
-		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
+		mSecondImageView = (ImageView) layout.findViewById(R.id.imv_no2_tag);
+		mSecondImageView.setImageDrawable(TempDataLoader.getTopicTagDrawable(
 				getApplicationContext(), info.topicCode));
 		
 		TextView tv = (TextView)layout.findViewById(R.id.tv_no2_name);
@@ -349,9 +378,10 @@ public class MainActivity extends Activity {
 	
 	private void setupCartoonView(RelativeLayout layout, CartoonInfo info) {
 		ImageView imv = (ImageView)layout.findViewById(R.id.imv_icon);
-		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
-		imv.setImageBitmap(bmp);
-		
+		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
+		if (bmpRef != null && bmpRef.get() != null) {
+			imv.setImageBitmap(bmpRef.get());
+		}
 		imv = (ImageView) layout.findViewById(R.id.imv_tag);
 		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
 				getApplicationContext(), info.topicCode));
@@ -465,14 +495,14 @@ public class MainActivity extends Activity {
 				return;
 			}
 			
-			Bitmap bmp = new TempDataLoader().getActivityCover("activityCover");
-			if (bmp == null) {
+			WeakReference<Bitmap> bmpRef = new TempDataLoader().getActivityCover("activityCover");
+			if (bmpRef.get() == null) {
 				Log.d(TAG, "Bitmap of activity cover is null.");
 				return;
 			}
 			
 			mActivityImageView.setVisibility(View.VISIBLE);
-			mActivityImageView.setImageBitmap(bmp);
+			mActivityImageView.setImageBitmap(bmpRef.get());
 			mActivityImageView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

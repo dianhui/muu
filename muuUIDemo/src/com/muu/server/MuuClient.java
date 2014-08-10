@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 
 import org.json.JSONArray;
@@ -216,22 +217,21 @@ public class MuuClient {
 		return json;
 	}
 	
-	public Bitmap getBitmapByUrl(String url) {
+	public WeakReference<Bitmap> getBitmapByUrl(String url) {
 		Bitmap bitmap = null;
-		
 		try {
 			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, url);
 			byte[] image = null;
 			image = resp.getResponseEntity();
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = 1;
+            // TODO: some image can not be decode.
             bitmap = BitmapFactory.decodeByteArray(image, 0, image.length, options);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return bitmap;
+		return new WeakReference<Bitmap>(bitmap);
 	}
 	
 	public JSONArray getActivityEventInfos() {
@@ -251,15 +251,23 @@ public class MuuClient {
 	}
 	
 	public void downloadActivityCoverByUrl(String title, String url) {
-		Bitmap bitmap = new TempDataLoader().getActivityCover(title);
-		if (bitmap != null) {
-			bitmap.recycle();
-			bitmap = null;
+		WeakReference<Bitmap> bmpRef = new TempDataLoader().getActivityCover(title);
+		Bitmap bmp = bmpRef.get();
+		if (bmpRef.get() != null) {
+			bmp.recycle();
+			bmp = null;
 			return;
 		}
 		
 		try {
-            bitmap = getBitmapByUrl(url);
+			
+			bmpRef = getBitmapByUrl(url);
+			if (bmpRef != null) {
+				bmp = bmpRef.get();
+			}
+			if (bmp == null) {
+				return;
+			}
 
             String path = PropertyMgr.getInstance().getActivityCoverPath();
             File file = new File(path);
@@ -271,9 +279,9 @@ public class MuuClient {
             fOut = new FileOutputStream(file);
 
             if (fileSuffix.equals(FileFormatUtil.JPG_POSTFIX)) {
-            	bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            	bmp.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
 			} else {
-				bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+				bmp.compress(Bitmap.CompressFormat.PNG, 85, fOut);
 			}
             
             fOut.flush();
@@ -281,18 +289,22 @@ public class MuuClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (bitmap == null) {
+			if (bmp == null) {
 				return;
 			}
 			
-			bitmap.recycle();
-			bitmap = null;
+			bmp.recycle();
+			bmp = null;
 		}
 		return;
 	}
 	
 	public void downloadCoverByUrl(int id, String url) {
-		Bitmap bitmap = new TempDataLoader().getCartoonCover(id);
+		Bitmap bitmap = null;
+		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(id);
+		if (bmpRef != null) {
+			bitmap = bmpRef.get();
+		}
 		if (bitmap != null) {
 			bitmap.recycle();
 			bitmap = null;
@@ -300,7 +312,14 @@ public class MuuClient {
 		}
 		
 		try {
-            bitmap = getBitmapByUrl(url);
+			bmpRef = getBitmapByUrl(url);
+			if (bmpRef != null) {
+				bitmap = bmpRef.get();
+			}
+			
+			if (bitmap == null) {
+				return;
+			}
 
             String path = PropertyMgr.getInstance().getCoverPath();
             File file = new File(path);
@@ -333,7 +352,11 @@ public class MuuClient {
 	}
 	
 	public void downloadCartoonImage(int cartoonId, int imgId, String url) {
-		Bitmap bitmap = new TempDataLoader().getImage(cartoonId, imgId);
+		Bitmap bitmap = null;
+		WeakReference<Bitmap> bmpRef = new TempDataLoader().getImage(cartoonId, imgId);
+		if (bmpRef != null) {
+			bitmap = bmpRef.get();
+		}
 		if (bitmap != null) {
 			bitmap.recycle();
 			bitmap = null;
@@ -341,7 +364,14 @@ public class MuuClient {
 		}
 		
 		try {
-            bitmap = getBitmapByUrl(url);
+			bmpRef = getBitmapByUrl(url);
+			if (bmpRef != null) {
+				bitmap = bmpRef.get();
+			}
+			
+            if (bitmap == null) {
+				return;
+			}
 
             String path = PropertyMgr.getInstance().getCartoonPath(cartoonId);
             File file = new File(path);

@@ -1,11 +1,14 @@
 package com.muu.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -69,6 +73,29 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		super.onPause();
 		
 		recordReadHistory();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		recycleImvBmp(mContentImage);
+		
+		super.onDestroy();
+	}
+	
+	private void recycleImvBmp(ImageView imv) {
+		if (imv == null) {
+			return;
+		}
+		
+		Drawable drawable = (Drawable) imv.getDrawable();
+		if (drawable != null && drawable instanceof BitmapDrawable) {
+			BitmapDrawable bmpDrawable = (BitmapDrawable)drawable;
+			if (bmpDrawable != null && bmpDrawable.getBitmap() != null) {
+				bmpDrawable.getBitmap().recycle();
+			}
+		}
+		
+		imv = null;
 	}
 	
 	private void recordReadHistory() {
@@ -173,16 +200,19 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	private void setupContentView() {
 		mContentImage = (TouchImageView)this.findViewById(R.id.imv_content);
 		mContentImage.setSwipObserver(this);
-		
 		mProgressBar = (ProgressBar)this.findViewById(R.id.progress_bar);
-		Bitmap bmp = new TempDataLoader().getCartoonImage(mCartoonId, mChapterIdx, mPageIdx);
-		if (bmp != null) {
-			mContentImage.setImageBitmap(bmp);
-		}
 	}
 	
 	private void setupBottomView() {
+		mBottomLayout = (RelativeLayout)this.findViewById(R.id.rl_bottom_chapter);
+		
 		mChaptersList = getChapterInfo(mCartoonId);
+		if (mChapterIdx >= mChaptersList.size()) {
+			Toast.makeText(getApplicationContext(),
+					getString(R.string.no_image), Toast.LENGTH_LONG).show();
+			return;
+		}
+		
 		new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
 		
 		TextView tv = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
@@ -193,13 +223,16 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		tv.setVisibility(View.VISIBLE);
 		tv.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
 
-		mBottomLayout = (RelativeLayout)this.findViewById(R.id.rl_bottom_chapter);
 		tv = (TextView)this.findViewById(R.id.tv_chapter_num);
 		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
 	}
 	
 	@Override
 	public void onSwipPrevious() {
+		if (mChapterIdx >= mChaptersList.size()) {
+			return;
+		}
+		
 		TextView tvChapterPageIdx = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
 		TextView tvChapterNum = (TextView)this.findViewById(R.id.tv_chapter_num);
 		TextView tvChapterName = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
@@ -231,6 +264,10 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 
 	@Override
 	public void onSwipNext() {
+		if (mChapterIdx >= mChaptersList.size()) {
+			return;
+		}
+		
 		TextView tvChapterPageIdx = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_page_idx);
 		TextView tvChapterNum = (TextView)this.findViewById(R.id.tv_chapter_num);
 		TextView tvChapterName = (TextView)ReadPageActivity.this.findViewById(R.id.tv_chapter_name);
@@ -276,7 +313,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		return dataLoader.getChapters(ReadPageActivity.this, cartoonId);
 	}
 	
-	private class RetrieveCartoonImgTask extends AsyncTask<Integer, Integer, Bitmap> {
+	private class RetrieveCartoonImgTask extends AsyncTask<Integer, Integer, WeakReference<Bitmap>> {
 		private MuuServerWrapper mServerWrapper;
 
 		@Override
@@ -285,7 +322,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		}
 		
 		@Override
-		protected Bitmap doInBackground(Integer... params) {
+		protected WeakReference<Bitmap> doInBackground(Integer... params) {
 			if (mChpImgInfoArray == null) {
 				mChpImgInfoArray = new SparseArray<ArrayList<ImageInfo>>();
 			}
@@ -312,11 +349,19 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		}
 		
 		@Override
-		protected void onPostExecute(Bitmap bmp) {
+		protected void onPostExecute(WeakReference<Bitmap> bmpRef) {
 			mProgressBar.setVisibility(View.GONE);
-			if (bmp == null) return;
+			if (bmpRef == null || bmpRef.get() == null) return;
 			
-			mContentImage.setImageBitmap(bmp);
+			Drawable drawable = mContentImage.getDrawable();
+			if (drawable != null && drawable instanceof BitmapDrawable) {
+				BitmapDrawable bmpDrawable = (BitmapDrawable)drawable;
+				if (bmpDrawable != null && bmpDrawable.getBitmap() != null) {
+					bmpDrawable.getBitmap().recycle();
+				}
+				mContentImage.setImageBitmap(null);
+			}
+			mContentImage.setImageBitmap(bmpRef.get());
 		}
 	}
 }

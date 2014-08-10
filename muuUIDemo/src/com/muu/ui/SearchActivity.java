@@ -1,5 +1,6 @@
 package com.muu.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -16,6 +17,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -89,7 +93,7 @@ public class SearchActivity extends Activity {
 			mSensorMgr.unregisterListener(mSensorListener);
 		}
 	}
-	
+
 	private void setupActionBar() {
 		ImageButton settingsImage = (ImageButton)this.findViewById(R.id.imbtn_slide_category);
 		settingsImage.setVisibility(View.INVISIBLE);
@@ -121,9 +125,17 @@ public class SearchActivity extends Activity {
 	}
 	
 	private void setupViews() {
-		EditText searchEdit = (EditText) this.findViewById(R.id.et_search);
+		final EditText searchEdit = (EditText) this.findViewById(R.id.et_search);
 		searchEdit.setVisibility(View.VISIBLE);
 		searchEdit.setOnEditorActionListener(new EditActionListener());
+		
+		ImageView imv = (ImageView)this.findViewById(R.id.imv_search);
+		imv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				onSearchAction(searchEdit);
+			}
+		});
 
 		RelativeLayout searchHeader = (RelativeLayout) this
 				.findViewById(R.id.rl_search_header);
@@ -207,6 +219,7 @@ public class SearchActivity extends Activity {
 		if (TextUtils.isEmpty(mSearchStr))
 			return;
 
+		mCurPage = -1;
 		new RetrieveSearchCartoonsTask().execute(mSearchStr);
 
 		TextView title = (TextView) this.findViewById(R.id.tv_action_title);
@@ -316,8 +329,21 @@ public class SearchActivity extends Activity {
 				holder.name.setText(mList.get(position).name);
 				holder.author.setText(getString(R.string.author,
 						mList.get(position).author));
-				holder.icon.setImageBitmap(tmpDataLoader.getCartoonCover(mList
-						.get(position).id));
+				
+				Drawable drawable = (Drawable) holder.icon.getDrawable();
+				if (drawable != null && drawable instanceof BitmapDrawable) {
+					BitmapDrawable bmpDrawable = (BitmapDrawable)drawable;
+					if (bmpDrawable.getBitmap() != null) {
+						bmpDrawable.getBitmap().recycle();
+					}
+				}
+				holder.icon.setImageBitmap(null);
+				
+				WeakReference<Bitmap> bmpRef = tmpDataLoader.getCartoonCover(mList
+						.get(position).id);
+				if (bmpRef != null && bmpRef.get() != null) {
+					holder.icon.setImageBitmap(bmpRef.get());
+				}
 			}
 			
 			convertView.setClickable(true);
@@ -370,10 +396,9 @@ public class SearchActivity extends Activity {
 			mPullToRefreshListView.onRefreshComplete();
 			
 			if (result == null || result.size() < 1) {
-				if (mCurPage == -1)
-					Toast.makeText(getApplicationContext(),
-							SearchActivity.this.getString(R.string.no_more_data),
-							Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(),
+						SearchActivity.this.getString(R.string.no_more_data),
+						Toast.LENGTH_SHORT).show();
 				return;
 			}
 			

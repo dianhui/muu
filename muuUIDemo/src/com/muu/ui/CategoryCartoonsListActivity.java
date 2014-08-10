@@ -1,5 +1,6 @@
 package com.muu.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -13,6 +14,8 @@ import com.muu.util.TempDataLoader;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -160,8 +163,16 @@ public class CategoryCartoonsListActivity extends Activity {
 				holder.name.setText(mList.get(position).name);
 				holder.author.setText(getString(R.string.author,
 						mList.get(position).author));
-				holder.icon.setImageBitmap(new TempDataLoader()
-						.getCartoonCover(mList.get(position).id));
+				if (holder.icon.getDrawable() != null
+						&& holder.icon.getDrawable() instanceof BitmapDrawable) {
+					BitmapDrawable bmpDrawable = (BitmapDrawable) holder.icon
+							.getDrawable();
+					bmpDrawable.getBitmap().recycle();
+				}
+				
+				WeakReference<Bitmap> bmpRef = new TempDataLoader()
+				.getCartoonCover(mList.get(position).id);
+				holder.icon.setImageBitmap(bmpRef.get());
 			}
 			
 			convertView.setClickable(true);

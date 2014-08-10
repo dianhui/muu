@@ -1,5 +1,6 @@
 package com.muu.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.muu.data.CartoonInfo;
@@ -12,6 +13,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,8 +137,15 @@ public class RecentReadListActivity extends Activity {
 				holder.name.setText(mList.get(position).name);
 				holder.author.setText(getString(R.string.author,
 						mList.get(position).author));
-				holder.icon.setImageBitmap(new TempDataLoader()
-						.getCartoonCover(mList.get(position).id));
+				if (holder.icon.getDrawable() != null
+						&& holder.icon.getDrawable() instanceof BitmapDrawable) {
+					BitmapDrawable bmpDrawable = (BitmapDrawable)holder.icon.getDrawable();
+					bmpDrawable.getBitmap().recycle();
+				}
+				
+				WeakReference<Bitmap> bmpRef = new TempDataLoader()
+				.getCartoonCover(mList.get(position).id);
+				holder.icon.setImageBitmap(bmpRef.get());
 			}
 			
 			convertView.setClickable(true);

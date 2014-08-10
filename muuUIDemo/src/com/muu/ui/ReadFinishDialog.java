@@ -25,7 +25,7 @@ public class ReadFinishDialog extends android.app.Dialog {
 
 		this.setContentView(R.layout.read_finish_layout);
 
-		Bitmap bmp = new TempDataLoader().getCartoonCover(mCartoonId);
+		Bitmap bmp = new TempDataLoader().getCartoonCover(mCartoonId).get();
 		if (bmp != null) {
 			ImageView img = (ImageView)this.findViewById(R.id.imv_cartoon_cover);
 			img.setImageBitmap(bmp);

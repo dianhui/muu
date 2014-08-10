@@ -2,6 +2,7 @@ package com.muu.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -35,6 +36,9 @@ public class TempDataLoader {
 	public static final String HOT_TOP20 = "hot_top20";
 	public static final String NEW_TOP20 = "new_top20";
 	public static final ArrayList<String> sFakeCommentsPool = new ArrayList<String>();
+	
+	private static final int sCoversInSampleSize = 5;
+	private static final int sCartoonImgInSampleSize = 1;
 	
 	/**
 	 * store cartoons into db. 
@@ -148,101 +152,101 @@ public class TempDataLoader {
 		return cartoonIds;
 	}
 	
-	public Bitmap getCartoonCover(int id) {
+	public WeakReference<Bitmap> getCartoonCover(int id) {
 		String path = PropertyMgr.getInstance().getCoverPath() + id
 				+ FileFormatUtil.JPG_POSTFIX;
 		File file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCoversInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getCoverPath() + id + FileFormatUtil.PNG_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCoversInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getCoverPath() + id + FileFormatUtil.GIF_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCoversInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getCoverPath() + id;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCoversInSampleSize);
 		}
 		
 		Log.d(TAG, ".... File not exists: " + path);
 		return null;
 	}
 	
-	public Bitmap getImage(int cartoonId, int imgId) {
+	public WeakReference<Bitmap> getImage(int cartoonId, int imgId) {
 		
 		String path = PropertyMgr.getInstance().getCartoonPath(cartoonId)+"/" + imgId
 				+ FileFormatUtil.JPG_POSTFIX;
 		File file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCartoonImgInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getCartoonPath(cartoonId) + imgId + FileFormatUtil.PNG_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCartoonImgInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getCartoonPath(cartoonId) + imgId + FileFormatUtil.GIF_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCartoonImgInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getCartoonPath(cartoonId) + imgId;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCartoonImgInSampleSize);
 		}
 		
 		Log.d(TAG, ".... File not exists: " + path);
 		return null;
 	}
 	
-	public Bitmap getActivityCover(String title){
+	public WeakReference<Bitmap> getActivityCover(String title){
 		String path = PropertyMgr.getInstance().getActivityCoverPath() + title
 				+ FileFormatUtil.JPG_POSTFIX;
 		File file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCoversInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getActivityCoverPath() + title + FileFormatUtil.PNG_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCartoonImgInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getActivityCoverPath() + title + FileFormatUtil.GIF_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCartoonImgInSampleSize);
 		}
 		
 		path = PropertyMgr.getInstance().getActivityCoverPath() + title;
 		file = new File(path);
 		if (file.exists()) {
-			return getBitmap(path);
+			return getBitmap(path, sCartoonImgInSampleSize);
 		}
 		
 		Log.d(TAG, ".... File not exists: " + path);
 		return null;
 	}
 	
-	private Bitmap getBitmap(String path) {
+	private WeakReference<Bitmap> getBitmap(String path, int inSampleSize) {
 		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inSampleSize = 1;
-		return BitmapFactory.decodeFile(path, opts);
+		opts.inSampleSize = inSampleSize;
+		return new WeakReference<Bitmap>(BitmapFactory.decodeFile(path, opts));
 	}
 	
 	public static void recycleBmp(Bitmap bmp) {

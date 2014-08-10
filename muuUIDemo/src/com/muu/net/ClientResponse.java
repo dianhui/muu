@@ -76,9 +76,9 @@ public class ClientResponse {
 				content.write(buffer, 0, readBytes);
 			}
 			in.close();
+			
 			return content.toByteArray();
 		}
-
 		return null;
 	}
 

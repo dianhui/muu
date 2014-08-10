@@ -1,5 +1,6 @@
 package com.muu.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -22,6 +23,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -45,6 +47,7 @@ public class DetailsPageActivity extends Activity {
 	
 	private SlidingMenu mChaptersSlideView = null;
 	private TextView mActionBarTitle = null;
+	private ImageView mCoverImageView = null;
 	private int mCartoonId = -1;
 	private int mChapterCount = 0;
 	
@@ -65,6 +68,17 @@ public class DetailsPageActivity extends Activity {
 		super.onResume();
 		
 		setupReadButton();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		BitmapDrawable bmpDrawable = (BitmapDrawable)mCoverImageView.getDrawable();
+		if (bmpDrawable != null && bmpDrawable instanceof BitmapDrawable) {
+			bmpDrawable.getBitmap().recycle();
+			mCoverImageView = null;
+		}
+		
+		super.onDestroy();
 	}
 	
 	private void setupActionBar() {
@@ -200,11 +214,11 @@ public class DetailsPageActivity extends Activity {
 		cur.close();
 		dbMgr.closeDatabase();
 		mChapterCount = info.chapterCount;
-		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
-		Bitmap bmp = new TempDataLoader().getCartoonCover(info.id);
-		imv.setImageBitmap(bmp);
+		mCoverImageView = (ImageView)this.findViewById(R.id.imv_icon);
+		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
+		mCoverImageView.setImageBitmap(bmpRef.get());
 		
-		imv = (ImageView)this.findViewById(R.id.imv_status);
+		ImageView imv = (ImageView)this.findViewById(R.id.imv_status);
 		int resId = info.isComplete == 0 ? R.drawable.ic_status_continue
 				: R.drawable.ic_status_complete;
 		imv.setImageResource(resId);
@@ -284,6 +298,10 @@ public class DetailsPageActivity extends Activity {
 	}
 	
 	private void setupCommentsView(ArrayList<Comment> commentList) {
+		if (commentList == null) {
+			return;
+		}
+		
 		int maxComments = commentList.size() <= 5 ? commentList.size() : 5;
 		
 		Resources res = this.getResources();

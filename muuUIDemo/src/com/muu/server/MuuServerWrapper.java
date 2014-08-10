@@ -1,5 +1,6 @@
 package com.muu.server;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -8,7 +9,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import com.muu.data.ActivityEventInfo;
 import com.muu.data.CartoonInfo;
@@ -217,18 +217,16 @@ public class MuuServerWrapper {
 		return imgInfoList;
 	}
 	
-	public Bitmap getImageByImageInfo(int cartoonId, ImageInfo info) {
-		Bitmap bmp = mTmpDataLoader.getImage(cartoonId, info.id);
-		if (bmp != null) {
-			Log.d("XXX", "get local image success.");
-			return bmp;
+	public WeakReference<Bitmap> getImageByImageInfo(int cartoonId, ImageInfo info) {
+		WeakReference<Bitmap> bmpRef = mTmpDataLoader.getImage(cartoonId, info.id);
+		if (bmpRef != null) {
+			return bmpRef;
 		}
-		
 		
 		return mMuuClient.getBitmapByUrl(info.imgUrl);
 	}
 	
-	public Bitmap getBitmapByUrl(String url) {
+	public WeakReference<Bitmap> getBitmapByUrl(String url) {
 		return mMuuClient.getBitmapByUrl(url);
 	}
 	

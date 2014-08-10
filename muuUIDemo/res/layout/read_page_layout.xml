@@ -37,7 +37,6 @@
             android:layout_centerVertical="true"
             android:clickable="true"
             android:gravity="center_vertical"
-            android:layout_marginLeft="10dp"
             android:padding="15dp" >
 			
             <ImageView

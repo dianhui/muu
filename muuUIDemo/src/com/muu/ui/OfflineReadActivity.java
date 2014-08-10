@@ -211,7 +211,7 @@ public class OfflineReadActivity extends Activity {
 		@Override
 		public void bindView(View view, Context ctx, Cursor cursor) {
 			int cartoonId = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.ID));
-			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId);
+			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
 			if (cover != null) {
 				ImageView coverImv = (ImageView)view.findViewById(R.id.imv_icon);
 				coverImv.setImageBitmap(cover);
@@ -249,7 +249,7 @@ public class OfflineReadActivity extends Activity {
 		@Override
 		public void bindView(View view, Context ctx, Cursor cursor) {
 			final int cartoonId = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.ID));
-			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId);
+			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
 			if (cover != null) {
 				ImageView coverImv = (ImageView)view.findViewById(R.id.imv_icon);
 				coverImv.setImageBitmap(cover);
