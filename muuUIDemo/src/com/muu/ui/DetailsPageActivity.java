@@ -216,7 +216,9 @@ public class DetailsPageActivity extends Activity {
 		mChapterCount = info.chapterCount;
 		mCoverImageView = (ImageView)this.findViewById(R.id.imv_icon);
 		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		mCoverImageView.setImageBitmap(bmpRef.get());
+		if (bmpRef != null && bmpRef.get() != null) {
+			mCoverImageView.setImageBitmap(bmpRef.get());
+		}
 		
 		ImageView imv = (ImageView)this.findViewById(R.id.imv_status);
 		int resId = info.isComplete == 0 ? R.drawable.ic_status_continue

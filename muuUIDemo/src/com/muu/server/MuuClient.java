@@ -252,8 +252,12 @@ public class MuuClient {
 	
 	public void downloadActivityCoverByUrl(String title, String url) {
 		WeakReference<Bitmap> bmpRef = new TempDataLoader().getActivityCover(title);
-		Bitmap bmp = bmpRef.get();
-		if (bmpRef.get() != null) {
+		Bitmap bmp = null;
+		if (bmpRef != null) {
+			bmp = bmpRef.get();
+		}
+		
+		if (bmp != null) {
 			bmp.recycle();
 			bmp = null;
 			return;

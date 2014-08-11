@@ -171,8 +171,10 @@ public class CategoryCartoonsListActivity extends Activity {
 				}
 				
 				WeakReference<Bitmap> bmpRef = new TempDataLoader()
-				.getCartoonCover(mList.get(position).id);
-				holder.icon.setImageBitmap(bmpRef.get());
+						.getCartoonCover(mList.get(position).id);
+				if (bmpRef != null && bmpRef.get() != null) {
+					holder.icon.setImageBitmap(bmpRef.get());
+				}
 			}
 			
 			convertView.setClickable(true);

@@ -224,7 +224,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		tv.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
 
 		tv = (TextView)this.findViewById(R.id.tv_chapter_num);
-		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+		tv.setText(getString(R.string.chapter_idx_dot, mChapterIdx + 1));
 	}
 	
 	@Override
@@ -241,7 +241,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			
 			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
 			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
-			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx + 1));
 			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
 			return;
 		}
@@ -253,7 +253,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
 			
 			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
-			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx + 1));
 			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
 			return;
 		}
@@ -276,7 +276,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			mPageIdx++;
 			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx);
 			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
-			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx + 1));
 			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
 			return;
 		}
@@ -286,7 +286,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			mPageIdx = 0;
 			new RetrieveCartoonImgTask().execute(mChapterIdx, mPageIdx); 
 			tvChapterPageIdx.setText(getString(R.string.page, mPageIdx + 1, mChaptersList.get(mChapterIdx).pageCount));
-			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx));
+			tvChapterNum.setText(getString(R.string.chapter_idx_dot, mChapterIdx + 1));
 			tvChapterName.setText(mChaptersList.get(mChapterIdx).name);
 			return;
 		}

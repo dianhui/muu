@@ -308,11 +308,13 @@ public class MainActivity extends Activity {
 		setClickEvent(layout, info.id);
 
 		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		mFirstImageView = (ImageView)layout.findViewById(R.id.imv_no1_icon);
-		mFirstImageView.setImageBitmap(bmpRef.get());
+		if (bmpRef != null && bmpRef.get() != null) {
+			mFirstImageView = (ImageView)layout.findViewById(R.id.imv_no1_icon);
+			mFirstImageView.setImageBitmap(bmpRef.get());			
+		}
 		
-		mFirstImageView = (ImageView) layout.findViewById(R.id.imv_no1_tag);
-		mFirstImageView.setImageDrawable(TempDataLoader.getTopicTagDrawable(
+		ImageView imv = (ImageView) layout.findViewById(R.id.imv_no1_tag);
+		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
 				getApplicationContext(), info.topicCode));
 		
 		
@@ -325,11 +327,13 @@ public class MainActivity extends Activity {
 		setClickEvent(layout, info.id);
 		
 		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		mSecondImageView = (ImageView)layout.findViewById(R.id.imv_no2_icon);
-		mSecondImageView.setImageBitmap(bmpRef.get());
+		if (bmpRef != null && bmpRef.get() != null) {
+			mSecondImageView = (ImageView)layout.findViewById(R.id.imv_no2_icon);
+			mSecondImageView.setImageBitmap(bmpRef.get());
+		}
 		
-		mSecondImageView = (ImageView) layout.findViewById(R.id.imv_no2_tag);
-		mSecondImageView.setImageDrawable(TempDataLoader.getTopicTagDrawable(
+		ImageView imv = (ImageView) layout.findViewById(R.id.imv_no2_tag);
+		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
 				getApplicationContext(), info.topicCode));
 		
 		TextView tv = (TextView)layout.findViewById(R.id.tv_no2_name);
@@ -496,7 +500,7 @@ public class MainActivity extends Activity {
 			}
 			
 			WeakReference<Bitmap> bmpRef = new TempDataLoader().getActivityCover("activityCover");
-			if (bmpRef.get() == null) {
+			if (bmpRef == null || bmpRef.get() == null) {
 				Log.d(TAG, "Bitmap of activity cover is null.");
 				return;
 			}
