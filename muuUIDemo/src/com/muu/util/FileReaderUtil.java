@@ -47,4 +47,12 @@ public class FileReaderUtil {
 		}
 		return lines;
 	}
+	
+	public static void deleteFiles(File fileOrDirectory) {
+		if (fileOrDirectory.isDirectory())
+	        for (File child : fileOrDirectory.listFiles())
+	        	deleteFiles(child);
+
+	    fileOrDirectory.delete();
+	}
 }

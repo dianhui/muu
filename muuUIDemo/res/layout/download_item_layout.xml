@@ -12,6 +12,18 @@
         android:contentDescription="@string/content_des_place_holder"
         android:src="@drawable/book_icon" />
     
+    <ImageView 
+		android:id="@+id/imv_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/imv_icon"
+        android:layout_alignTop="@id/imv_icon"
+        android:background="@drawable/ic_close"
+        android:clickable="true"
+		android:contentDescription="@string/content_des_place_holder"
+		android:visibility="gone"
+        />
+    
     <TextView 
         android:id="@+id/tv_percent"
         android:layout_width="105dp"

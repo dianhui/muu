@@ -11,13 +11,19 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.widget.CursorAdapter;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AbsListView.RecyclerListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -29,6 +35,10 @@ public class OfflineReadActivity extends Activity {
 	private static final int IDX_DOWNLOADING_TAB = 0;
 	private static final int IDX_DOWNLOADED_TAB = 1;
 	
+	private static final int ENTER_EDIT_MODE = 0;
+	private static final int EXIT_EDIT_MODE = 1;
+	private static final int REFRESH_UI = 2;
+	
 	public static final String sCartoonIdExtraKey = "cartoon_id";
 	
 	private Button mDownloadingBtn = null;
@@ -38,8 +48,10 @@ public class OfflineReadActivity extends Activity {
 	
 	private DownloadContentObserver mContentObserver;
 	
+	private Boolean mIsEditMode = false;
 	private int mCurrentTabIndex = -1;
     private Handler mHandler;
+    private Handler mPercentHandler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +76,27 @@ public class OfflineReadActivity extends Activity {
 			}
 		});
 		
-		mHandler = new Handler();
-		mContentObserver = new DownloadContentObserver(mHandler);
+		mHandler = new Handler() {
+			public void handleMessage(Message msg) {
+				switch (msg.arg1) {
+				case ENTER_EDIT_MODE:
+					setupDownloadingView();
+					setupDownloadedView();
+					break;
+				case EXIT_EDIT_MODE:
+					setupDownloadingView();
+					setupDownloadedView();
+					break;
+				case REFRESH_UI:
+					setupDownloadingView();
+					setupDownloadedView();
+				default:
+					break;
+				}
+			}
+		};
+		mPercentHandler = new Handler();
+		mContentObserver = new DownloadContentObserver(mPercentHandler);
 		
 		setupDownloadingView();
 		setupDownloadedView();
@@ -85,6 +116,21 @@ public class OfflineReadActivity extends Activity {
 		super.onPause();
 		
 		getContentResolver().unregisterContentObserver(mContentObserver);
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if(keyCode == KeyEvent.KEYCODE_BACK) {
+	    	if (!mIsEditMode) {
+	    		return super.onKeyDown(keyCode, event);
+			}
+	    	
+	    	mIsEditMode = false;
+    		mHandler.sendEmptyMessage(EXIT_EDIT_MODE);
+    		return true;
+	    }
+	    
+	    return super.onKeyDown(keyCode, event);
 	}
 	
 	private void setupActionBar() {
@@ -144,7 +190,12 @@ public class OfflineReadActivity extends Activity {
 	}
 
 	private void setupDownloadedView() {
-		mDownloadedGdView = (GridView)this.findViewById(R.id.gv_downloaded);
+		if (mDownloadedGdView == null) {
+			mDownloadedGdView = (GridView)this.findViewById(R.id.gv_downloaded);
+		} else {
+			mDownloadedGdView.setAdapter(null);
+		}
+		
 		Cursor cur = new DatabaseMgr(getApplicationContext()).query(DatabaseMgr.MUU_CARTOONS_ALL_URL,
 				null, CARTOONS_COLUMN.IS_DOWNLOAD + "=1 and "
 						+ CARTOONS_COLUMN.DOWNLOAD_PROGRESS + "=100", null,
@@ -235,7 +286,7 @@ public class OfflineReadActivity extends Activity {
 		}
 	}
 	
-	private class DownloadedAdpter extends CursorAdapter {
+	private class DownloadedAdpter extends CursorAdapter implements RecyclerListener {
 //		private Context mCtx;
 		private LayoutInflater mInflater;
 		
@@ -247,7 +298,7 @@ public class OfflineReadActivity extends Activity {
 		}
 
 		@Override
-		public void bindView(View view, Context ctx, Cursor cursor) {
+		public void bindView(View view, final Context ctx, Cursor cursor) {
 			final int cartoonId = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.ID));
 			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
 			if (cover != null) {
@@ -255,19 +306,57 @@ public class OfflineReadActivity extends Activity {
 				coverImv.setImageBitmap(cover);
 			}
 			
-			String cartoonName = cursor.getString(cursor.getColumnIndex(CARTOONS_COLUMN.NAME));
+			final String cartoonName = cursor.getString(cursor.getColumnIndex(CARTOONS_COLUMN.NAME));
 			TextView tv = (TextView)view.findViewById(R.id.tv_name);
 			tv.setText(cartoonName);
 			
 			tv = (TextView)view.findViewById(R.id.tv_percent);
 			tv.setVisibility(View.GONE);
 			
+			ImageView imv = (ImageView)view.findViewById(R.id.imv_remove);
+			if (mIsEditMode) {
+				imv.setVisibility(View.VISIBLE);
+			} else {
+				imv.setVisibility(View.GONE);
+			}
+			
+			imv.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View arg0) {
+					new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							TempDataLoader.removeDownloadedCartoon(ctx, cartoonId);
+							mHandler.sendEmptyMessage(REFRESH_UI);
+						}
+					}).start();
+				}
+			});
+			
 			view.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					if (mIsEditMode) {
+						return;
+					}
 					startReadActivity(cartoonId, 0, 0);
 				}
 			});
+			
+			view.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					if (mIsEditMode) {
+						return true;
+					}
+					
+					mIsEditMode = true;
+					mHandler.sendEmptyMessage(ENTER_EDIT_MODE);
+					return true;
+				}
+			});
+			
 		}
 
 		@Override
@@ -275,6 +364,28 @@ public class OfflineReadActivity extends Activity {
 			RelativeLayout layout = null;
 			layout = (RelativeLayout)mInflater.inflate(R.layout.download_item_layout, null);
 			return layout;
+		}
+
+		@Override
+		public void onMovedToScrapHeap(View view) {
+			ImageView imv = (ImageView)view.findViewById(R.id.imv_icon);
+			recycleImvBmp(imv);
+		}
+		
+		private void recycleImvBmp(ImageView imv) {
+			if (imv == null) {
+				return;
+			}
+			
+			Drawable drawable = (Drawable) imv.getDrawable();
+			if (drawable != null && drawable instanceof BitmapDrawable) {
+				BitmapDrawable bmpDrawable = (BitmapDrawable)drawable;
+				if (bmpDrawable != null && bmpDrawable.getBitmap() != null) {
+					bmpDrawable.getBitmap().recycle();
+				}
+			}
+			
+			imv = null;
 		}
 		
 		private void startReadActivity(int cartoonId, int chapterIdx, int pageIdx) {
@@ -288,7 +399,6 @@ public class OfflineReadActivity extends Activity {
 	}
 	
 	private class DownloadContentObserver extends ContentObserver {
-
 		public DownloadContentObserver(Handler handler) {
 			super(handler);
 		}
@@ -299,6 +409,5 @@ public class OfflineReadActivity extends Activity {
         	mDownloadingGdView.setAdapter(null);
         	setupDownloadingView();
 		}
-		
 	}
 }

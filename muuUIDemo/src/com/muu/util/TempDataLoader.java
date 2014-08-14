@@ -12,10 +12,12 @@ import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
 import com.muu.data.ImageInfo;
 import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
 import com.muu.db.DatabaseMgr.IMAGES_COLUMN;
 import com.muu.uidemo.R;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -409,5 +411,18 @@ public class TempDataLoader {
 	
 	public static String getTopicCode(String topicStr) {
 		return sTopicStrCodeMap.get(topicStr);
+	}
+	
+	public static void removeDownloadedCartoon(Context ctx, int cartoonId) {
+		String path = PropertyMgr.getInstance().getCartoonPath(cartoonId);
+		File file = new File(path);
+		FileReaderUtil.deleteFiles(file);
+		
+		ContentValues values = new ContentValues();
+		values.put(CARTOONS_COLUMN.IS_DOWNLOAD, 0);
+		values.put(CARTOONS_COLUMN.DOWNLOAD_PROGRESS, 0);
+		
+		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+		dbMgr.update(DatabaseMgr.MUU_CARTOONS_ALL_URL, values, String.format("%s=%d", CARTOONS_COLUMN.ID, cartoonId), null);
 	}
 }
