@@ -16,19 +16,32 @@ public class DownloadWorker implements Runnable {
 	private int mCartoonId;
 	private DatabaseMgr mDbMgr;
 	private MuuServerWrapper mServerWrapper;
+	private Boolean mIsCancel;
+	private DownloaderListener mListener;
 	
 	private int mTotalPageCount;
 	private int mDownloadedPageCount;
 	
-	public DownloadWorker(Context ctx, int cartoonId) {
+	public DownloadWorker(Context ctx, int cartoonId, DownloaderListener
+			listener) {
 		mCtx = ctx.getApplicationContext();
 		mCartoonId = cartoonId;
 		mDbMgr = new DatabaseMgr(ctx);
+		mListener = listener;
 	}
 	
 	@Override
 	public void run() {
+		mIsCancel = false;
 		downloadCartoon();
+	}
+	
+	public void cancel() {
+		if (mIsCancel) {
+			return;
+		}
+		
+		mIsCancel = true;
 	}
 	
 	private void downloadCartoon() {
@@ -40,6 +53,10 @@ public class DownloadWorker implements Runnable {
 		mDownloadedPageCount = 0;
 		mTotalPageCount = getTotalPageCount(chapters);
 		for(ChapterInfo chapterInfo : chapters) {
+			if (mIsCancel) {
+				mListener.onCanceled(mCartoonId);
+				return;
+			}
 			downloadChapter(chapterInfo);
 		}
 		
@@ -79,6 +96,10 @@ public class DownloadWorker implements Runnable {
 		}
 		
 		for (ImageInfo imageInfo : chapterImgInfo) {
+			if (mIsCancel) {
+				mListener.onCanceled(mCartoonId);
+				return;
+			}
 			mServerWrapper.downloadCartoonImage(mCartoonId, imageInfo.id, imageInfo.imgUrl);
 			
 			mDownloadedPageCount++;

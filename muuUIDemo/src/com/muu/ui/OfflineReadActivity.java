@@ -2,6 +2,7 @@ package com.muu.ui;
 
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
+import com.muu.service.DownloadMgr;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
 
@@ -260,8 +261,8 @@ public class OfflineReadActivity extends Activity {
 		}
 
 		@Override
-		public void bindView(View view, Context ctx, Cursor cursor) {
-			int cartoonId = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.ID));
+		public void bindView(View view, final Context ctx, Cursor cursor) {
+			final int cartoonId = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.ID));
 			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
 			if (cover != null) {
 				ImageView coverImv = (ImageView)view.findViewById(R.id.imv_icon);
@@ -272,9 +273,40 @@ public class OfflineReadActivity extends Activity {
 			TextView tv = (TextView)view.findViewById(R.id.tv_name);
 			tv.setText(cartoonName);
 			
+			ImageView imv = (ImageView)view.findViewById(R.id.imv_remove);
+			if (mIsEditMode) {
+				imv.setVisibility(View.VISIBLE);
+			} else {
+				imv.setVisibility(View.GONE);
+			}
+			
+			imv.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View arg0) {
+					new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							DownloadMgr.getInstanse().cancel(cartoonId);
+							TempDataLoader.removeDownloadedCartoon(ctx, cartoonId);
+							mHandler.sendEmptyMessage(REFRESH_UI);
+						}
+					}).start();
+				}
+			});
+			
 			int percent = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.DOWNLOAD_PROGRESS));
 			tv = (TextView)view.findViewById(R.id.tv_percent);
 			tv.setText(percent+"%");
+			
+			view.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					mIsEditMode = true;
+					mHandler.sendEmptyMessage(ENTER_EDIT_MODE);
+					return true;
+				}
+			});
 		}
 
 		@Override
@@ -347,10 +379,6 @@ public class OfflineReadActivity extends Activity {
 			view.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
-					if (mIsEditMode) {
-						return true;
-					}
-					
 					mIsEditMode = true;
 					mHandler.sendEmptyMessage(ENTER_EDIT_MODE);
 					return true;

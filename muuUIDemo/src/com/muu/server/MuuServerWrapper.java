@@ -51,7 +51,7 @@ public class MuuServerWrapper {
 				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
 				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
 				cartoonList.add(cartoon);
-				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
+//				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}

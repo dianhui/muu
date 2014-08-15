@@ -2,11 +2,13 @@ package com.muu.service;
 
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
+import com.muu.util.TempDataLoader;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.SparseArray;
 
-public class DownloadMgr {
+public class DownloadMgr implements DownloaderListener {
 	public static enum DownloadStatus {
 		OK("OK"),
 		DOWNLOADING("downloading"),
@@ -17,11 +19,29 @@ public class DownloadMgr {
 			this.name = name;
 		}
 	}
-	
+
+	private Context mCtx;
 	private DatabaseMgr mDbMgr;
+	private SparseArray<DownloadWorker> mDownloadThreads = null;
+	private static DownloadMgr mInstanse = new DownloadMgr();
+
+	private DownloadMgr(){}
+	
+	public static DownloadMgr getInstanse() {
+		return mInstanse;
+	}
+	
 	public DownloadStatus download(Context ctx, int cartoonId) {
+		if (mCtx == null) {
+			mCtx = ctx;
+		}
+		
 		if (mDbMgr == null) {
 			mDbMgr = new DatabaseMgr(ctx);
+		}
+		
+		if (mDownloadThreads == null) {
+			mDownloadThreads = new SparseArray<DownloadWorker>();
 		}
 		
 		if (isDownloading(cartoonId)) {
@@ -32,9 +52,24 @@ public class DownloadMgr {
 			return DownloadStatus.DOWANLOADED;
 		}
 		
-		new Thread(new DownloadWorker(ctx, cartoonId)).start();
+		DownloadWorker worker = mDownloadThreads.get(cartoonId);
+		if (worker == null) {
+			worker = new DownloadWorker(ctx, cartoonId, this);
+			mDownloadThreads.append(cartoonId, worker);
+		}
 		
+		new Thread(worker).start();
 		return DownloadStatus.OK;
+	}
+	
+	public void cancel(int cartoonId) {
+		DownloadWorker worker = mDownloadThreads.get(cartoonId);
+		if (worker == null) {
+			return;
+		}
+		
+		worker.cancel();
+		mDownloadThreads.remove(cartoonId);
 	}
 	
 	private Boolean isDownloading(int cartoonId) {
@@ -74,5 +109,18 @@ public class DownloadMgr {
 		
 		return (isDownload == 1) && (downloadProgress == 100);
 		
+	}
+
+	@Override
+	public void onCanceled(int cartoonId) {
+		TempDataLoader.removeDownloadedCartoon(mCtx, cartoonId);
+	}
+
+	@Override
+	public void onDownloadSuccess(int cartoonId) {
+	}
+
+	@Override
+	public void onDownloadFailed(int cartoonId) {
 	}
 }

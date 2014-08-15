@@ -317,7 +317,6 @@ public class MainActivity extends Activity {
 		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
 				getApplicationContext(), info.topicCode));
 		
-		
 		TextView tv = (TextView)layout.findViewById(R.id.tv_no1_name);
 		tv.setText(info.name);
 	}

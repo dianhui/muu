@@ -177,7 +177,7 @@ public class DetailsPageActivity extends Activity {
 		downloadBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				DownloadStatus status = new DownloadMgr().download(getApplicationContext(), mCartoonId);
+				DownloadStatus status = DownloadMgr.getInstanse().download(getApplicationContext(), mCartoonId);
 				switch (status) {
 				case OK:
 					Toast.makeText(getApplicationContext(),
