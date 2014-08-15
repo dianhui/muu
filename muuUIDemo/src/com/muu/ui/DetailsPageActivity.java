@@ -122,6 +122,10 @@ public class DetailsPageActivity extends Activity {
 	}
 	
 	private void setupSlidingView(ArrayList<ChapterInfo> chapters) {
+		if (chapters == null || chapters.size() < 1) {
+			return;
+		}
+		
 		mChaptersSlideView = new SlidingMenu(this);
 		mChaptersSlideView.setMode(SlidingMenu.RIGHT);
 		mChaptersSlideView.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
