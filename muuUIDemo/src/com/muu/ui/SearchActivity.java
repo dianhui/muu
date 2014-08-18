@@ -9,6 +9,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
@@ -273,12 +274,14 @@ public class SearchActivity extends Activity {
 		private LayoutInflater mInflater;
 		ArrayList<CartoonInfo> mList;
 		private TempDataLoader tmpDataLoader;
+		private DatabaseMgr mDbMgr;
 		
 		public CartoonListAdapter(Context ctx, ArrayList<CartoonInfo> list) {
 			mCtx = ctx.getApplicationContext();
 			mInflater = LayoutInflater.from(ctx);
 			mList = list;
 			tmpDataLoader = new TempDataLoader();
+			mDbMgr = new DatabaseMgr(ctx);
 		}
 		
 		public void addDataList(ArrayList<CartoonInfo> list) {
@@ -319,6 +322,8 @@ public class SearchActivity extends Activity {
 				        .findViewById(R.id.tv_name);
 				holder.author = (TextView) convertView
 				        .findViewById(R.id.tv_author);
+				holder.comment = (TextView) convertView
+						.findViewById(R.id.tv_new_comment);
 
 				convertView.setTag(holder);
 			} else {
@@ -344,6 +349,23 @@ public class SearchActivity extends Activity {
 				if (bmpRef != null && bmpRef.get() != null) {
 					holder.icon.setImageBitmap(bmpRef.get());
 				}
+				
+				holder.comment.setVisibility(View.GONE);
+
+				Cursor cursor = mDbMgr.query(DatabaseMgr.COMMENTS_ALL_URL,
+						null, String.format("%s=%d",
+								DatabaseMgr.COMMENTS_COLUMN.CARTOON_ID,
+								mList.get(position).id), null, null);
+				if (cursor != null) {
+					if (cursor.moveToFirst()) {
+						String comment = cursor.getString(cursor
+								.getColumnIndex(COMMENTS_COLUMN.CONTENT));
+						holder.comment.setVisibility(View.VISIBLE);
+						holder.comment.setText(comment);
+					}
+
+					cursor.close();
+				}
 			}
 			
 			convertView.setClickable(true);
@@ -368,6 +390,7 @@ public class SearchActivity extends Activity {
 			ImageView icon;
 			TextView name;
 			TextView author;
+			TextView comment;
 		}
 	}
 	
@@ -380,14 +403,7 @@ public class SearchActivity extends Activity {
 		
 		@Override
 		protected ArrayList<CartoonInfo> doInBackground(String... params) {
-			String str = params[0];
-			
-			if (TextUtils.isEmpty(str)) {
-				return null;
-			}
-			
-			return new MuuServerWrapper(getApplicationContext())
-					.getSearchCartoons(str, mCurPage + 1, sCountInOnePage);
+			return getSearchCartoons(params[0]);
 		}
 		
 		@Override
@@ -411,5 +427,19 @@ public class SearchActivity extends Activity {
 			mCurPage++;
 			super.onPostExecute(result);
 		}
+	}
+	
+	private ArrayList<CartoonInfo> getSearchCartoons(String str) {
+		if (TextUtils.isEmpty(str)) {
+			return null;
+		}
+		
+		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
+		ArrayList<CartoonInfo> list = muuWrapper.getSearchCartoons(str, mCurPage + 1, sCountInOnePage);
+		for (CartoonInfo cartoonInfo : list) {
+			muuWrapper.getComments(cartoonInfo.id, 0, 1);
+		}
+		
+		return list;
 	}
 }

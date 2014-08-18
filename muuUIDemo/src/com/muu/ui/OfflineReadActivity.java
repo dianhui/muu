@@ -2,6 +2,7 @@ package com.muu.ui;
 
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
+import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.service.DownloadMgr;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
@@ -319,13 +320,11 @@ public class OfflineReadActivity extends Activity {
 	}
 	
 	private class DownloadedAdpter extends CursorAdapter implements RecyclerListener {
-//		private Context mCtx;
 		private LayoutInflater mInflater;
 		
 		public DownloadedAdpter(Context context, Cursor c, boolean autoRequery) {
 			super(context, c, autoRequery);
 			
-//			mCtx = context.getApplicationContext();
 			mInflater = LayoutInflater.from(context);
 		}
 
@@ -372,7 +371,23 @@ public class OfflineReadActivity extends Activity {
 					if (mIsEditMode) {
 						return;
 					}
-					startReadActivity(cartoonId, 0, 0);
+					
+					DatabaseMgr dbMgr = new DatabaseMgr(OfflineReadActivity.this);
+					Cursor cur = getHistoryCursor(dbMgr, cartoonId);
+					if (cur == null || !cur.moveToFirst()) {
+						startReadActivity(cartoonId, 0, 0);
+						
+						if (cur != null) cur.close();
+						dbMgr.closeDatabase();
+						return;
+					}
+					
+					int chapterIdx = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CHAPTER_IDX));
+					int pageIdx = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.PAGE_IDX));
+					startReadActivity(cartoonId, chapterIdx, pageIdx);
+					if (cur != null) cur.close();
+					dbMgr.closeDatabase();
+					
 				}
 			});
 			
@@ -423,6 +438,21 @@ public class OfflineReadActivity extends Activity {
 			intent.putExtra(ReadPageActivity.sChapterIdxExtraKey, chapterIdx);
 			intent.putExtra(ReadPageActivity.sPageIdxExtraKey, pageIdx);
 			OfflineReadActivity.this.startActivity(intent);
+		}
+		
+		private Cursor getHistoryCursor(DatabaseMgr dbMgr, int cartoonId) {
+			Cursor cur = dbMgr.query(DatabaseMgr.RECENT_HISTORY_ALL_URL, null,
+					String.format("%s=%d", RECENT_HISTORY_COLUMN.CARTOON_ID, cartoonId), null, null);
+			if (cur == null) {
+				return null;
+			}
+			
+			if (cur.getCount() < 1) {
+				cur.close();
+				return null;
+			}
+			
+			return cur;
 		}
 	}
 	

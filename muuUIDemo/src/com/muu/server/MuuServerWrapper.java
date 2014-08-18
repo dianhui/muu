@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.muu.data.ActivityEventInfo;
 import com.muu.data.CartoonInfo;
@@ -51,7 +52,7 @@ public class MuuServerWrapper {
 				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
 				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
 				cartoonList.add(cartoon);
-//				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
+				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -140,7 +141,6 @@ public class MuuServerWrapper {
 		for (int i = 0; i < jsonArray.length(); i++) {
 			try {
 				JSONObject info = jsonArray.getJSONObject(i);
-				
 				ChapterInfo chapterInfo = new ChapterInfo(info, cartoonId, idx);
 				chapterList.add(chapterInfo);
 			} catch (JSONException e) {

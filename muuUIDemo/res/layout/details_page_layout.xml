@@ -164,6 +164,7 @@
                 android:background="@drawable/ic_more"
                 android:paddingRight="10dp"
                 android:layout_marginRight="10dp"
+                android:visibility="invisible"
                 android:contentDescription="@string/content_des_place_holder" />
             
         </RelativeLayout>

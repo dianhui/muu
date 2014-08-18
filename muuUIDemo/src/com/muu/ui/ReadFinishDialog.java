@@ -6,7 +6,6 @@ import com.muu.util.TempDataLoader;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 
 public class ReadFinishDialog extends android.app.Dialog {
@@ -30,14 +29,6 @@ public class ReadFinishDialog extends android.app.Dialog {
 			ImageView img = (ImageView)this.findViewById(R.id.imv_cartoon_cover);
 			img.setImageBitmap(bmp);
 		}
-		
-		ImageView closeBtn = (ImageView) this.findViewById(R.id.imv_close);
-		closeBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ReadFinishDialog.this.dismiss();
-			}
-		});
 	}
 
 }

@@ -1,43 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="240dp"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center" >
+    android:layout_width="280dp"
+    android:layout_height="380dp"
+    android:layout_gravity="center"
+    android:background="@color/light_gray"
+     >
+
+    <TextView
+        android:id="@+id/tv_read_finish"
+        style="@style/FloatDialogTitleAppearence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/black"
+		android:drawableRight="@drawable/ic_shake"    
+        android:text="@string/read_finish" />
 
     <ImageView
-        android:id="@+id/imv_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/ic_close"
+        android:id="@+id/imv_cartoon_cover"
+        android:layout_width="220dp"
+        android:layout_height="300dp"
+        android:layout_below="@id/tv_read_finish"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="15dp"
+        android:clickable="true"
         android:contentDescription="@string/content_des_place_holder" />
-
-    <RelativeLayout
-        android:id="@+id/rl_window"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true" >
-
-        <TextView
-            android:id="@+id/tv_read_finish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:drawableLeft="@drawable/ic_read_finish"
-            style="@style/FloatDialogTitleAppearence"
-            android:text="@string/read_finish" />
-
-        <ImageView
-            android:id="@+id/imv_cartoon_cover"
-            android:layout_width="220dp"
-            android:layout_height="300dp"
-            android:layout_below="@id/tv_read_finish"
-            android:layout_centerVertical="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:clickable="true"
-            android:contentDescription="@string/content_des_place_holder" />
-    </RelativeLayout>
+    
+    <TextView 
+        android:id="@+id/tv_place_holder"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_below="@id/imv_cartoon_cover"
+        android:layout_marginTop="30dp"
+        />
 
 </RelativeLayout>

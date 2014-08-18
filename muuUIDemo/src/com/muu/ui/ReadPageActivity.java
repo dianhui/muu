@@ -293,6 +293,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 		
 		ReadFinishDialog dialog = new ReadFinishDialog(this,
 				R.style.FloatDialogTheme, mCartoonId);
+		dialog.setCanceledOnTouchOutside(true);
 		dialog.show();
 	}
 	

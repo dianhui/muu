@@ -74,7 +74,6 @@ public class MainActivity extends Activity {
 		});
 
 		mActivityImageView = (ImageView)this.findViewById(R.id.imv_activity);
-
 		
 		setupSlideMenu();
 		setupActionBar();

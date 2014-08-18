@@ -1,3 +1,4 @@
+
 package com.muu.ui;
 
 import java.lang.ref.WeakReference;
@@ -27,7 +28,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Layout;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -145,29 +148,6 @@ public class DetailsPageActivity extends Activity {
 	}
 	
 	private void setupContentViews() {
-		RelativeLayout introLayout = (RelativeLayout)this.findViewById(R.id.rl_intro);
-		introLayout.setOnClickListener(new OnClickListener() {
-			Boolean ellipSizable = true;
-
-			@Override
-			public void onClick(View v) {
-				TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_introduction);
-				ImageButton moreBtn = (ImageButton)DetailsPageActivity.this.findViewById(R.id.imv_btn_more);
-				
-				if (ellipSizable) {
-					ellipSizable = false;
-					tv.setEllipsize(null);
-					tv.setMaxLines(Integer.MAX_VALUE);
-					moreBtn.setVisibility(View.INVISIBLE);
-				} else {
-					ellipSizable = true;
-					tv.setEllipsize(TextUtils.TruncateAt.END);
-					tv.setMaxLines(3);
-					moreBtn.setVisibility(View.VISIBLE);
-				}
-			}
-		});
-		
 		TextView shareBtn = (TextView) this.findViewById(R.id.tv_share);
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -244,8 +224,75 @@ public class DetailsPageActivity extends Activity {
 		
 		tv = (TextView)this.findViewById(R.id.tv_introduction);
 		tv.setText(info.abst);
+		setupIntroLayout();
 		
 		mActionBarTitle.setText(info.name);
+	}
+	
+	private void setupIntroLayout() {
+		final TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_introduction);
+		final ImageButton moreBtn = (ImageButton)DetailsPageActivity.this.findViewById(R.id.imv_btn_more);
+
+		tv.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				Boolean isEcllipsed = isTextViewEcllipsed(tv);
+				if (isEcllipsed) {
+					moreBtn.setVisibility(View.VISIBLE);
+				} else {
+					moreBtn.setVisibility(View.INVISIBLE);
+				}
+			}
+		}, 200);
+		
+		RelativeLayout introLayout = (RelativeLayout)this.findViewById(R.id.rl_intro);
+		introLayout.setOnClickListener(new OnClickListener() {
+			Boolean ellipSizable = true;
+
+			@Override
+			public void onClick(View v) {
+				if (ellipSizable) {
+					ellipSizable = false;
+					tv.setEllipsize(null);
+					tv.setMaxLines(Integer.MAX_VALUE);
+					moreBtn.setVisibility(View.INVISIBLE);
+				} else {
+					ellipSizable = true;
+					tv.setEllipsize(TextUtils.TruncateAt.END);
+					tv.setMaxLines(3);
+					tv.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							Boolean isEcllipsed = isTextViewEcllipsed(tv);
+							if (isEcllipsed) {
+								moreBtn.setVisibility(View.VISIBLE);
+							} else {
+								moreBtn.setVisibility(View.INVISIBLE);
+							}
+						}
+					}, 200);
+				}
+			}
+		});
+		
+	}
+	
+	private Boolean isTextViewEcllipsed(TextView tv) {
+		Layout layout = ((TextView)findViewById(R.id.tv_introduction)).getLayout();
+		if (layout == null) {
+			return false;
+		}
+		
+		int lines = layout.getLineCount();
+		if (lines <= 0) {
+			return false;
+		}
+		
+		int ellipsisCount = layout.getEllipsisCount(lines-1);
+        if (ellipsisCount > 0) {
+            return true;
+        }
+		return false;
 	}
 	
 	private void setupReadButton() {
@@ -397,6 +444,10 @@ public class DetailsPageActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(ArrayList<ChapterInfo> result) {
+			for (ChapterInfo chapterInfo : result) {
+				Log.d("XXX", "idx: "+chapterInfo.idx);
+				Log.d("XXX", "name: "+chapterInfo.name);
+			}
 			setupSlidingView(result);
 		}
 	}

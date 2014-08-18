@@ -7,6 +7,8 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.muu.data.CartoonInfo;
+import com.muu.db.DatabaseMgr;
+import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
@@ -14,6 +16,7 @@ import com.muu.util.TempDataLoader;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
@@ -109,11 +112,13 @@ public class CategoryCartoonsListActivity extends Activity {
 		private Context mCtx;
 		private LayoutInflater mInflater;
 		private ArrayList<CartoonInfo> mList;
+		private DatabaseMgr mDbMgr;
 		
 		public CartoonsListAdapter(Context ctx, ArrayList<CartoonInfo> list) {
 			mCtx = ctx.getApplicationContext();
 			mInflater = LayoutInflater.from(ctx);
 			mList = list;
+			mDbMgr = new DatabaseMgr(ctx);
 		}
 		
 		public void addDataList(ArrayList<CartoonInfo> list) {
@@ -153,6 +158,8 @@ public class CategoryCartoonsListActivity extends Activity {
 				        .findViewById(R.id.tv_name);
 				holder.author = (TextView) convertView
 				        .findViewById(R.id.tv_author);
+				holder.comment = (TextView) convertView
+						.findViewById(R.id.tv_new_comment);
 
 				convertView.setTag(holder);
 			} else {
@@ -174,6 +181,22 @@ public class CategoryCartoonsListActivity extends Activity {
 						.getCartoonCover(mList.get(position).id);
 				if (bmpRef != null && bmpRef.get() != null) {
 					holder.icon.setImageBitmap(bmpRef.get());
+				}
+				
+				holder.comment.setVisibility(View.GONE);
+				
+				Cursor cursor = mDbMgr.query(DatabaseMgr.COMMENTS_ALL_URL,
+						null, String.format("%s=%d",
+								DatabaseMgr.COMMENTS_COLUMN.CARTOON_ID,
+								mList.get(position).id), null, null);
+				if (cursor != null) {
+					if (cursor.moveToFirst()) {
+						String comment = cursor.getString(cursor.getColumnIndex(COMMENTS_COLUMN.CONTENT));
+						holder.comment.setVisibility(View.VISIBLE);
+						holder.comment.setText(comment);
+					}
+					
+					cursor.close();
 				}
 			}
 			
@@ -203,6 +226,7 @@ public class CategoryCartoonsListActivity extends Activity {
 			ImageView icon;
 			TextView name;
 			TextView author;
+			TextView comment;
 		}
 	}
 	
@@ -244,6 +268,11 @@ public class CategoryCartoonsListActivity extends Activity {
 	
 	private ArrayList<CartoonInfo> getCategoryCartoons(String topicStr) {
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
-		return muuWrapper.getCartoonListByTopic(topicStr, mCurPage + 1, sCountInOnePage);
+		ArrayList<CartoonInfo> list = muuWrapper.getCartoonListByTopic(topicStr, mCurPage + 1, sCountInOnePage);
+		for (CartoonInfo cartoonInfo : list) {
+			muuWrapper.getComments(cartoonInfo.id, 0, 1);
+		}
+		
+		return list;
 	}
 }
