@@ -30,7 +30,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -444,10 +443,6 @@ public class DetailsPageActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(ArrayList<ChapterInfo> result) {
-			for (ChapterInfo chapterInfo : result) {
-				Log.d("XXX", "idx: "+chapterInfo.idx);
-				Log.d("XXX", "name: "+chapterInfo.name);
-			}
 			setupSlidingView(result);
 		}
 	}

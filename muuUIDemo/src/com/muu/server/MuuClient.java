@@ -19,7 +19,6 @@ import com.muu.util.TempDataLoader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 public class MuuClient {
 	private static final String sRandomListPath = "/cartoon/random";
@@ -189,7 +188,6 @@ public class MuuClient {
 			e.printStackTrace();
 		}
 		
-		Log.d("XXX", "getChapterInfoByCartoonId: "+json.toString());
 		return json;
 	}
 	
