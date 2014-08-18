@@ -14,8 +14,18 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:textColor="@color/black"
-		android:drawableRight="@drawable/ic_shake"    
         android:text="@string/read_finish" />
+    
+    <ImageView 
+        android:id="@+id/imv_shake"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_shake"
+        android:layout_toRightOf="@id/tv_read_finish"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="8dp"
+        android:contentDescription="@string/content_des_place_holder"
+        />
 
     <ImageView
         android:id="@+id/imv_cartoon_cover"
