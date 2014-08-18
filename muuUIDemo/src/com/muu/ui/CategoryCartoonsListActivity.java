@@ -1,8 +1,8 @@
 package com.muu.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
@@ -11,23 +11,21 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
-import com.muu.util.TempDataLoader;
+import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -152,7 +150,7 @@ public class CategoryCartoonsListActivity extends Activity {
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.category_cartoon_list_item, null);
 				holder = new ViewHolder();
-				holder.icon = (ImageView) convertView
+				holder.icon = (NetworkImageView) convertView
 				        .findViewById(R.id.imv_icon);
 				holder.name = (TextView) convertView
 				        .findViewById(R.id.tv_name);
@@ -167,20 +165,12 @@ public class CategoryCartoonsListActivity extends Activity {
 			}
 			
 			if (mList != null && mList.get(position) != null) {
-				holder.name.setText(mList.get(position).name);
-				holder.author.setText(getString(R.string.author,
-						mList.get(position).author));
-				if (holder.icon.getDrawable() != null
-						&& holder.icon.getDrawable() instanceof BitmapDrawable) {
-					BitmapDrawable bmpDrawable = (BitmapDrawable) holder.icon
-							.getDrawable();
-					bmpDrawable.getBitmap().recycle();
-				}
-				
-				WeakReference<Bitmap> bmpRef = new TempDataLoader()
-						.getCartoonCover(mList.get(position).id);
-				if (bmpRef != null && bmpRef.get() != null) {
-					holder.icon.setImageBitmap(bmpRef.get());
+				CartoonInfo info = mList.get(position);
+				holder.name.setText(info.name);
+				holder.author.setText(getString(R.string.author, info.author));
+				if (!TextUtils.isEmpty(info.coverUrl)) {
+					holder.icon.setImageUrl(info.coverUrl, VolleyHelper
+							.getInstanse(mCtx).getDefaultImageLoader());
 				}
 				
 				holder.comment.setVisibility(View.GONE);
@@ -188,7 +178,7 @@ public class CategoryCartoonsListActivity extends Activity {
 				Cursor cursor = mDbMgr.query(DatabaseMgr.COMMENTS_ALL_URL,
 						null, String.format("%s=%d",
 								DatabaseMgr.COMMENTS_COLUMN.CARTOON_ID,
-								mList.get(position).id), null, null);
+								info.id), null, null);
 				if (cursor != null) {
 					if (cursor.moveToFirst()) {
 						String comment = cursor.getString(cursor.getColumnIndex(COMMENTS_COLUMN.CONTENT));
@@ -223,7 +213,7 @@ public class CategoryCartoonsListActivity extends Activity {
 		}
 		
 		private class ViewHolder {
-			ImageView icon;
+			NetworkImageView icon;
 			TextView name;
 			TextView author;
 			TextView comment;

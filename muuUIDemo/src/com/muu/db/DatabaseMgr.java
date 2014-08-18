@@ -37,6 +37,7 @@ public class DatabaseMgr {
 		public static final String SIZE = "size";
 		public static final String IS_DOWNLOAD = "is_download";
 		public static final String DOWNLOAD_PROGRESS = "download_progress";
+		public static final String COVER_URL = "cover_url";
 	}
 	
 	public interface CHAPTERS_COLUMN {
@@ -59,6 +60,7 @@ public class DatabaseMgr {
 		public static final String CARTOON_ID = "cartoon_id";
 		public static final String CARTOON_NAME = "cartoon_name";
 		public static final String CARTOON_AUTHOR = "cartoon_author";
+		public static final String CARTOON_COVER_URL = "cartoon_cover_url";
 		public static final String CHAPTER_IDX = "chapter_idx";
 		public static final String PAGE_IDX = "page_idx";
 		public static final String READ_DATE = "date";
@@ -266,14 +268,16 @@ public class DatabaseMgr {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			String createCartoonsTable = String
-					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer, %s integer,%s integer, %s integer, %s integer);",
+					.format("create table if not exists %s (%s integer primary key, %s text, %s text, %s text, %s text, %s text, %s integer, %s integer,%s integer, %s integer, %s integer, %s text);",
 							TABLE_CARTOONS, CARTOONS_COLUMN.ID,
 							CARTOONS_COLUMN.NAME, CARTOONS_COLUMN.AUTHOR,
 							CARTOONS_COLUMN.UPDATE_DATE,
 							CARTOONS_COLUMN.ABSTRACT, CARTOONS_COLUMN.CATEGORY,
 							CARTOONS_COLUMN.IS_COMPLETE,
-							CARTOONS_COLUMN.CHAPTER_COUNT, CARTOONS_COLUMN.SIZE,
-							CARTOONS_COLUMN.IS_DOWNLOAD, CARTOONS_COLUMN.DOWNLOAD_PROGRESS);
+							CARTOONS_COLUMN.CHAPTER_COUNT,
+							CARTOONS_COLUMN.SIZE, CARTOONS_COLUMN.IS_DOWNLOAD,
+							CARTOONS_COLUMN.DOWNLOAD_PROGRESS,
+							CARTOONS_COLUMN.COVER_URL);
 			db.execSQL(createCartoonsTable);
 			
 			String createChaptersTable = String
@@ -308,11 +312,12 @@ public class DatabaseMgr {
 			db.execSQL(createCommentsTable);
 			
 			String createRecentHistoryView = String
-					.format("create view if not exists %s as select %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s from %s, %s where %s.%s=%s.%s",
+					.format("create view if not exists %s as select %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s from %s, %s where %s.%s=%s.%s",
 							VIEW_RECENT_HISTORY,
 							TABLE_CARTOONS, CARTOONS_COLUMN.ID, RECENT_HISTORY_COLUMN.CARTOON_ID,
 							TABLE_CARTOONS, CARTOONS_COLUMN.NAME, RECENT_HISTORY_COLUMN.CARTOON_NAME,
 							TABLE_CARTOONS, CARTOONS_COLUMN.AUTHOR, RECENT_HISTORY_COLUMN.CARTOON_AUTHOR,
+							TABLE_CARTOONS, CARTOONS_COLUMN.COVER_URL, RECENT_HISTORY_COLUMN.CARTOON_COVER_URL,
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.CHAPTER_IDX, RECENT_HISTORY_COLUMN.CHAPTER_IDX,
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.PAGE_IDX, RECENT_HISTORY_COLUMN.PAGE_IDX,
 							TABLE_RECENT_READ, RECENT_READ_COLUMN.READ_DATE, RECENT_HISTORY_COLUMN.READ_DATE,

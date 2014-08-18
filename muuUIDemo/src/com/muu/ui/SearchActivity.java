@@ -1,9 +1,9 @@
 package com.muu.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
@@ -12,15 +12,12 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
-import com.muu.util.TempDataLoader;
+import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -273,14 +270,12 @@ public class SearchActivity extends Activity {
 		private Context mCtx;
 		private LayoutInflater mInflater;
 		ArrayList<CartoonInfo> mList;
-		private TempDataLoader tmpDataLoader;
 		private DatabaseMgr mDbMgr;
 		
 		public CartoonListAdapter(Context ctx, ArrayList<CartoonInfo> list) {
 			mCtx = ctx.getApplicationContext();
 			mInflater = LayoutInflater.from(ctx);
 			mList = list;
-			tmpDataLoader = new TempDataLoader();
 			mDbMgr = new DatabaseMgr(ctx);
 		}
 		
@@ -316,7 +311,7 @@ public class SearchActivity extends Activity {
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.category_cartoon_list_item, null);
 				holder = new ViewHolder();
-				holder.icon = (ImageView) convertView
+				holder.icon = (NetworkImageView) convertView
 				        .findViewById(R.id.imv_icon);
 				holder.name = (TextView) convertView
 				        .findViewById(R.id.tv_name);
@@ -331,23 +326,14 @@ public class SearchActivity extends Activity {
 			}
 			
 			if (mList != null && mList.get(position) != null) {
-				holder.name.setText(mList.get(position).name);
+				CartoonInfo info = mList.get(position);
+				holder.name.setText(info.name);
 				holder.author.setText(getString(R.string.author,
-						mList.get(position).author));
+						info.author));
 				
-				Drawable drawable = (Drawable) holder.icon.getDrawable();
-				if (drawable != null && drawable instanceof BitmapDrawable) {
-					BitmapDrawable bmpDrawable = (BitmapDrawable)drawable;
-					if (bmpDrawable.getBitmap() != null) {
-						bmpDrawable.getBitmap().recycle();
-					}
-				}
-				holder.icon.setImageBitmap(null);
-				
-				WeakReference<Bitmap> bmpRef = tmpDataLoader.getCartoonCover(mList
-						.get(position).id);
-				if (bmpRef != null && bmpRef.get() != null) {
-					holder.icon.setImageBitmap(bmpRef.get());
+				if (!TextUtils.isEmpty(info.coverUrl)) {
+					holder.icon.setImageUrl(info.coverUrl, VolleyHelper
+							.getInstanse(mCtx).getDefaultImageLoader());
 				}
 				
 				holder.comment.setVisibility(View.GONE);
@@ -387,7 +373,7 @@ public class SearchActivity extends Activity {
 		}
 		
 		private class ViewHolder {
-			ImageView icon;
+			NetworkImageView icon;
 			TextView name;
 			TextView author;
 			TextView comment;

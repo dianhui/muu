@@ -1,28 +1,26 @@
 package com.muu.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.uidemo.R;
-import com.muu.util.TempDataLoader;
+import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -121,7 +119,7 @@ public class RecentReadListActivity extends Activity {
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.category_cartoon_list_item, null);
 				holder = new ViewHolder();
-				holder.icon = (ImageView) convertView
+				holder.icon = (NetworkImageView) convertView
 				        .findViewById(R.id.imv_icon);
 				holder.name = (TextView) convertView
 				        .findViewById(R.id.tv_name);
@@ -134,19 +132,14 @@ public class RecentReadListActivity extends Activity {
 			}
 			
 			if (mList != null && mList.get(position) != null) {
-				holder.name.setText(mList.get(position).name);
-				holder.author.setText(getString(R.string.author,
-						mList.get(position).author));
-				if (holder.icon.getDrawable() != null
-						&& holder.icon.getDrawable() instanceof BitmapDrawable) {
-					BitmapDrawable bmpDrawable = (BitmapDrawable)holder.icon.getDrawable();
-					bmpDrawable.getBitmap().recycle();
-				}
+				CartoonInfo info = mList.get(position);
 				
-				WeakReference<Bitmap> bmpRef = new TempDataLoader()
-						.getCartoonCover(mList.get(position).id);
-				if (bmpRef != null && bmpRef.get() != null) {
-					holder.icon.setImageBitmap(bmpRef.get());
+				holder.name.setText(info.name);
+				holder.author.setText(getString(R.string.author,
+						info.author));
+				if (!TextUtils.isEmpty(info.coverUrl)) {
+					holder.icon.setImageUrl(info.coverUrl, VolleyHelper
+							.getInstanse(mCtx).getDefaultImageLoader());
 				}
 			}
 			
@@ -203,7 +196,7 @@ public class RecentReadListActivity extends Activity {
 		}
 		
 		private class ViewHolder {
-			ImageView icon;
+			NetworkImageView icon;
 			TextView name;
 			TextView author;
 		}
@@ -230,6 +223,7 @@ public class RecentReadListActivity extends Activity {
 			info.id = cur.getInt(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CARTOON_ID));
 			info.name = cur.getString(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CARTOON_NAME));
 			info.author = cur.getString(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CARTOON_AUTHOR));
+			info.coverUrl = cur.getString(cur.getColumnIndex(RECENT_HISTORY_COLUMN.CARTOON_COVER_URL));
 			
 			list.add(info);
 		}

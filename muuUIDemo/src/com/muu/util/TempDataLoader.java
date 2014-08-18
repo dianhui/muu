@@ -155,26 +155,26 @@ public class TempDataLoader {
 	}
 	
 	public WeakReference<Bitmap> getCartoonCover(int id) {
-		String path = PropertyMgr.getInstance().getCoverPath() + id
+		String path = PropertyMgr.getInstance().getCoverPath(id) + "/cover"
 				+ FileFormatUtil.JPG_POSTFIX;
 		File file = new File(path);
 		if (file.exists()) {
 			return getBitmap(path, sCoversInSampleSize);
 		}
 		
-		path = PropertyMgr.getInstance().getCoverPath() + id + FileFormatUtil.PNG_POSTFIX;
+		path = PropertyMgr.getInstance().getCoverPath(id) + "/cover" + FileFormatUtil.PNG_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
 			return getBitmap(path, sCoversInSampleSize);
 		}
 		
-		path = PropertyMgr.getInstance().getCoverPath() + id + FileFormatUtil.GIF_POSTFIX;
+		path = PropertyMgr.getInstance().getCoverPath(id) + "/cover" + FileFormatUtil.GIF_POSTFIX;
 		file = new File(path);
 		if (file.exists()) {
 			return getBitmap(path, sCoversInSampleSize);
 		}
 		
-		path = PropertyMgr.getInstance().getCoverPath() + id;
+		path = PropertyMgr.getInstance().getCoverPath(id) + "/cover";
 		file = new File(path);
 		if (file.exists()) {
 			return getBitmap(path, sCoversInSampleSize);

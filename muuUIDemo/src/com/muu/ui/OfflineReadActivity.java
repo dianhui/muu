@@ -1,5 +1,7 @@
 package com.muu.ui;
 
+import java.lang.ref.WeakReference;
+
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
@@ -264,10 +266,14 @@ public class OfflineReadActivity extends Activity {
 		@Override
 		public void bindView(View view, final Context ctx, Cursor cursor) {
 			final int cartoonId = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.ID));
-			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
-			if (cover != null) {
-				ImageView coverImv = (ImageView)view.findViewById(R.id.imv_icon);
-				coverImv.setImageBitmap(cover);
+			
+			WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(cartoonId);
+			if (bmpRef != null) {
+				Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
+				if (cover != null) {
+					ImageView coverImv = (ImageView)view.findViewById(R.id.imv_icon);
+					coverImv.setImageBitmap(cover);
+				}
 			}
 			
 			String cartoonName = cursor.getString(cursor.getColumnIndex(CARTOONS_COLUMN.NAME));
@@ -331,10 +337,13 @@ public class OfflineReadActivity extends Activity {
 		@Override
 		public void bindView(View view, final Context ctx, Cursor cursor) {
 			final int cartoonId = cursor.getInt(cursor.getColumnIndex(CARTOONS_COLUMN.ID));
-			Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
-			if (cover != null) {
-				ImageView coverImv = (ImageView)view.findViewById(R.id.imv_icon);
-				coverImv.setImageBitmap(cover);
+			WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(cartoonId);
+			if (bmpRef != null) {
+				Bitmap cover = new TempDataLoader().getCartoonCover(cartoonId).get();
+				if (cover != null) {
+					ImageView coverImv = (ImageView)view.findViewById(R.id.imv_icon);
+					coverImv.setImageBitmap(cover);
+				}
 			}
 			
 			final String cartoonName = cursor.getString(cursor.getColumnIndex(CARTOONS_COLUMN.NAME));

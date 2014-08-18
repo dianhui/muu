@@ -41,13 +41,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-			<ImageView 
+			<com.android.volley.toolbox.NetworkImageView
 			    android:id="@+id/imv_activity"
 			    android:layout_width="match_parent"
             	android:layout_height="wrap_content"
             	android:minHeight="60dp"
             	android:clickable="true"
-            	android:src="@drawable/no1_icon"
+            	android:src="@color/white"
             	android:contentDescription="@string/content_des_place_holder"
 			    />
             
@@ -64,13 +64,13 @@
                     android:layout_toLeftOf="@+id/middle_place_holder"
                     android:clickable="true" >
 
-                    <ImageView
+                    <com.android.volley.toolbox.NetworkImageView
                         android:id="@+id/imv_no1_icon"
                         android:layout_width="180dp"
                         android:layout_height="254dp"
                        	android:scaleType="fitXY"
                         android:contentDescription="@string/content_des_place_holder"
-                        android:src="@drawable/no1_icon" />
+                        android:src="@color/white" />
                     
                     <ImageView
                         android:id="@+id/imv_no1_tag"
@@ -113,13 +113,13 @@
                     android:layout_alignBottom="@id/rl_no1"
                     android:clickable="true" >
 
-                    <ImageView
+                    <com.android.volley.toolbox.NetworkImageView
                         android:id="@+id/imv_no2_icon"
                         android:layout_width="180dp"
                         android:layout_height="254dp"
                         android:scaleType="fitXY"
                         android:contentDescription="@string/content_des_place_holder"
-                        android:src="@drawable/no1_icon" />
+                        android:src="@color/white" />
 
                     <ImageView
                         android:id="@+id/imv_no2_tag"

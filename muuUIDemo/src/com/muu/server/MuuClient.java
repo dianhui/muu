@@ -326,13 +326,13 @@ public class MuuClient {
 				return;
 			}
 
-            String path = PropertyMgr.getInstance().getCoverPath();
+            String path = PropertyMgr.getInstance().getCoverPath(id);
             File file = new File(path);
             if (!file.exists()) file.mkdirs();
             
             OutputStream fOut = null;
             String fileSuffix = FileFormatUtil.getFileSuffixByUrl(url);
-			file = new File(path, id + fileSuffix);
+			file = new File(path, "cover" + fileSuffix);
             fOut = new FileOutputStream(file);
 
             if (fileSuffix.equals(FileFormatUtil.JPG_POSTFIX)) {

@@ -1,5 +1,6 @@
 package com.muu.util;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -13,6 +14,7 @@ public class PropertyMgr {
 	private static final int sDefaultSocketTimeout = 30 * 1000;
 	private static final String sDefaultCachePath = Environment
 			.getExternalStorageDirectory().toString() + "/muu_cache/";
+	private static final String sVolleyPath = "volley";
 	
 	
 	private static PropertyMgr mInstance;
@@ -87,8 +89,15 @@ public class PropertyMgr {
 		return mCachePath;
 	}
 	
-	public String getCoverPath() {
-		return getCachePath() + "cover/";
+	public File getVolleyCacheDir() {
+		File cacheDir = new File(String.format("%s/%s", mCachePath, sVolleyPath));
+		 if (!cacheDir.exists()) cacheDir.mkdirs();
+		 
+		 return cacheDir;
+	}
+	
+	public String getCoverPath(int cartoonId) {
+		return getCartoonPath(cartoonId);
 	}
 	
 	public String getCartoonPath(int cartoonId) {

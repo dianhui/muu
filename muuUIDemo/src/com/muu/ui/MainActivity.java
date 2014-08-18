@@ -1,8 +1,8 @@
 package com.muu.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshScrollView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
@@ -13,15 +13,15 @@ import com.muu.server.MuuClient.ListType;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
+import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +41,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
 	
+	private VolleyHelper mVolleyHelper = null;
 	private ImageButton mMenuBtn = null;
 	private SlidingMenu mSlidingMenu = null;
 	private View mChangeListView = null;
@@ -50,9 +51,9 @@ public class MainActivity extends Activity {
 	private TextView mEmpty = null;
 	private ScrollView mCartoonsContainer = null;
 	private PullToRefreshScrollView mPullRefreshScrollView = null;
-	private ImageView mActivityImageView = null;
-	private ImageView mFirstImageView = null;
-	private ImageView mSecondImageView = null;
+	private NetworkImageView mActivityImageView = null;
+	private NetworkImageView mFirstImageView = null;
+	private NetworkImageView mSecondImageView = null;
 	
 	private ListType mCurrentList = null;
 	private int mCurrentPage = -1;
@@ -61,6 +62,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity_layout);
+		
+		mVolleyHelper = VolleyHelper.getInstanse(getApplicationContext());
 		
 		mProgress = (ProgressBar)this.findViewById(R.id.progress_bar);
 		mEmpty = (TextView)this.findViewById(R.id.tv_empty);
@@ -73,7 +76,7 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		mActivityImageView = (ImageView)this.findViewById(R.id.imv_activity);
+		mActivityImageView = (NetworkImageView)this.findViewById(R.id.imv_activity);
 		
 		setupSlideMenu();
 		setupActionBar();
@@ -81,31 +84,6 @@ public class MainActivity extends Activity {
 		changeList(ListType.RANDOM);
 		
 		new RetrieveAcitivitiesTask().execute();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		recycleImvBmp(mActivityImageView);
-		recycleImvBmp(mFirstImageView);
-		recycleImvBmp(mSecondImageView);
-		
-		super.onDestroy();
-	}
-	
-	private void recycleImvBmp(ImageView imv) {
-		if (imv == null) {
-			return;
-		}
-		
-		Drawable drawable = (Drawable) imv.getDrawable();
-		if (drawable != null && drawable instanceof BitmapDrawable) {
-			BitmapDrawable bmpDrawable = (BitmapDrawable)drawable;
-			if (bmpDrawable != null && bmpDrawable.getBitmap() != null) {
-				bmpDrawable.getBitmap().recycle();
-			}
-		}
-		
-		imv = null;
 	}
 	
 	private void changeList(ListType type) {
@@ -305,11 +283,10 @@ public class MainActivity extends Activity {
 	private void setupFirstCartoon(CartoonInfo info) {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
 		setClickEvent(layout, info.id);
-
-		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		if (bmpRef != null && bmpRef.get() != null) {
-			mFirstImageView = (ImageView)layout.findViewById(R.id.imv_no1_icon);
-			mFirstImageView.setImageBitmap(bmpRef.get());			
+		
+		if (!TextUtils.isEmpty(info.coverUrl)) {
+			mFirstImageView = (NetworkImageView)layout.findViewById(R.id.imv_no1_icon);
+			mFirstImageView.setImageUrl(info.coverUrl, mVolleyHelper.getDefaultImageLoader());
 		}
 		
 		ImageView imv = (ImageView) layout.findViewById(R.id.imv_no1_tag);
@@ -324,10 +301,9 @@ public class MainActivity extends Activity {
 		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
 		setClickEvent(layout, info.id);
 		
-		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		if (bmpRef != null && bmpRef.get() != null) {
-			mSecondImageView = (ImageView)layout.findViewById(R.id.imv_no2_icon);
-			mSecondImageView.setImageBitmap(bmpRef.get());
+		if (!TextUtils.isEmpty(info.coverUrl)) {
+			mSecondImageView = (NetworkImageView)layout.findViewById(R.id.imv_no2_icon);
+			mSecondImageView.setImageUrl(info.coverUrl, mVolleyHelper.getDefaultImageLoader());
 		}
 		
 		ImageView imv = (ImageView) layout.findViewById(R.id.imv_no2_tag);
@@ -379,12 +355,19 @@ public class MainActivity extends Activity {
 	}
 	
 	private void setupCartoonView(RelativeLayout layout, CartoonInfo info) {
-		ImageView imv = (ImageView)layout.findViewById(R.id.imv_icon);
-		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		if (bmpRef != null && bmpRef.get() != null) {
-			imv.setImageBitmap(bmpRef.get());
+//		ImageView imv = (ImageView)layout.findViewById(R.id.imv_icon);
+//		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
+//		if (bmpRef != null && bmpRef.get() != null) {
+//			imv.setImageBitmap(bmpRef.get());
+//		}
+		
+		if (!TextUtils.isEmpty(info.coverUrl)) {
+			NetworkImageView netImv = (NetworkImageView)layout.findViewById(R.id.imv_icon);
+			netImv.setImageUrl(info.coverUrl,
+					mVolleyHelper.getDefaultImageLoader());
 		}
-		imv = (ImageView) layout.findViewById(R.id.imv_tag);
+		
+		ImageView imv = (ImageView) layout.findViewById(R.id.imv_tag);
 		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
 				getApplicationContext(), info.topicCode));
 		
@@ -497,14 +480,17 @@ public class MainActivity extends Activity {
 				return;
 			}
 			
-			WeakReference<Bitmap> bmpRef = new TempDataLoader().getActivityCover("activityCover");
-			if (bmpRef == null || bmpRef.get() == null) {
-				Log.d(TAG, "Bitmap of activity cover is null.");
-				return;
-			}
+//			WeakReference<Bitmap> bmpRef = new TempDataLoader().getActivityCover("activityCover");
+//			if (bmpRef == null || bmpRef.get() == null) {
+//				Log.d(TAG, "Bitmap of activity cover is null.");
+//				return;
+//			}
 			
 			mActivityImageView.setVisibility(View.VISIBLE);
-			mActivityImageView.setImageBitmap(bmpRef.get());
+//			mActivityImageView.setImageBitmap(bmpRef.get());
+			mActivityImageView.setImageUrl(result.get(0).imgUrl, VolleyHelper
+					.getInstanse(getApplicationContext())
+					.getDefaultImageLoader());
 			mActivityImageView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

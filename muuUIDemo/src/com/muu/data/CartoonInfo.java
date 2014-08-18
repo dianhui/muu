@@ -48,6 +48,7 @@ public class CartoonInfo {
 		isComplete = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.IS_COMPLETE));
 		chapterCount = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.CHAPTER_COUNT));
 		size = cur.getInt(cur.getColumnIndex(CARTOONS_COLUMN.SIZE));
+		coverUrl = cur.getString(cur.getColumnIndex(CARTOONS_COLUMN.COVER_URL));
 	}
 	
 	/**
@@ -76,16 +77,19 @@ public class CartoonInfo {
 	}
 
 	public Boolean equals(CartoonInfo cartoonInfo) {
-		if (this.id == cartoonInfo.id && this.name.equals(cartoonInfo.name) &&
-				this.author.equals(cartoonInfo.author) && this.updateDate.equals(cartoonInfo.updateDate) &&
-				this.abst.equals(cartoonInfo.abst) && this.topicCode.equals(cartoonInfo.topicCode) &&
-				this.isComplete == cartoonInfo.isComplete && this.chapterCount == cartoonInfo.chapterCount) {
+		if (this.id == cartoonInfo.id && this.name.equals(cartoonInfo.name)
+				&& this.author.equals(cartoonInfo.author)
+				&& this.updateDate.equals(cartoonInfo.updateDate)
+				&& this.abst.equals(cartoonInfo.abst)
+				&& this.topicCode.equals(cartoonInfo.topicCode)
+				&& this.isComplete == cartoonInfo.isComplete
+				&& this.chapterCount == cartoonInfo.chapterCount
+				&& this.coverUrl.equals(cartoonInfo.coverUrl)) {
 			return true;
 		}
 		return false;
 	}
 
-	// no need to save cover url to db.
 	public ContentValues toContentValues() {
 		ContentValues values = new ContentValues();
 		values.put(CARTOONS_COLUMN.ID, id);
@@ -97,6 +101,7 @@ public class CartoonInfo {
 		values.put(CARTOONS_COLUMN.IS_COMPLETE, isComplete);
 		values.put(CARTOONS_COLUMN.CHAPTER_COUNT, chapterCount);
 		values.put(CARTOONS_COLUMN.SIZE, size);
+		values.put(CARTOONS_COLUMN.COVER_URL, coverUrl);
 		
 		return values;
 	}

@@ -1,5 +1,6 @@
 package com.muu.service;
 
+import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.util.TempDataLoader;
@@ -31,7 +32,7 @@ public class DownloadMgr implements DownloaderListener {
 		return mInstanse;
 	}
 	
-	public DownloadStatus download(Context ctx, int cartoonId) {
+	public DownloadStatus download(Context ctx, CartoonInfo info) {
 		if (mCtx == null) {
 			mCtx = ctx;
 		}
@@ -44,18 +45,18 @@ public class DownloadMgr implements DownloaderListener {
 			mDownloadThreads = new SparseArray<DownloadWorker>();
 		}
 		
-		if (isDownloading(cartoonId)) {
+		if (isDownloading(info.id)) {
 			return DownloadStatus.DOWNLOADING;
 		}
 		
-		if (isDownloaded(cartoonId)) {
+		if (isDownloaded(info.id)) {
 			return DownloadStatus.DOWANLOADED;
 		}
 		
-		DownloadWorker worker = mDownloadThreads.get(cartoonId);
+		DownloadWorker worker = mDownloadThreads.get(info.id);
 		if (worker == null) {
-			worker = new DownloadWorker(ctx, cartoonId, this);
-			mDownloadThreads.append(cartoonId, worker);
+			worker = new DownloadWorker(ctx, info.id, info.coverUrl, this);
+			mDownloadThreads.append(info.id, worker);
 		}
 		
 		new Thread(worker).start();
@@ -63,6 +64,10 @@ public class DownloadMgr implements DownloaderListener {
 	}
 	
 	public void cancel(int cartoonId) {
+		if (mDownloadThreads == null) {
+			return;
+		}
+		
 		DownloadWorker worker = mDownloadThreads.get(cartoonId);
 		if (worker == null) {
 			return;

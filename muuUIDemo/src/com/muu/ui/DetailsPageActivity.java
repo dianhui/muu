@@ -1,42 +1,39 @@
 
 package com.muu.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
-//import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.service.DownloadMgr;
 import com.muu.service.DownloadMgr.DownloadStatus;
 import com.muu.uidemo.R;
-import com.muu.util.ShareUtil;
 import com.muu.util.TempDataLoader;
+import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-//import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -49,9 +46,10 @@ public class DetailsPageActivity extends Activity {
 	
 	private SlidingMenu mChaptersSlideView = null;
 	private TextView mActionBarTitle = null;
-	private ImageView mCoverImageView = null;
+	private NetworkImageView mCoverImageView = null;
 	private int mCartoonId = -1;
 	private int mChapterCount = 0;
+	private CartoonInfo mCartoonInfo = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,17 +68,6 @@ public class DetailsPageActivity extends Activity {
 		super.onResume();
 		
 		setupReadButton();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		BitmapDrawable bmpDrawable = (BitmapDrawable)mCoverImageView.getDrawable();
-		if (bmpDrawable != null && bmpDrawable instanceof BitmapDrawable) {
-			bmpDrawable.getBitmap().recycle();
-			mCoverImageView = null;
-		}
-		
-		super.onDestroy();
 	}
 	
 	private void setupActionBar() {
@@ -151,8 +138,7 @@ public class DetailsPageActivity extends Activity {
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ShareUtil.onShareClicked(DetailsPageActivity.this,
-						mActionBarTitle.getText().toString());
+				showShareDialog();
 			}
 		});
 		
@@ -160,7 +146,7 @@ public class DetailsPageActivity extends Activity {
 		downloadBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				DownloadStatus status = DownloadMgr.getInstanse().download(getApplicationContext(), mCartoonId);
+				DownloadStatus status = DownloadMgr.getInstanse().download(getApplicationContext(), mCartoonInfo);
 				switch (status) {
 				case OK:
 					Toast.makeText(getApplicationContext(),
@@ -193,42 +179,49 @@ public class DetailsPageActivity extends Activity {
 			return;
 		}
 		
-		CartoonInfo info = new CartoonInfo(cur);
+		mCartoonInfo = new CartoonInfo(cur);
 		cur.close();
 		dbMgr.closeDatabase();
-		mChapterCount = info.chapterCount;
-		mCoverImageView = (ImageView)this.findViewById(R.id.imv_icon);
-		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		if (bmpRef != null && bmpRef.get() != null) {
-			mCoverImageView.setImageBitmap(bmpRef.get());
+		mChapterCount = mCartoonInfo.chapterCount;
+		if (!TextUtils.isEmpty(mCartoonInfo.coverUrl)) {
+			mCoverImageView = (NetworkImageView) this
+					.findViewById(R.id.imv_icon);
+			mCoverImageView.setImageUrl(mCartoonInfo.coverUrl, VolleyHelper
+					.getInstanse(this).getDefaultImageLoader());
 		}
 		
 		ImageView imv = (ImageView)this.findViewById(R.id.imv_status);
-		int resId = info.isComplete == 0 ? R.drawable.ic_status_continue
+		int resId = mCartoonInfo.isComplete == 0 ? R.drawable.ic_status_continue
 				: R.drawable.ic_status_complete;
 		imv.setImageResource(resId);
 		
 		TextView tv = (TextView)this.findViewById(R.id.tv_category);
-		tv.setText(getString(R.string.category, TempDataLoader.getTopicString(info.topicCode)));
+		tv.setText(getString(R.string.category, TempDataLoader.getTopicString(mCartoonInfo.topicCode)));
 		
 		tv = (TextView)this.findViewById(R.id.tv_author);
-		tv.setText(getString(R.string.author, info.author));
+		tv.setText(getString(R.string.author, mCartoonInfo.author));
 		
 		tv = (TextView)this.findViewById(R.id.tv_update_time);
 		tv.setText(getString(R.string.update_time,
-				info.updateDate.substring(0, info.updateDate.indexOf(' '))));
+				mCartoonInfo.updateDate.substring(0, mCartoonInfo.updateDate.indexOf(' '))));
 		
 		tv = (TextView)this.findViewById(R.id.tv_size);
-		tv.setText(getString(R.string.size, info.size/(1024.0f*1024.0f)));
+		tv.setText(getString(R.string.size, mCartoonInfo.size/(1024.0f*1024.0f)));
 		
 		tv = (TextView)this.findViewById(R.id.tv_introduction);
-		tv.setText(info.abst);
+		tv.setText(mCartoonInfo.abst);
 		setupIntroLayout();
 		
-		mActionBarTitle.setText(info.name);
+		mActionBarTitle.setText(mCartoonInfo.name);
 	}
 	
-	private void setupIntroLayout() {
+	private void showShareDialog() {
+		ShareDialog dialog = new ShareDialog(this, R.style.FloatDialogTheme);
+		dialog.setCanceledOnTouchOutside(true);
+		dialog.show();
+	}
+	
+    private void setupIntroLayout() {
 		final TextView tv = (TextView)DetailsPageActivity.this.findViewById(R.id.tv_introduction);
 		final ImageButton moreBtn = (ImageButton)DetailsPageActivity.this.findViewById(R.id.imv_btn_more);
 
@@ -308,7 +301,7 @@ public class DetailsPageActivity extends Activity {
 		
 		final int finalChapterIdx = chapterIdx;
 		final int finalPageIdx = pageIdx;
-		ImageView imv = (ImageView)this.findViewById(R.id.imv_icon);
+		NetworkImageView imv = (NetworkImageView)this.findViewById(R.id.imv_icon);
 		imv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

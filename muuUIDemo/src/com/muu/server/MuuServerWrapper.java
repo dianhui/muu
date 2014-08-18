@@ -51,7 +51,7 @@ public class MuuServerWrapper {
 				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
 				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
 				cartoonList.add(cartoon);
-				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
+//				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -83,7 +83,7 @@ public class MuuServerWrapper {
 				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
 				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
 				cartoonList.add(cartoon);
-				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
+//				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -111,7 +111,7 @@ public class MuuServerWrapper {
 				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
 				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
 				cartoonList.add(cartoon);
-				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
+//				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -245,12 +245,16 @@ public class MuuServerWrapper {
 				ActivityEventInfo activityEventInfo = new ActivityEventInfo(info);
 				activityEventInfoList.add(activityEventInfo);
 				//TBD: use "activityCover" first.
-				mMuuClient.downloadActivityCoverByUrl("activityCover", activityEventInfo.imgUrl);
+//				mMuuClient.downloadActivityCoverByUrl("activityCover", activityEventInfo.imgUrl);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
 		return activityEventInfoList;
+	}
+	
+	public void downloadCartoonCover(int cartoonId, String url) {
+		mMuuClient.downloadCoverByUrl(cartoonId, url);
 	}
 	
 }

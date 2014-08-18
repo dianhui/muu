@@ -14,6 +14,7 @@ import com.muu.util.TempDataLoader;
 public class DownloadWorker implements Runnable {
 	private Context mCtx;
 	private int mCartoonId;
+	private String mCoverUrl;
 	private DatabaseMgr mDbMgr;
 	private MuuServerWrapper mServerWrapper;
 	private Boolean mIsCancel;
@@ -22,10 +23,11 @@ public class DownloadWorker implements Runnable {
 	private int mTotalPageCount;
 	private int mDownloadedPageCount;
 	
-	public DownloadWorker(Context ctx, int cartoonId, DownloaderListener
+	public DownloadWorker(Context ctx, int cartoonId, String coverUrl, DownloaderListener
 			listener) {
 		mCtx = ctx.getApplicationContext();
 		mCartoonId = cartoonId;
+		mCoverUrl = coverUrl;
 		mDbMgr = new DatabaseMgr(ctx);
 		mListener = listener;
 	}
@@ -47,6 +49,8 @@ public class DownloadWorker implements Runnable {
 	private void downloadCartoon() {
 		updateDownloadState();
 		updateDownloadProgress(0);
+		
+		downloadCover();
 		
 		ArrayList<ChapterInfo> chapters = new TempDataLoader().getChapters(
 				mCtx, mCartoonId);
@@ -87,8 +91,18 @@ public class DownloadWorker implements Runnable {
 		return totalPageCount;
 	}
 	
+	private void downloadCover() {
+		if (mServerWrapper == null) {
+			mServerWrapper = new MuuServerWrapper(mCtx);
+		}
+		
+		mServerWrapper.downloadCartoonCover(mCartoonId, mCoverUrl);
+	}
+	
 	private void downloadChapter(ChapterInfo chapter) {
-		mServerWrapper = new MuuServerWrapper(mCtx);
+		if (mServerWrapper == null) {
+			mServerWrapper = new MuuServerWrapper(mCtx);
+		}
 		ArrayList<ImageInfo> chapterImgInfo = mServerWrapper.getChapterImgInfo(chapter.id,
 				0, chapter.pageCount);
 		if (chapterImgInfo == null) {
