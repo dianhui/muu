@@ -1,19 +1,16 @@
 package com.muu.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.Random;
 
 import com.android.volley.toolbox.NetworkImageView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.uidemo.R;
-import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -26,7 +23,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 
 public class ReadFinishDialog extends android.app.Dialog {
 

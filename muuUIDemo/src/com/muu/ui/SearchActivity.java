@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -27,7 +28,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -327,7 +332,23 @@ public class SearchActivity extends Activity {
 			
 			if (mList != null && mList.get(position) != null) {
 				CartoonInfo info = mList.get(position);
-				holder.name.setText(info.name);
+				
+				if (!TextUtils.isEmpty(mSearchStr)) {
+					SpannableStringBuilder style=new SpannableStringBuilder(info.name);
+					int start = info.name.indexOf(mSearchStr);
+					if (start < 0) {
+						holder.name.setText(info.name);
+					} else {
+						style.setSpan(new ForegroundColorSpan(
+								Color.RED), start, start
+								+ mSearchStr.length(),
+								Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+						holder.name.setText(style);
+					}
+				} else {
+					holder.name.setText(info.name);
+				}
+				
 				holder.author.setText(getString(R.string.author,
 						info.author));
 				
