@@ -54,6 +54,7 @@
             <RelativeLayout
                 android:id="@+id/rl_top3"
                 android:layout_below="@id/imv_activity"
+                android:layout_marginTop="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
 
@@ -103,6 +104,8 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_centerInParent="true"
+                    android:layout_marginLeft="1dp"
+                    android:layout_marginRight="1dp"
                     />
                 
                 <RelativeLayout

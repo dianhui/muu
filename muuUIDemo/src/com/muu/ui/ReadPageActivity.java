@@ -30,8 +30,6 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_READ_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
-import com.muu.util.PkgMrgUtil;
-import com.muu.util.ShareUtil;
 import com.muu.util.TempDataLoader;
 import com.muu.widget.TouchImageView;
 import com.muu.widget.TouchImageView.OnGestureListener;
@@ -170,31 +168,25 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			}
 		});
 		
-		setupDropdownView();
+		setupShareView();
 	}
 	
-	private void setupDropdownView() {
-		boolean isSinaWbInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.SINA_WEIBO_PKG);
-		boolean isQQWbInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.TENCENT_WEIBO_PKG);
-		boolean isQQInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.QQ_PKG);
-		boolean isWeichatInstalled = PkgMrgUtil.isPkgInstalled(this, PkgMrgUtil.WEIXIN_PKG);
-
-		final ImageButton shareBtn = (ImageButton) this
+	private void setupShareView() {
+		ImageButton shareBtn = (ImageButton) this
 				.findViewById(R.id.imv_btn_share);
-		if (!isSinaWbInstalled && !isQQWbInstalled && !isQQInstalled
-				&& !isWeichatInstalled) {
-			shareBtn.setVisibility(View.GONE);
-			return;
-		}
-		
 		shareBtn.setVisibility(View.VISIBLE);
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ShareUtil.onShareClicked(ReadPageActivity.this, mCartoonInfo.name);
+				showShareDialog();
 			}
 		});
-		
+	}
+	
+	private void showShareDialog() {
+		ShareDialog dialog = new ShareDialog(this, R.style.FloatDialogTheme);
+		dialog.setCanceledOnTouchOutside(true);
+		dialog.show();
 	}
 
 	private void setupContentView() {

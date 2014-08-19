@@ -3,10 +3,12 @@ package com.muu.ui;
 import java.lang.ref.WeakReference;
 import java.util.Random;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
+import com.muu.volley.VolleyHelper;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -88,18 +91,16 @@ public class ReadFinishDialog extends android.app.Dialog {
 	};
 	
 	private void setupRecommendView(final CartoonInfo info) {
-		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-		if (bmpRef == null) {
+		if (info == null) {
 			return;
 		}
 		
-		Bitmap bmp = bmpRef.get();
-		if (bmp == null) {
+		if (TextUtils.isEmpty(info.coverUrl)) {
 			return;
 		}
 		
-		ImageView imv = (ImageView)this.findViewById(R.id.imv_cartoon_cover);
-		imv.setImageBitmap(bmp);
+		NetworkImageView imv = (NetworkImageView)this.findViewById(R.id.imv_cartoon_cover);
+		imv.setImageUrl(info.coverUrl, VolleyHelper.getInstanse(mCtx).getDefaultImageLoader());
 		imv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

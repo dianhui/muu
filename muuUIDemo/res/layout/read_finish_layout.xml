@@ -27,7 +27,7 @@
         android:contentDescription="@string/content_des_place_holder"
         />
 
-    <ImageView
+    <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/imv_cartoon_cover"
         android:layout_width="220dp"
         android:layout_height="300dp"
@@ -38,6 +38,7 @@
         android:layout_marginTop="15dp"
         android:scaleType="fitXY"
         android:clickable="true"
+        android:src="@color/white"
         android:contentDescription="@string/content_des_place_holder" />
     
     <TextView 

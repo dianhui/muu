@@ -293,7 +293,7 @@
                 style="@style/DetailInfoTextAppearence"
 				android:gravity="center_vertical"                
         		android:layout_marginLeft="10dp"
-        		android:minHeight="40dp" />
+        		android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_2"
@@ -303,7 +303,7 @@
                 style="@style/DetailInfoTextAppearence"
                 android:gravity="center_vertical"
         		android:layout_marginLeft="10dp"
-        		android:minHeight="40dp" />
+        		android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_3"
@@ -313,7 +313,7 @@
                 style="@style/DetailInfoTextAppearence"
                 android:gravity="center_vertical"
         		android:layout_marginLeft="10dp"
-        		android:minHeight="40dp" />
+        		android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_4"
@@ -323,7 +323,7 @@
                 style="@style/DetailInfoTextAppearence"
                 android:gravity="center_vertical"
         		android:layout_marginLeft="10dp"
-        		android:minHeight="40dp" />
+        		android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_5"
@@ -333,7 +333,7 @@
                 style="@style/DetailInfoTextAppearence"
                 android:gravity="center_vertical"
         		android:layout_marginLeft="10dp"
-        		android:minHeight="40dp" />
+        		android:minHeight="35dp" />
         </RelativeLayout>
     </ScrollView>
 

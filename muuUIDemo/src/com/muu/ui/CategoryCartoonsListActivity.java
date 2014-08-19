@@ -259,6 +259,9 @@ public class CategoryCartoonsListActivity extends Activity {
 	private ArrayList<CartoonInfo> getCategoryCartoons(String topicStr) {
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
 		ArrayList<CartoonInfo> list = muuWrapper.getCartoonListByTopic(topicStr, mCurPage + 1, sCountInOnePage);
+		if (list == null || list.size() < 1) {
+			return list;
+		}
 		for (CartoonInfo cartoonInfo : list) {
 			muuWrapper.getComments(cartoonInfo.id, 0, 1);
 		}
