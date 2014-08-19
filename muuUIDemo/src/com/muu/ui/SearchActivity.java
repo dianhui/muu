@@ -32,7 +32,6 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +54,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class SearchActivity extends Activity {
 	private static final int sCountInOnePage = 4;
+	private static final String sMachedTextColor = "#ef6a30";
 	
 	private static final int SENSOR_SHAKE = 10;
 	private SensorManager mSensorMgr;
@@ -334,14 +334,16 @@ public class SearchActivity extends Activity {
 				CartoonInfo info = mList.get(position);
 				
 				if (!TextUtils.isEmpty(mSearchStr)) {
-					SpannableStringBuilder style=new SpannableStringBuilder(info.name);
+					SpannableStringBuilder style = new SpannableStringBuilder(
+							info.name);
 					int start = info.name.indexOf(mSearchStr);
 					if (start < 0) {
 						holder.name.setText(info.name);
 					} else {
-						style.setSpan(new ForegroundColorSpan(
-								Color.RED), start, start
-								+ mSearchStr.length(),
+						style.setSpan(
+								new ForegroundColorSpan(Color
+										.parseColor(sMachedTextColor)), start,
+								start + mSearchStr.length(),
 								Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
 						holder.name.setText(style);
 					}
