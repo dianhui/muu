@@ -358,12 +358,6 @@ public class MainActivity extends Activity {
 	}
 	
 	private void setupCartoonView(RelativeLayout layout, CartoonInfo info) {
-//		ImageView imv = (ImageView)layout.findViewById(R.id.imv_icon);
-//		WeakReference<Bitmap> bmpRef = new TempDataLoader().getCartoonCover(info.id);
-//		if (bmpRef != null && bmpRef.get() != null) {
-//			imv.setImageBitmap(bmpRef.get());
-//		}
-		
 		if (!TextUtils.isEmpty(info.coverUrl)) {
 			NetworkImageView netImv = (NetworkImageView)layout.findViewById(R.id.imv_icon);
 			netImv.setImageUrl(info.coverUrl,
@@ -483,14 +477,7 @@ public class MainActivity extends Activity {
 				return;
 			}
 			
-//			WeakReference<Bitmap> bmpRef = new TempDataLoader().getActivityCover("activityCover");
-//			if (bmpRef == null || bmpRef.get() == null) {
-//				Log.d(TAG, "Bitmap of activity cover is null.");
-//				return;
-//			}
-			
 			mActivityImageView.setVisibility(View.VISIBLE);
-//			mActivityImageView.setImageBitmap(bmpRef.get());
 			mActivityImageView.setImageUrl(result.get(0).imgUrl, VolleyHelper
 					.getInstanse(getApplicationContext())
 					.getDefaultImageLoader());

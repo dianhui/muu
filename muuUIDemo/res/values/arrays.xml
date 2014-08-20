@@ -9,20 +9,4 @@
 		<item>设置</item>
 	</string-array>
 	
-	<string-array name="category_string_array">
-	    <item>搞笑</item>
-		<item>恋爱</item>
-		<item>生活</item>
-		<item>热血</item>
-		<item>奇幻</item>
-		<item>科幻</item>
-		<item>推理</item>
-        <item>恐怖</item>
-        <item>体育</item>
-		<item>耽美</item>
-		<item>历史</item>
-		<item>其他</item>
-        <item>同人</item>
-	</string-array>
-	
 </resources>
