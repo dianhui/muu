@@ -70,6 +70,11 @@
         <item name="android:textColor">@color/black</item>
     </style>
     
+    <style name="ActionBarChapterTextAppearence">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/action_bar_chapter_text_color</item>
+    </style>
+    
     <style name="ActionBarTitleTextAppearence">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/action_bar_title</item>
@@ -133,6 +138,21 @@
     <style name="SettingsTextAppearence">
         <item name="android:textSize">19sp</item>
         <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="EmptyMainTextAppearence">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/empty_main_text_color</item>
+    </style>
+    
+    <style name="EmptySubTextAppearence">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/empty_sub_text_color</item>
+    </style>
+    
+    <style name="SplashTheme" parent="android:Theme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/bg_splash</item>
     </style>
     
 </resources>

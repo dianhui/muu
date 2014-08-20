@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="173dp"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:minWidth="173dp"
+    android:background="@drawable/bg_change_list_pop"
     android:minHeight="96dp" >
 
     <LinearLayout
@@ -13,8 +13,7 @@
         android:layout_height="47dp"
         android:gravity="center"
         android:clickable="true"
-        android:visibility="gone"
-        android:background="@color/gray">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tv_random"
@@ -32,14 +31,13 @@
         android:layout_width="173dp"
         android:layout_height="1dp"
         android:contentDescription="@string/content_des_place_holder"
-        android:src="@color/light_gray"
+        android:src="@color/change_list_popup_dividre_color"
         android:visibility="gone" />
     
     <LinearLayout
         android:id="@+id/ll_hot"
         android:layout_width="173dp"
         android:layout_height="47dp"
-        android:background="@color/gray"
         android:gravity="center"
         android:clickable="true">
 
@@ -59,7 +57,7 @@
         android:id="@+id/imv_divider_2"
         android:layout_width="173dp"
         android:layout_height="1dp"
-        android:src="@color/light_gray"
+        android:src="@color/change_list_popup_dividre_color"
         android:contentDescription="@string/content_des_place_holder"
         />
     
@@ -69,8 +67,7 @@
         android:layout_height="47dp"
         android:gravity="center"
         android:paddingLeft="10dp"
-        android:clickable="true"
-        android:background="@color/gray">
+        android:clickable="true">
 
         <TextView
             android:id="@+id/tv_new"

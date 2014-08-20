@@ -10,8 +10,10 @@ import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -49,8 +51,10 @@ public class OfflineReadActivity extends Activity {
 	private Button mDownloadedBtn = null;
 	private GridView mDownloadingGdView = null;
 	private GridView mDownloadedGdView = null;
+	private RelativeLayout mEmptyLayout = null;
 	
 	private DownloadContentObserver mContentObserver;
+	private DownloadRecevier mDownloadReceiver = null;
 	
 	private Boolean mIsEditMode = false;
 	private int mCurrentTabIndex = -1;
@@ -63,6 +67,10 @@ public class OfflineReadActivity extends Activity {
 		setContentView(R.layout.offline_read_activity_layout);
 		
 		setupActionBar();
+		
+		mEmptyLayout = (RelativeLayout)this.findViewById(R.id.rl_empty);
+		mDownloadedGdView = (GridView)this.findViewById(R.id.gv_downloaded);
+		mDownloadingGdView = (GridView)this.findViewById(R.id.gv_downloading);
 		
 		mDownloadingBtn = (Button)this.findViewById(R.id.btn_downloading);
 		mDownloadingBtn.setOnClickListener(new OnClickListener() {
@@ -84,16 +92,13 @@ public class OfflineReadActivity extends Activity {
 			public void handleMessage(Message msg) {
 				switch (msg.arg1) {
 				case ENTER_EDIT_MODE:
-					setupDownloadingView();
-					setupDownloadedView();
+					updateContentView();
 					break;
 				case EXIT_EDIT_MODE:
-					setupDownloadingView();
-					setupDownloadedView();
+					updateContentView();
 					break;
 				case REFRESH_UI:
-					setupDownloadingView();
-					setupDownloadedView();
+					updateContentView();
 				default:
 					break;
 				}
@@ -102,9 +107,31 @@ public class OfflineReadActivity extends Activity {
 		mPercentHandler = new Handler();
 		mContentObserver = new DownloadContentObserver(mPercentHandler);
 		
-		setupDownloadingView();
-		setupDownloadedView();
-
+		setCurrentTab(IDX_DOWNLOADED_TAB);
+		updateContentView();
+		
+		mDownloadReceiver = new DownloadRecevier();
+	}
+	
+	private void updateContentView() {
+		if (isDownloadedClear() && isDownloadingClear()) {
+			mEmptyLayout.setVisibility(View.VISIBLE);
+			mDownloadedGdView.setVisibility(View.GONE);
+			mDownloadingGdView.setVisibility(View.GONE);
+			return;
+		}
+		
+		if (mCurrentTabIndex == IDX_DOWNLOADED_TAB) {
+			mEmptyLayout.setVisibility(View.GONE);
+			mDownloadedGdView.setVisibility(View.VISIBLE);
+			mDownloadingGdView.setVisibility(View.GONE);
+			setupDownloadedView();
+		} else {
+			mEmptyLayout.setVisibility(View.GONE);
+			mDownloadedGdView.setVisibility(View.GONE);
+			mDownloadingGdView.setVisibility(View.VISIBLE);
+			setupDownloadingView();
+		}
 	}
 	
 	@Override
@@ -113,6 +140,10 @@ public class OfflineReadActivity extends Activity {
 		
 		getContentResolver().registerContentObserver(
 				DatabaseMgr.MUU_CARTOONS_ALL_URL, false, mContentObserver);
+		if (mDownloadReceiver != null) {
+			this.registerReceiver(mDownloadReceiver, new IntentFilter(
+					DownloadMgr.DOWNLOAD_UPDATE_ACTION));
+		}
 	}
 	
 	@Override
@@ -120,6 +151,9 @@ public class OfflineReadActivity extends Activity {
 		super.onPause();
 		
 		getContentResolver().unregisterContentObserver(mContentObserver);
+		if (mDownloadReceiver != null) {
+			this.unregisterReceiver(mDownloadReceiver);
+		}
 	}
 	
 	@Override
@@ -127,6 +161,11 @@ public class OfflineReadActivity extends Activity {
 	    if(keyCode == KeyEvent.KEYCODE_BACK) {
 	    	if (!mIsEditMode) {
 	    		return super.onKeyDown(keyCode, event);
+			}
+	    	
+	    	if (isCurrentTabClear()) {
+				mIsEditMode = false;
+				return super.onKeyDown(keyCode, event);
 			}
 	    	
 	    	mIsEditMode = false;
@@ -175,8 +214,7 @@ public class OfflineReadActivity extends Activity {
 	}
 	
 	private void setupDownloadingView() {
-		mDownloadingGdView = (GridView)this.findViewById(R.id.gv_downloading);
-		
+		mDownloadingGdView.setAdapter(null);
 		Cursor cur = new DatabaseMgr(getApplicationContext()).query(DatabaseMgr.MUU_CARTOONS_ALL_URL,
 				null, CARTOONS_COLUMN.IS_DOWNLOAD + "=1 and "
 						+ CARTOONS_COLUMN.DOWNLOAD_PROGRESS + "<100", null,
@@ -194,12 +232,7 @@ public class OfflineReadActivity extends Activity {
 	}
 
 	private void setupDownloadedView() {
-		if (mDownloadedGdView == null) {
-			mDownloadedGdView = (GridView)this.findViewById(R.id.gv_downloaded);
-		} else {
-			mDownloadedGdView.setAdapter(null);
-		}
-		
+		mDownloadedGdView.setAdapter(null);
 		Cursor cur = new DatabaseMgr(getApplicationContext()).query(DatabaseMgr.MUU_CARTOONS_ALL_URL,
 				null, CARTOONS_COLUMN.IS_DOWNLOAD + "=1 and "
 						+ CARTOONS_COLUMN.DOWNLOAD_PROGRESS + "=100", null,
@@ -218,7 +251,7 @@ public class OfflineReadActivity extends Activity {
 	
 	private void setCurrentTab(int tabIndx) {
 		if (tabIndx == -1) {
-			tabIndx = IDX_DOWNLOADING_TAB;
+			tabIndx = IDX_DOWNLOADED_TAB;
 		}
 		
 		if (tabIndx == mCurrentTabIndex) {
@@ -253,13 +286,11 @@ public class OfflineReadActivity extends Activity {
 	}
 	
 	private class DownloadingAdpter extends CursorAdapter {
-//		private Context mCtx;
 		private LayoutInflater mInflater;
 		
 		public DownloadingAdpter(Context context, Cursor c, boolean autoRequery) {
 			super(context, c, autoRequery);
 			
-//			mCtx = context.getApplicationContext();
 			mInflater = LayoutInflater.from(context);
 		}
 
@@ -294,9 +325,9 @@ public class OfflineReadActivity extends Activity {
 						
 						@Override
 						public void run() {
-							DownloadMgr.getInstanse().cancel(cartoonId);
 							TempDataLoader.removeDownloadedCartoon(ctx, cartoonId);
 							mHandler.sendEmptyMessage(REFRESH_UI);
+							DownloadMgr.getInstanse().cancel(cartoonId);
 						}
 					}).start();
 				}
@@ -396,7 +427,6 @@ public class OfflineReadActivity extends Activity {
 					startReadActivity(cartoonId, chapterIdx, pageIdx);
 					if (cur != null) cur.close();
 					dbMgr.closeDatabase();
-					
 				}
 			});
 			
@@ -408,7 +438,6 @@ public class OfflineReadActivity extends Activity {
 					return true;
 				}
 			});
-			
 		}
 
 		@Override
@@ -473,8 +502,64 @@ public class OfflineReadActivity extends Activity {
 		public void onChange(boolean selfChange) {
 			super.onChange(selfChange);
 			
-        	mDownloadingGdView.setAdapter(null);
         	setupDownloadingView();
+		}
+	}
+	
+	private Boolean isCurrentTabClear() {
+		if (mCurrentTabIndex == IDX_DOWNLOADED_TAB) {
+			return isDownloadedClear();
+		} else {
+			return isDownloadingClear();
+		}
+	}
+	
+	private Boolean isDownloadingClear() {
+		Cursor cur = new DatabaseMgr(getApplicationContext()).query(DatabaseMgr.MUU_CARTOONS_ALL_URL,
+				null, CARTOONS_COLUMN.IS_DOWNLOAD + "=1 and "
+						+ CARTOONS_COLUMN.DOWNLOAD_PROGRESS + "<100", null,
+				null);
+		if (cur == null) {
+			return true;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			return true;
+		}
+		
+		cur.close();
+		return false;
+	}
+	
+	private Boolean isDownloadedClear() {
+		Cursor cur = new DatabaseMgr(getApplicationContext()).query(DatabaseMgr.MUU_CARTOONS_ALL_URL,
+				null, CARTOONS_COLUMN.IS_DOWNLOAD + "=1 and "
+						+ CARTOONS_COLUMN.DOWNLOAD_PROGRESS + "=100", null,
+				null);
+		if (cur == null) {
+			return true;
+		}
+		
+		if (cur.getCount() < 1) {
+			cur.close();
+			return true;
+		}
+		
+		cur.close();
+		return false;
+	}
+	
+	private class DownloadRecevier extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent == null || !intent.getAction().equals(DownloadMgr.DOWNLOAD_UPDATE_ACTION)) {
+				return;
+			}
+			
+			if (mCurrentTabIndex == IDX_DOWNLOADED_TAB) {
+				setupDownloadedView();
+			}
 		}
 	}
 }

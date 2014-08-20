@@ -184,6 +184,36 @@ public class TempDataLoader {
 		return null;
 	}
 	
+	public String getCartoonCoverPath(int id) {
+		String path = PropertyMgr.getInstance().getCoverPath(id) + "/cover"
+				+ FileFormatUtil.JPG_POSTFIX;
+		File file = new File(path);
+		if (file.exists()) {
+			return path;
+		}
+		
+		path = PropertyMgr.getInstance().getCoverPath(id) + "/cover" + FileFormatUtil.PNG_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return path;
+		}
+		
+		path = PropertyMgr.getInstance().getCoverPath(id) + "/cover" + FileFormatUtil.GIF_POSTFIX;
+		file = new File(path);
+		if (file.exists()) {
+			return path;
+		}
+		
+		path = PropertyMgr.getInstance().getCoverPath(id) + "/cover";
+		file = new File(path);
+		if (file.exists()) {
+			return path;
+		}
+		
+		Log.d(TAG, ".... File not exists: " + path);
+		return null;
+	}
+	
 	public WeakReference<Bitmap> getImage(int cartoonId, int imgId) {
 		
 		String path = PropertyMgr.getInstance().getCartoonPath(cartoonId)+"/" + imgId
@@ -348,9 +378,23 @@ public class TempDataLoader {
 		return BitmapFactory.decodeFile(path);
 	}
 	
+	private static final ArrayList<String> sSortedTopicCode = new ArrayList<String>();
 	private static final HashMap<String, String> sCodeTopicStrMap = new HashMap<String, String>();
-	private static final HashMap<String, String> sTopicStrCodeMap = new HashMap<String, String>();
 	public void initCategoryMap(Context ctx) {
+		sSortedTopicCode.add("01");
+		sSortedTopicCode.add("08");
+		sSortedTopicCode.add("09");
+		sSortedTopicCode.add("15");
+		sSortedTopicCode.add("02");
+		sSortedTopicCode.add("06");
+		sSortedTopicCode.add("13");
+		sSortedTopicCode.add("04");
+		sSortedTopicCode.add("12");
+		sSortedTopicCode.add("14");
+		sSortedTopicCode.add("11");
+		sSortedTopicCode.add("17");
+		sSortedTopicCode.add("16");
+		
 		sCodeTopicStrMap.put("01", ctx.getString(R.string.humer));
 		sCodeTopicStrMap.put("02", ctx.getString(R.string.hot_blood));
 		sCodeTopicStrMap.put("04", ctx.getString(R.string.science_fiction));
@@ -364,21 +408,6 @@ public class TempDataLoader {
 		sCodeTopicStrMap.put("15", ctx.getString(R.string.tanbi));
 		sCodeTopicStrMap.put("16", ctx.getString(R.string.other));
 		sCodeTopicStrMap.put("17", ctx.getString(R.string.homosex));
-		
-		
-		sTopicStrCodeMap.put(ctx.getString(R.string.humer), "01");
-		sTopicStrCodeMap.put(ctx.getString(R.string.hot_blood), "02");
-		sTopicStrCodeMap.put(ctx.getString(R.string.science_fiction), "04");
-		sTopicStrCodeMap.put(ctx.getString(R.string.fantasy), "06");
-		sTopicStrCodeMap.put(ctx.getString(R.string.love), "08");
-		sTopicStrCodeMap.put(ctx.getString(R.string.life), "09");
-		sTopicStrCodeMap.put(ctx.getString(R.string.sport), "11");
-		sTopicStrCodeMap.put(ctx.getString(R.string.ratiocination), "12");
-		sTopicStrCodeMap.put(ctx.getString(R.string.terror), "13");
-		sTopicStrCodeMap.put(ctx.getString(R.string.history), "14");
-		sTopicStrCodeMap.put(ctx.getString(R.string.tanbi), "15");
-		sTopicStrCodeMap.put(ctx.getString(R.string.other), "16");
-		sTopicStrCodeMap.put(ctx.getString(R.string.homosex), "17");
 	}
 	
 	public static Drawable getTopicTagDrawable(Context ctx, String topicCode) {
@@ -401,16 +430,12 @@ public class TempDataLoader {
 		return drawable;
 	}
 	
-	public static Object[] getTopicsArray() {
-		return sCodeTopicStrMap.values().toArray();
+	public static ArrayList<String> getTopicCodeList() {
+		return sSortedTopicCode;
 	}
 	
 	public static String getTopicString(String topicCode) {
 		return sCodeTopicStrMap.get(topicCode);
-	}
-	
-	public static String getTopicCode(String topicStr) {
-		return sTopicStrCodeMap.get(topicStr);
 	}
 	
 	public static void removeDownloadedCartoon(Context ctx, int cartoonId) {

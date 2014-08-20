@@ -15,7 +15,7 @@
 		android:layout_alignParentBottom="true"
 		android:gravity="center"
 		style="@style/TopicTextAppearence"
-		android:background="@color/transparent_black"
+		android:background="@drawable/topic_name_bg"
         />
 
 </RelativeLayout>

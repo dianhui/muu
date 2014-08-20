@@ -72,8 +72,7 @@ public class MuuServerWrapper {
 	 * @return
 	 * 	- cartoon list of given topic.
 	 **/
-	public ArrayList<CartoonInfo> getCartoonListByTopic(String topic, int idx, int count) {
-		String topicCode = TempDataLoader.getTopicCode(topic);
+	public ArrayList<CartoonInfo> getCartoonListByTopic(String topicCode, int idx, int count) {
 		JSONArray jsonArray = mMuuClient.getCartoonsByTopic(topicCode, idx, count);
 		if (jsonArray == null) return null;
 		

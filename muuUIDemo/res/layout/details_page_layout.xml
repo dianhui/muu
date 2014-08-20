@@ -7,7 +7,7 @@
     <include
         android:id="@+id/action_bar"
         layout="@layout/action_bar_layout" />
-    
+
     <ImageView
         android:id="@+id/divider"
         android:layout_width="match_parent"
@@ -20,51 +20,45 @@
         android:id="@+id/rl_book_fields"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/divider"
         android:paddingLeft="4dp"
-        android:paddingTop="10dp"
-        android:layout_below="@id/divider" >
+        android:paddingTop="10dp" >
 
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/imv_icon"
             android:layout_width="138dp"
-            android:layout_height="196dp"
+            android:layout_height="194dp"
+            android:layout_alignParentLeft="true"
             android:clickable="true"
             android:contentDescription="@string/content_des_place_holder"
-            android:layout_toLeftOf="@+id/tv_middle_place_holder"
-            android:layout_alignParentLeft="true"
-            android:src="@color/white" />
-        
-        <ImageView 
+            android:background="@drawable/cover_border_bg" 
+			android:padding="1dp"
+			android:scaleType="fitXY"
+            android:src="@drawable/cover_default" />
+
+        <ImageView
             android:id="@+id/imv_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/content_des_place_holder"
             android:layout_alignBottom="@id/imv_icon"
-            android:layout_marginBottom="2dp"
-            android:src="@drawable/ic_status_complete"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="-2dp" />
+            android:layout_marginBottom="2dp"
+            android:contentDescription="@string/content_des_place_holder"
+            android:src="@drawable/ic_status_complete" />
 
-        <TextView 
-            android:id="@+id/tv_middle_place_holder"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_centerHorizontal="true"
-            />
-        
         <RelativeLayout
             android:id="@+id/rl_book_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/tv_middle_place_holder"
-            android:minHeight="155dp" >
+            android:layout_toRightOf="@id/imv_icon" 
+            android:layout_marginLeft="10dp">
 
             <TextView
                 android:id="@+id/tv_category"
                 style="@style/DetailInfoTextAppearence"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/category" />
 
             <TextView
@@ -73,9 +67,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_category"
-                android:layout_marginTop="10dp"
-                android:singleLine="true"
+                android:layout_marginTop="15dp"
                 android:ellipsize="end"
+                android:singleLine="true"
                 android:text="@string/author" />
 
             <TextView
@@ -84,20 +78,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_author"
-                android:layout_marginTop="10dp"
-                android:singleLine="true"
+                android:layout_marginTop="15dp"
                 android:ellipsize="end"
+                android:singleLine="true"
                 android:text="@string/update_time" />
-            
+
             <TextView
                 android:id="@+id/tv_size"
                 style="@style/DetailInfoTextAppearence"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_update_time"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
+                android:visibility="gone"
                 android:text="@string/size" />
-
         </RelativeLayout>
 
         <RelativeLayout
@@ -106,7 +100,8 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/rl_book_info"
             android:layout_below="@id/rl_book_info"
-            android:layout_toRightOf="@id/tv_middle_place_holder" >
+            android:layout_marginTop="15dp"
+            android:layout_toRightOf="@id/imv_icon" >
 
             <Button
                 android:id="@+id/btn_read"
@@ -114,17 +109,17 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/read_btn"
                 android:gravity="left|center"
+                android:paddingBottom="5dp"
                 android:paddingLeft="20dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"/>
+                android:paddingTop="5dp" />
 
             <ImageButton
                 android:id="@+id/imv_btn_add_comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:layout_marginLeft="12dp"
                 android:layout_toRightOf="@id/btn_read"
-                android:layout_marginLeft="4dp"
                 android:background="@drawable/btn_add_comment"
                 android:contentDescription="@string/content_des_place_holder" />
         </RelativeLayout>
@@ -141,18 +136,18 @@
 
         <RelativeLayout
             android:id="@+id/rl_intro"
-            android:clickable="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:clickable="true" >
 
             <TextView
                 android:id="@+id/tv_introduction"
+                style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toLeftOf="@+id/imv_btn_more"
-                style="@style/DetailInfoTextAppearence"
-                android:maxLines="3"
                 android:ellipsize="end"
+                android:maxLines="3"
                 android:text="@string/introduction" />
 
             <ImageButton
@@ -161,179 +156,160 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:background="@drawable/ic_more"
-                android:paddingRight="10dp"
                 android:layout_marginRight="10dp"
-                android:visibility="invisible"
-                android:contentDescription="@string/content_des_place_holder" />
-            
+                android:background="@drawable/ic_more"
+                android:contentDescription="@string/content_des_place_holder"
+                android:paddingRight="10dp"
+                android:visibility="invisible" />
         </RelativeLayout>
-        
     </ScrollView>
-    
-    <RelativeLayout 
+
+    <RelativeLayout
         android:id="@+id/rl_action_btns"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/scv_intro"
         android:gravity="center_horizontal"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        >
-        
-		<TextView
-		    android:id="@+id/tv_download"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    style="@style/DetailBtnTextAppearence"
-		    android:clickable="true"
-		    android:text="@string/download"
-		    android:drawableLeft="@drawable/ic_detail_download"
-		    android:drawablePadding="10dp"
-		    android:gravity="center_vertical"
-		    />
-		
-		<ImageView 
-		    android:id="@+id/imv_vertical_divider1"
-		    android:layout_width="1dp"
-		    android:layout_height="22dp"
-		    android:layout_toRightOf="@id/tv_download"
-		    android:layout_marginLeft="20dp"
-		    android:src="@color/light_gray"
-		    android:layout_centerVertical="true"
-		    android:contentDescription="@string/content_des_place_holder"
-		    />
-		
-		<TextView
-		    android:id="@+id/tv_share"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    style="@style/DetailBtnTextAppearence"
-		    android:clickable="true"
-		    android:layout_toRightOf="@id/imv_vertical_divider1"
-		    android:layout_marginLeft="20dp"
-		    android:text="@string/share"
-		    android:drawableLeft="@drawable/ic_detail_share"
-		    android:drawablePadding="10dp"
-		    android:gravity="center_vertical"
-		    />
-		
-		<ImageView 
-		    android:id="@+id/imv_vertical_divider2"
-		    android:layout_width="1dp"
-		    android:layout_height="22dp"
-		    android:layout_toRightOf="@id/tv_share"
-		    android:layout_marginLeft="20dp"
-		    android:src="@color/light_gray"
-		    android:layout_centerVertical="true"
-		    android:contentDescription="@string/content_des_place_holder"
-		    />
-		
-		<TextView
-		    android:id="@+id/tv_comment"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    style="@style/DetailBtnTextAppearence"
-		    android:clickable="true"
-		    android:layout_toRightOf="@id/imv_vertical_divider2"
-		    android:layout_marginLeft="20dp"
-		    android:text="@string/comment"
-		    android:drawableLeft="@drawable/ic_detail_comment"
-		    android:drawablePadding="10dp"
-		    android:gravity="center_vertical"
-		    />
-        
+        android:paddingBottom="25dp"
+        android:paddingTop="25dp" >
+
+        <TextView
+            android:id="@+id/tv_download"
+            style="@style/DetailBtnTextAppearence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:drawableLeft="@drawable/ic_detail_download"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:text="@string/download" />
+
+        <ImageView
+            android:id="@+id/imv_vertical_divider1"
+            android:layout_width="1dp"
+            android:layout_height="22dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/tv_download"
+            android:contentDescription="@string/content_des_place_holder"
+            android:src="@color/light_gray" />
+
+        <TextView
+            android:id="@+id/tv_share"
+            style="@style/DetailBtnTextAppearence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/imv_vertical_divider1"
+            android:clickable="true"
+            android:drawableLeft="@drawable/ic_detail_share"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:text="@string/share" />
+
+        <ImageView
+            android:id="@+id/imv_vertical_divider2"
+            android:layout_width="1dp"
+            android:layout_height="22dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/tv_share"
+            android:contentDescription="@string/content_des_place_holder"
+            android:src="@color/light_gray" />
+
+        <TextView
+            android:id="@+id/tv_comment"
+            style="@style/DetailBtnTextAppearence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/imv_vertical_divider2"
+            android:clickable="true"
+            android:drawableLeft="@drawable/ic_detail_comment"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:text="@string/comment" />
     </RelativeLayout>
-    
+
     <ImageView
         android:id="@+id/imv_top_divider"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="1dp"
         android:layout_below="@id/rl_action_btns"
         android:layout_marginTop="5dp"
-        android:src="@color/light_gray"
-        android:contentDescription="@string/content_des_place_holder" />
-    
+        android:contentDescription="@string/content_des_place_holder"
+        android:src="@color/comment_bg_divider" />
+
     <TextView
         android:id="@+id/tv_new_comments"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:paddingLeft="10dp"
-        android:layout_below="@id/imv_top_divider"
-        android:background="@color/light_gray"
         style="@style/DetailCategoryAppearence"
+        android:layout_width="fill_parent"
+        android:layout_height="35dp"
+        android:layout_below="@id/imv_top_divider"
+        android:background="@color/comment_bg"
+        android:paddingLeft="10dp"
+        android:gravity="center_vertical"
         android:text="@string/new_comment" />
-    
-    <ImageView
-        android:id="@+id/imv_bottom_divider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_new_comments"
-        android:src="@color/light_gray"
-        android:contentDescription="@string/content_des_place_holder" />
-        
-	<ScrollView
+
+    <ScrollView
         android:id="@+id/scv_new_comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imv_bottom_divider" >
+        android:layout_below="@id/tv_new_comments" >
 
         <RelativeLayout
             android:id="@+id/rl_new_comments"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-             >
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/tv_comment_1"
+                style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/DetailInfoTextAppearence"
-				android:gravity="center_vertical"                
-        		android:layout_marginLeft="10dp"
-        		android:minHeight="35dp" />
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical"
+                android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_2"
+                style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_comment_1"
-                style="@style/DetailInfoTextAppearence"
+                android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
-        		android:layout_marginLeft="10dp"
-        		android:minHeight="35dp" />
+                android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_3"
+                style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_comment_2"
-                style="@style/DetailInfoTextAppearence"
+                android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
-        		android:layout_marginLeft="10dp"
-        		android:minHeight="35dp" />
+                android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_4"
+                style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_comment_3"
-                style="@style/DetailInfoTextAppearence"
+                android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
-        		android:layout_marginLeft="10dp"
-        		android:minHeight="35dp" />
+                android:minHeight="35dp" />
 
             <TextView
                 android:id="@+id/tv_comment_5"
+                style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_comment_4"
-                style="@style/DetailInfoTextAppearence"
+                android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
-        		android:layout_marginLeft="10dp"
-        		android:minHeight="35dp" />
+                android:minHeight="35dp" />
         </RelativeLayout>
     </ScrollView>
 

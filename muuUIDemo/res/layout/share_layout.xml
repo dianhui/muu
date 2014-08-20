@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300dp"
-    android:layout_height="280dp"  >
+    android:layout_width="315dp"
+    android:layout_height="225dp"  >
     <ImageView 
         android:id="@+id/imv_ver_middle"
         android:layout_width="fill_parent"
         android:layout_height="1dp" 
-        android:src="@color/gray"
+        android:src="@color/share_divider_color"
         android:layout_centerVertical="true"
         android:contentDescription="@string/content_des_place_holder"
         />
@@ -15,7 +15,7 @@
         android:id="@+id/imv_hor_middle"
         android:layout_width="1dp"
         android:layout_height="fill_parent" 
-        android:src="@color/gray"
+        android:src="@color/share_divider_color"
         android:layout_centerHorizontal="true"
         android:contentDescription="@string/content_des_place_holder"
         />

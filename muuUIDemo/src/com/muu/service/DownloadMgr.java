@@ -6,6 +6,7 @@ import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.util.TempDataLoader;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.util.SparseArray;
 
@@ -20,6 +21,8 @@ public class DownloadMgr implements DownloaderListener {
 			this.name = name;
 		}
 	}
+	
+	public static final String DOWNLOAD_UPDATE_ACTION = "com.muu.action.download.success";
 
 	private Context mCtx;
 	private DatabaseMgr mDbMgr;
@@ -123,6 +126,8 @@ public class DownloadMgr implements DownloaderListener {
 
 	@Override
 	public void onDownloadSuccess(int cartoonId) {
+		Intent intent = new Intent(DOWNLOAD_UPDATE_ACTION);
+		mCtx.sendBroadcast(intent);
 	}
 
 	@Override

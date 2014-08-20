@@ -19,7 +19,7 @@
     <ImageView 
         android:id="@+id/imv_divider"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="1dp"
         android:src="@color/light_gray"
         android:contentDescription="@string/content_des_place_holder"
         />

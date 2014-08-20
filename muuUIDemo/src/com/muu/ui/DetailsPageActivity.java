@@ -49,6 +49,8 @@ public class DetailsPageActivity extends Activity {
 	private int mCartoonId = -1;
 	private int mChapterCount = 0;
 	private CartoonInfo mCartoonInfo = null;
+	private Boolean mIsIntroEcllipsed = false;
+	private TextView mActionBarChapter = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class DetailsPageActivity extends Activity {
 
 		setupActionBar();
 		setupContentViews();
+		setupAddCommentView();
 		new RetrieveChaptersTask().execute(mCartoonId);
 		new RetrieveCommentsTask().execute();
 	}
@@ -96,10 +99,9 @@ public class DetailsPageActivity extends Activity {
 		ImageButton searchBtn = (ImageButton)this.findViewById(R.id.imbtn_search);
 		searchBtn.setVisibility(View.INVISIBLE);
 		
-		TextView chapterName = (TextView)this.findViewById(R.id.tv_chapter_name);
-		chapterName.setVisibility(View.VISIBLE);
-		chapterName.setOnClickListener(new OnClickListener() {
-			
+		mActionBarChapter = (TextView)this.findViewById(R.id.tv_chapter_name);
+		mActionBarChapter.setVisibility(View.VISIBLE);
+		mActionBarChapter.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (mChaptersSlideView != null) {
@@ -214,6 +216,29 @@ public class DetailsPageActivity extends Activity {
 		mActionBarTitle.setText(mCartoonInfo.name);
 	}
 	
+	private void setupAddCommentView() {
+		ImageButton imvBtn = (ImageButton)this.findViewById(R.id.imv_btn_add_comment);
+		imvBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(DetailsPageActivity.this,
+						getString(R.string.to_be_done), Toast.LENGTH_SHORT)
+						.show();
+			}
+		});
+		
+		TextView tv = (TextView)this.findViewById(R.id.tv_comment);
+		tv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(DetailsPageActivity.this,
+						getString(R.string.to_be_done), Toast.LENGTH_SHORT)
+						.show();
+			}
+		});
+	}
+	
 	private void showShareDialog() {
 		ShareDialog dialog = new ShareDialog(this, R.style.FloatDialogTheme);
 		dialog.setCanceledOnTouchOutside(true);
@@ -227,9 +252,10 @@ public class DetailsPageActivity extends Activity {
 		tv.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				Boolean isEcllipsed = isTextViewEcllipsed(tv);
-				if (isEcllipsed) {
+				mIsIntroEcllipsed = isTextViewEcllipsed(tv);
+				if (mIsIntroEcllipsed) {
 					moreBtn.setVisibility(View.VISIBLE);
+					moreBtn.setBackgroundResource(R.drawable.ic_more);
 				} else {
 					moreBtn.setVisibility(View.INVISIBLE);
 				}
@@ -239,14 +265,18 @@ public class DetailsPageActivity extends Activity {
 		RelativeLayout introLayout = (RelativeLayout)this.findViewById(R.id.rl_intro);
 		introLayout.setOnClickListener(new OnClickListener() {
 			Boolean ellipSizable = true;
-
 			@Override
 			public void onClick(View v) {
 				if (ellipSizable) {
 					ellipSizable = false;
 					tv.setEllipsize(null);
 					tv.setMaxLines(Integer.MAX_VALUE);
-					moreBtn.setVisibility(View.INVISIBLE);
+					if (mIsIntroEcllipsed) {
+						moreBtn.setVisibility(View.VISIBLE);
+						moreBtn.setBackgroundResource(R.drawable.ic_more_up);
+					} else {
+						moreBtn.setVisibility(View.INVISIBLE);
+					}
 				} else {
 					ellipSizable = true;
 					tv.setEllipsize(TextUtils.TruncateAt.END);
@@ -257,6 +287,7 @@ public class DetailsPageActivity extends Activity {
 							Boolean isEcllipsed = isTextViewEcllipsed(tv);
 							if (isEcllipsed) {
 								moreBtn.setVisibility(View.VISIBLE);
+								moreBtn.setBackgroundResource(R.drawable.ic_more);
 							} else {
 								moreBtn.setVisibility(View.INVISIBLE);
 							}

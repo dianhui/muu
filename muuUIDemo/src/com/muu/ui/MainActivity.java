@@ -77,7 +77,6 @@ public class MainActivity extends Activity {
 		});
 
 		mActivityImageView = (NetworkImageView)this.findViewById(R.id.imv_activity);
-		
 		setupSlideMenu();
 		setupActionBar();
 		setupDropdownView();
@@ -147,22 +146,26 @@ public class MainActivity extends Activity {
 	
 	private void setupDropdownView() {
 		mChangeListView = LayoutInflater.from(this).inflate(
-		        R.layout.change_list_popup_layout, null);
-		
+				R.layout.change_list_popup_layout, null);
+		mChangeListView.measure(View.MeasureSpec.UNSPECIFIED,
+				View.MeasureSpec.UNSPECIFIED);
 		mChangeListPopup = new PopupWindow(mChangeListView,
-		        LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, true);
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
 		mChangeListPopup.setTouchable(true);
 		mChangeListPopup.setOutsideTouchable(true);
 		mChangeListPopup.setBackgroundDrawable(new ColorDrawable(0));
-		
+
 		final RelativeLayout layout = (RelativeLayout) this
-		        .findViewById(R.id.action_bar_layout);
+				.findViewById(R.id.action_bar_layout);
 		RelativeLayout topBtn = (RelativeLayout) this
-		        .findViewById(R.id.rl_top_btn);
+				.findViewById(R.id.rl_top_btn);
 		topBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mChangeListPopup.showAsDropDown(layout, 0, 0);
+				mChangeListPopup.showAsDropDown(
+						layout,
+						(layout.getWidth() - mChangeListView.getMeasuredWidth()) / 2,
+						0);
 			}
 		});
 		
@@ -438,7 +441,7 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	private static final int sFirstRetrieveCount = 8;
+	private static final int sFirstRetrieveCount = 11;
 	private static final int sRetrieveMoreCount = 9;
 	private ArrayList<CartoonInfo> retrieveCartoonList(ListType type) {
 		ArrayList<CartoonInfo> list = null;

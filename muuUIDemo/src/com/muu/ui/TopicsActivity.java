@@ -1,5 +1,7 @@
 package com.muu.ui;
 
+import java.util.ArrayList;
+
 import com.muu.uidemo.R;
 import com.muu.util.TempDataLoader;
 
@@ -70,17 +72,17 @@ public class TopicsActivity extends Activity {
 	private class TopicsAdapter extends BaseAdapter {
 		private Context mCtx;
 		private LayoutInflater mInflater;
-		private Object[] mTopicStrs;
+		private ArrayList<String> mTopicCodeList;
 		
 		public TopicsAdapter(Context ctx) {
 			mCtx = ctx.getApplicationContext();
 			mInflater = LayoutInflater.from(ctx);
-			mTopicStrs = TempDataLoader.getTopicsArray();
+			mTopicCodeList = TempDataLoader.getTopicCodeList();
 		}
 		
 		@Override
 		public int getCount() {
-			return mTopicStrs.length;
+			return mTopicCodeList.size();
 		}
 
 		@Override
@@ -96,7 +98,6 @@ public class TopicsActivity extends Activity {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ViewHolder holder;
-			final String topicStr = mTopicStrs[position].toString();
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.topic_item, null);
 				holder = new ViewHolder();
@@ -110,8 +111,8 @@ public class TopicsActivity extends Activity {
 				holder = (ViewHolder)convertView.getTag();
 			}
 			
-			holder.text.setText(topicStr);
-			String topicCode = TempDataLoader.getTopicCode(topicStr);
+			final String topicCode = mTopicCodeList.get(position);
+			holder.text.setText(TempDataLoader.getTopicString(topicCode));
 			holder.relativeLayout.setBackground(TempDataLoader
 					.getTopicBgDrawable(mCtx, topicCode));
 			
@@ -119,17 +120,17 @@ public class TopicsActivity extends Activity {
 			convertView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					onItemClick(topicStr);
+					onItemClick(topicCode);
 				}
 			});
 			
 			return convertView;
 		}
 		
-		private void onItemClick(String topicStr) {
+		private void onItemClick(String topicCode) {
 			Intent intent = new Intent(TopicsActivity.this, CategoryCartoonsListActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			intent.putExtra(CategoryCartoonsListActivity.sTopicStr, topicStr);
+			intent.putExtra(CategoryCartoonsListActivity.sTopicCode, topicCode);
 			TopicsActivity.this.startActivity(intent);
 		}
 	}

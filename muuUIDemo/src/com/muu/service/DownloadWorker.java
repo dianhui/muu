@@ -65,6 +65,7 @@ public class DownloadWorker implements Runnable {
 		}
 		
 		updateDownloadProgress(100);
+		mListener.onDownloadSuccess(mCartoonId);
 	}
 	
 	private void updateDownloadState() {

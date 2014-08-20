@@ -30,5 +30,44 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
     
+    <RelativeLayout 
+        android:id="@+id/rl_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider"
+        android:gravity="center"
+        android:visibility="gone"
+        >
+        <ImageView 
+            android:id="@+id/imv_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_no_read_history"
+            android:contentDescription="@string/content_des_place_holder"
+            />
+        <TextView 
+            android:id="@+id/tv_no_download_items_main"
+            android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/imv_empty"
+			android:layout_centerHorizontal="true"
+			android:text="@string/no_read_history"
+			style="@style/EmptyMainTextAppearence"
+            />
+        
+         <TextView 
+            android:id="@+id/tv_no_download_items_sub"
+            android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="10dp"
+			android:layout_below="@id/tv_no_download_items_main"
+			android:layout_centerHorizontal="true"
+			android:text="@string/start_to_use"
+			style="@style/EmptySubTextAppearence"
+            />
+        
+    </RelativeLayout>
+    
 
 </RelativeLayout>

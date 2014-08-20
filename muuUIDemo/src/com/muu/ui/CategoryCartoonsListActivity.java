@@ -11,6 +11,7 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.uidemo.R;
+import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;
@@ -33,12 +34,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class CategoryCartoonsListActivity extends Activity {
-	public static String sTopicStr = "topic_ste";
+	public static String sTopicCode = "topic_code";
 	private static final int sCountInOnePage = 4;
 	
 	private ProgressBar mProgress;
 	private PullToRefreshListView mPullToRefreshListView;
-	private CharSequence mTopicStr;
+	private CharSequence mTopicCode;
 	private int mCurPage = -1;
 	private CartoonsListAdapter mListAdapter;
 	
@@ -47,7 +48,7 @@ public class CategoryCartoonsListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.category_cartoon_list_layout);
 		mProgress = (ProgressBar)this.findViewById(R.id.progress_bar);
-		mTopicStr = getIntent().getCharSequenceExtra(sTopicStr);
+		mTopicCode = getIntent().getCharSequenceExtra(sTopicCode);
 		
 		setupActionBar();
 		setupViews();
@@ -58,11 +59,11 @@ public class CategoryCartoonsListActivity extends Activity {
 				new OnRefreshListener<ListView>() {
 					@Override
 					public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-						new RetrieveTopicCartoonListTask().execute(mTopicStr.toString());
+						new RetrieveTopicCartoonListTask().execute(mTopicCode.toString());
 					}
 				});
 		
-		new RetrieveTopicCartoonListTask().execute(mTopicStr.toString());
+		new RetrieveTopicCartoonListTask().execute(mTopicCode.toString());
 	}
 	
 	private void setupActionBar() {
@@ -98,7 +99,7 @@ public class CategoryCartoonsListActivity extends Activity {
 	
 	private void setupViews() {
 		TextView backText = (TextView)this.findViewById(R.id.tv_back_text);
-		backText.setText(mTopicStr);
+		backText.setText(TempDataLoader.getTopicString(mTopicCode.toString()));
 	}
 	
 	private void setupBooksList(ArrayList<CartoonInfo> list) {
@@ -256,9 +257,9 @@ public class CategoryCartoonsListActivity extends Activity {
 		}
 	}
 	
-	private ArrayList<CartoonInfo> getCategoryCartoons(String topicStr) {
+	private ArrayList<CartoonInfo> getCategoryCartoons(String topicCode) {
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
-		ArrayList<CartoonInfo> list = muuWrapper.getCartoonListByTopic(topicStr, mCurPage + 1, sCountInOnePage);
+		ArrayList<CartoonInfo> list = muuWrapper.getCartoonListByTopic(topicCode, mCurPage + 1, sCountInOnePage);
 		if (list == null || list.size() < 1) {
 			return list;
 		}

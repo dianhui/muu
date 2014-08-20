@@ -26,6 +26,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class RecentReadListActivity extends Activity {
+	private RelativeLayout mEmptyLayout = null;
+	private ListView mListView = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,8 @@ public class RecentReadListActivity extends Activity {
 		setContentView(R.layout.recent_read_list_layout);
 		
 		setupActionBar();
+		mEmptyLayout = (RelativeLayout)this.findViewById(R.id.rl_empty);
+		mListView = (ListView)this.findViewById(R.id.lv_cartoons_list);
 	}
 	
 	@Override
@@ -75,6 +79,16 @@ public class RecentReadListActivity extends Activity {
 	private void setupConentView() {
 		TextView backText = (TextView)this.findViewById(R.id.tv_back_text);
 		backText.setText(R.string.recent_read);
+		
+		ArrayList<CartoonInfo> list = getHistoryCartoons();
+		if (list == null || list.size() < 1) {
+			mListView.setVisibility(View.GONE);
+			mEmptyLayout.setVisibility(View.VISIBLE);
+			return;
+		}
+		
+		mListView.setVisibility(View.VISIBLE);
+		mEmptyLayout.setVisibility(View.GONE);
 		setupCartoonsList(getHistoryCartoons());
 	}
 	

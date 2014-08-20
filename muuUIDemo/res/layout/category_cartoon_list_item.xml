@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical"
-    android:background="@color/list_item_bg"
+    android:background="@drawable/list_item_border_bg"
+    android:padding="1dp"
     android:layout_marginBottom="20dp"
     android:layout_marginTop="20dp" >
 
@@ -11,9 +12,11 @@
         android:id="@+id/imv_icon"
         android:layout_width="100dp"
         android:layout_height="130dp"
-        android:scaleType="fitXY"
+        android:background="@drawable/cover_border_bg"
         android:contentDescription="@string/content_des_place_holder"
-        android:src="@color/white" />
+        android:padding="1dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/cover_default" />
     
     <RelativeLayout
         android:id="@+id/rl_texts"

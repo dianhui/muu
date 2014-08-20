@@ -112,7 +112,7 @@
         android:layout_centerVertical="true"
         android:clickable="true"
         android:layout_marginRight="15dp"
-        style="@style/ActionBarBackTextAppearence"
+        style="@style/ActionBarChapterTextAppearence"
         android:visibility="gone"
         android:text="@string/chapter_contents" />
     

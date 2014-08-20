@@ -43,18 +43,19 @@
 
 			<com.android.volley.toolbox.NetworkImageView
 			    android:id="@+id/imv_activity"
-			    android:layout_width="match_parent"
-            	android:layout_height="wrap_content"
-            	android:minHeight="60dp"
+			    android:layout_width="360dp"
+            	android:layout_height="150dp"
             	android:clickable="true"
-            	android:src="@color/white"
-            	android:contentDescription="@string/content_des_place_holder"
-			    />
+            	android:src="@drawable/activity_event_default"
+            	android:background="@drawable/cover_border_bg" 
+				android:padding="1dp"
+            	android:contentDescription="@string/content_des_place_holder"/>
             
             <RelativeLayout
                 android:id="@+id/rl_top3"
                 android:layout_below="@id/imv_activity"
                 android:layout_marginTop="4dp"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
 
@@ -157,7 +158,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/rl_top3" />
+                android:layout_below="@id/imv_activity" />
         </RelativeLayout>
     </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
 	

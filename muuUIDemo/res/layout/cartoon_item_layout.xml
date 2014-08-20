@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="105dp"
-    android:layout_height="148dp"
+    android:layout_height="150dp"
     android:paddingTop="8dp"
     android:paddingLeft="3dp"
     android:paddingRight="3dp"
@@ -10,10 +10,12 @@
     <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/imv_icon"
         android:layout_width="105dp"
-        android:layout_height="148dp"
+        android:layout_height="130dp"
         android:scaleType="fitXY"
         android:contentDescription="@string/content_des_place_holder"
-        android:src="@color/white" />
+		android:background="@drawable/cover_border_bg" 
+		android:padding="1dp"
+        android:src="@drawable/cover_default" />
 
     <ImageView 
         android:id="@+id/imv_tag"
@@ -26,8 +28,8 @@
         android:id="@+id/tv_name"
         style="@style/BookNameAppearence"
         android:layout_width="105dp"
-        android:layout_height="21dp"
-        android:layout_alignBottom="@id/imv_icon"
+        android:layout_height="20dp"
+        android:layout_below="@id/imv_icon"
         android:layout_centerHorizontal="true"
         android:ellipsize="end"
         android:singleLine="true"

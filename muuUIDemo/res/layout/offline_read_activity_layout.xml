@@ -36,6 +36,7 @@
             android:id="@+id/btn_downloading"
             android:layout_width="0dp"
             android:minHeight="45dp"
+            android:layout_marginRight="1dp"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignRight="@id/middle"
@@ -48,6 +49,7 @@
             android:id="@+id/btn_downloaded"
             android:layout_width="0dp"
             android:minHeight="45dp"
+            android:layout_marginLeft="1dp"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/btn_downloading"
             android:layout_alignBottom="@id/btn_downloading"
@@ -69,6 +71,7 @@
         android:stretchMode="columnWidth"
     	android:gravity="center"
         />
+    
     <GridView 
         android:id="@+id/gv_downloaded"
         android:layout_width="match_parent"
@@ -79,5 +82,44 @@
     	android:gravity="center"
     	android:visibility="gone"
         />
+    
+    <RelativeLayout 
+        android:id="@+id/rl_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tab_btns"
+        android:gravity="center"
+        android:visibility="gone"
+        >
+        <ImageView 
+            android:id="@+id/imv_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_no_download_items"
+            android:contentDescription="@string/content_des_place_holder"
+            />
+        <TextView 
+            android:id="@+id/tv_no_download_items_main"
+            android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/imv_empty"
+			android:layout_centerHorizontal="true"
+			android:text="@string/no_download_items"
+			style="@style/EmptyMainTextAppearence"
+            />
+        
+         <TextView 
+            android:id="@+id/tv_no_download_items_sub"
+            android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="10dp"
+			android:layout_below="@id/tv_no_download_items_main"
+			android:layout_centerHorizontal="true"
+			android:text="@string/start_to_use"
+			style="@style/EmptySubTextAppearence"
+            />
+        
+    </RelativeLayout>
 
 </RelativeLayout>

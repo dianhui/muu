@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ShareDialog extends Dialog{
+public class ShareDialog extends Dialog {
 	private Context mCtx;
 
 	public ShareDialog(Context context, int theme) {
