@@ -61,6 +61,7 @@
             android:name="com.muu.ui.DetailsPageActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar"
+            android:launchMode="singleTask"
             android:screenOrientation="nosensor"/>
         
         <activity 
@@ -81,6 +82,17 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="nosensor"/>
+                
+        <activity
+            android:name="com.muu.ui.ShareActivityDialog"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:screenOrientation="nosensor"
+            android:theme="@style/FloatDialogTheme" >
+            <intent-filter>
+                <action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         
     </application>
 

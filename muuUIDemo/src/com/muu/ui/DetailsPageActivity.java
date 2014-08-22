@@ -22,6 +22,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,6 +46,8 @@ import android.widget.Toast;
 
 public class DetailsPageActivity extends Activity {
 	public static final String sCartoonIdExtraKey = "cartoon_id";
+	public static final String sCartoonNameExtraKey = "cartoon_name";
+	public static final String sCartoonCoverExtraKey = "cartoon_cover";
 	
 	private SlidingMenu mChaptersSlideView = null;
 	private TextView mActionBarTitle = null;
@@ -57,12 +63,14 @@ public class DetailsPageActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.details_page_layout);
 		mCartoonId = getIntent().getIntExtra(sCartoonIdExtraKey, -1);
-
-		setupActionBar();
-		setupContentViews();
-		setupAddCommentView();
-		new RetrieveChaptersTask().execute(mCartoonId);
-		new RetrieveCommentsTask().execute();
+		updateViews();
+	}
+	
+	protected void onNewIntent (Intent intent) {
+		super.onNewIntent(intent);
+		
+		mCartoonId = intent.getIntExtra(sCartoonIdExtraKey, -1);
+		updateViews();
 	}
 	
 	@Override
@@ -70,6 +78,14 @@ public class DetailsPageActivity extends Activity {
 		super.onResume();
 		
 		setupReadButton();
+	}
+	
+	private void updateViews() {
+		setupActionBar();
+		setupContentViews();
+		setupAddCommentView();
+		new RetrieveChaptersTask().execute(mCartoonId);
+		new RetrieveCommentsTask().execute();
 	}
 	
 	private void setupActionBar() {
@@ -139,7 +155,13 @@ public class DetailsPageActivity extends Activity {
 		shareBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showShareDialog();
+				Intent intent = new Intent();
+				intent.setClass(getApplicationContext(), ShareActivityDialog.class);
+				intent.putExtra(sCartoonIdExtraKey, mCartoonInfo.id);
+				intent.putExtra(sCartoonNameExtraKey, mCartoonInfo.name);
+				intent.putExtra(sCartoonCoverExtraKey, getCoverThumb());
+				
+				DetailsPageActivity.this.startActivity(intent);
 			}
 		});
 		
@@ -237,12 +259,6 @@ public class DetailsPageActivity extends Activity {
 						.show();
 			}
 		});
-	}
-	
-	private void showShareDialog() {
-		ShareDialog dialog = new ShareDialog(this, R.style.FloatDialogTheme);
-		dialog.setCanceledOnTouchOutside(true);
-		dialog.show();
 	}
 	
     private void setupIntroLayout() {
@@ -445,6 +461,7 @@ public class DetailsPageActivity extends Activity {
 							position);
 					intent.putExtra(ReadPageActivity.sPageIdxExtraKey, 0);
 					mCtx.startActivity(intent);
+					mChaptersSlideView.toggle();
 				}
 			});
 
@@ -483,6 +500,15 @@ public class DetailsPageActivity extends Activity {
 		protected void onPostExecute(ArrayList<Comment> result) {
 			setupCommentsView(result);
 		}
-
+	}
+	
+	private Bitmap getCoverThumb() {
+		Drawable drawable = mCoverImageView.getDrawable();
+		if (drawable instanceof BitmapDrawable) {
+			Bitmap bmp = ((BitmapDrawable) drawable).getBitmap();
+			
+			return ThumbnailUtils.extractThumbnail(bmp, 400, 300);
+		}
+		return null;
 	}
 }

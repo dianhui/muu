@@ -37,10 +37,14 @@
     <string name="download_done">已经下载</string>
     <string name="percent_0">0%</string>
     <string name="no_image">没有图片</string>
+    
     <string name="sina_weibo">新浪微博</string>
     <string name="tencent_weibo">腾讯微博</string>
     <string name="tencent_qq">企鹅QQ</string>
     <string name="wechat">微信</string>
+   	<string name="share_success">分享成功</string>
+    <string name="share_fail">分享失败</string>
+    <string name="share_cancel">分享取消</string>
     
     <string name="sina_weibo_cancel_download">\t取消下载</string>
     

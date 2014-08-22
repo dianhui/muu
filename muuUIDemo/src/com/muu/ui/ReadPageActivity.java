@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -184,9 +185,9 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	}
 	
 	private void showShareDialog() {
-		ShareDialog dialog = new ShareDialog(this, R.style.FloatDialogTheme);
-		dialog.setCanceledOnTouchOutside(true);
-		dialog.show();
+		Intent intent = new Intent();
+		intent.setClass(getApplicationContext(), ShareActivityDialog.class);
+		ReadPageActivity.this.startActivity(intent);
 	}
 
 	private void setupContentView() {
