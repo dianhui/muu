@@ -10,7 +10,7 @@ import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 

@@ -1,6 +1,6 @@
 package com.muu.ui;
 
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 
 import android.app.Activity;
 import android.os.Bundle;

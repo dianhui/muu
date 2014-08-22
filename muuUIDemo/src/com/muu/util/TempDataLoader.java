@@ -15,7 +15,7 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
 import com.muu.db.DatabaseMgr.IMAGES_COLUMN;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 
 import android.content.ContentValues;
 import android.content.Context;

@@ -11,7 +11,7 @@ import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;

@@ -6,7 +6,7 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.volley.VolleyHelper;
 
 import android.app.Activity;

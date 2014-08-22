@@ -11,7 +11,7 @@ import com.muu.data.ActivityEventInfo;
 import com.muu.data.CartoonInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.server.MuuServerWrapper;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 

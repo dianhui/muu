@@ -29,7 +29,7 @@ import com.muu.data.ImageInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_READ_COLUMN;
 import com.muu.server.MuuServerWrapper;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.util.TempDataLoader;
 import com.muu.widget.TouchImageView;
 import com.muu.widget.TouchImageView.OnGestureListener;

@@ -42,6 +42,8 @@
     <string name="tencent_qq">企鹅QQ</string>
     <string name="wechat">微信</string>
     
+    <string name="sina_weibo_cancel_download">\t取消下载</string>
+    
     <string name="no_download_items">您还没有离线下载呢~</string>
     <string name="no_read_history">您还没有阅读记录哟~</string>
     <string name="start_to_use">翻翻喜欢的~开启您的二次元之旅吧</string>

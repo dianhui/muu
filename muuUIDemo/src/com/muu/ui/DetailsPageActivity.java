@@ -13,7 +13,7 @@ import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.service.DownloadMgr;
 import com.muu.service.DownloadMgr.DownloadStatus;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 

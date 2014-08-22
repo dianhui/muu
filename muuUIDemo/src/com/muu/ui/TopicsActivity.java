@@ -2,7 +2,7 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.util.TempDataLoader;
 
 import android.app.Activity;

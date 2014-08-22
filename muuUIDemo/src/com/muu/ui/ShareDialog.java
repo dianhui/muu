@@ -1,6 +1,7 @@
 package com.muu.ui;
 
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
+import com.muu.sns.ShareUtils;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -14,7 +15,7 @@ public class ShareDialog extends Dialog {
 
 	public ShareDialog(Context context, int theme) {
 		super(context, theme);
-		mCtx = context.getApplicationContext();
+		mCtx = context;
 	}
 	
 	@Override
@@ -30,8 +31,9 @@ public class ShareDialog extends Dialog {
 		tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(mCtx, mCtx.getString(R.string.to_be_done),
-						Toast.LENGTH_SHORT).show();
+//				Toast.makeText(mCtx, mCtx.getString(R.string.to_be_done),
+//						Toast.LENGTH_SHORT).show();
+				ShareUtils.share2SinaWeibo(mCtx);
 			}
 		});
 		

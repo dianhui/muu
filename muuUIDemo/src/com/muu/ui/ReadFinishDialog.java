@@ -5,7 +5,7 @@ import java.util.Random;
 import com.android.volley.toolbox.NetworkImageView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
-import com.muu.uidemo.R;
+import com.muu.cartoon.test.R;
 import com.muu.volley.VolleyHelper;
 
 import android.content.Context;
