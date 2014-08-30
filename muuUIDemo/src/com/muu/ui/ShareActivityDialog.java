@@ -1,7 +1,9 @@
 package com.muu.ui;
 
 import com.muu.cartoon.test.R;
+import com.muu.sns.QQShareHelper;
 import com.muu.sns.SnsConstants;
+import com.muu.sns.TencentWeiboHelper;
 import com.sina.weibo.sdk.api.ImageObject;
 import com.sina.weibo.sdk.api.TextObject;
 import com.sina.weibo.sdk.api.WeiboMultiMessage;
@@ -28,19 +30,26 @@ public class ShareActivityDialog extends Activity implements
 	private int mCartoonId = -1;
 	private String mCartoonName;
 	private Bitmap mCartoonCover;
+	private String mCartoonCoverUrl;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.share_layout);
+		setFinishOnTouchOutside(true);
 
 		Intent intent = getIntent();
 		if (intent != null) {
-			mCartoonId = intent.getIntExtra(DetailsPageActivity.sCartoonIdExtraKey, -1);
-			mCartoonName = intent.getStringExtra(DetailsPageActivity.sCartoonNameExtraKey);
-			mCartoonCover = intent.getParcelableExtra(DetailsPageActivity.sCartoonCoverExtraKey);
+			mCartoonId = intent.getIntExtra(
+					DetailsPageActivity.sCartoonIdExtraKey, -1);
+			mCartoonName = intent
+					.getStringExtra(DetailsPageActivity.sCartoonNameExtraKey);
+			mCartoonCover = intent
+					.getParcelableExtra(DetailsPageActivity.sCartoonCoverExtraKey);
+			mCartoonCoverUrl = intent
+					.getStringExtra(DetailsPageActivity.sCartoonCoverUrlKey);
 		}
-		
+
 		setupBtns();
 		initSinaWeiboApi();
 
@@ -55,14 +64,14 @@ public class ShareActivityDialog extends Activity implements
 	@Override
 	protected void onNewIntent(Intent intent) {
 		mSinaWeiboShareAPI.handleWeiboResponse(intent, this);
-		
+
 		super.onNewIntent(intent);
 	}
-	
+
 	@Override
 	public void onResponse(BaseResponse baseResp) {
 		this.finish();
-		
+
 		switch (baseResp.errCode) {
 		case WBConstants.ErrorCode.ERR_OK:
 			Toast.makeText(this, getString(R.string.share_success),
@@ -104,10 +113,7 @@ public class ShareActivityDialog extends Activity implements
 		tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(
-						ShareActivityDialog.this,
-						ShareActivityDialog.this.getString(R.string.to_be_done),
-						Toast.LENGTH_SHORT).show();
+				sendTencentWeibo();
 			}
 		});
 	}
@@ -117,10 +123,9 @@ public class ShareActivityDialog extends Activity implements
 		tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(
-						ShareActivityDialog.this,
-						ShareActivityDialog.this.getString(R.string.to_be_done),
-						Toast.LENGTH_SHORT).show();
+				new QQShareHelper(getApplicationContext()).shareToQQ(
+						ShareActivityDialog.this, getQQShareContent(),
+						mCartoonCoverUrl, getCartoonUrl());
 			}
 		});
 	}
@@ -140,7 +145,7 @@ public class ShareActivityDialog extends Activity implements
 
 	private void initSinaWeiboApi() {
 		mSinaWeiboShareAPI = WeiboShareSDK.createWeiboAPI(this,
-				SnsConstants.APP_KEY);
+				SnsConstants.SINA_WEIBO_APP_KEY);
 		mSinaWeiboShareAPI.registerApp();
 		setupSinaWeiboDownloadListener();
 	}
@@ -170,9 +175,9 @@ public class ShareActivityDialog extends Activity implements
 		try {
 			WeiboMultiMessage weiboMessage = new WeiboMultiMessage();
 			TextObject textObj = new TextObject();
-			textObj.text =String.format("%s%s%s%s%s",  "我正在用漫悠悠看漫画:《",  mCartoonName,"》", "--", getCartoonUrl());
+			textObj.text = getWeiboContent();
 			weiboMessage.textObject = textObj;
-			
+
 			ImageObject imgObj = new ImageObject();
 			imgObj.setImageObject(mCartoonCover);
 			weiboMessage.imageObject = imgObj;
@@ -180,7 +185,7 @@ public class ShareActivityDialog extends Activity implements
 			SendMultiMessageToWeiboRequest request = new SendMultiMessageToWeiboRequest();
 			request.transaction = String.valueOf(System.currentTimeMillis());
 			request.multiMessage = weiboMessage;
-			
+
 			mSinaWeiboShareAPI.sendRequest(request);
 		} catch (WeiboShareException e) {
 			e.printStackTrace();
@@ -188,13 +193,28 @@ public class ShareActivityDialog extends Activity implements
 					Toast.LENGTH_SHORT).show();
 		}
 	}
+
+	private void sendTencentWeibo() {
+		String content = getWeiboContent();
+		TencentWeiboHelper.sendWeibo(this, content, mCartoonCoverUrl);
+	}
+
+	private String getWeiboContent() {
+		return String.format("%s%s%s%s%s", "我正在用漫悠悠看漫画:《", mCartoonName, "》",
+				"--", getCartoonUrl());
+	}
 	
+	private String getQQShareContent() {
+		return String.format("%s%s%s", "我正在用漫悠悠看漫画:《", mCartoonName, "》");
+	}
+
 	private String getCartoonUrl() {
 		if (mCartoonId == -1) {
 			return "";
 		}
-		
-		return String.format("%s%d%s", "www.muu.com.cn/comics/", mCartoonId,
+
+		return String.format("%s%d%s", "http://www.muu.com.cn/comics/", mCartoonId,
 				".html");
 	}
+
 }

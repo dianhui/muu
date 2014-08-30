@@ -69,6 +69,8 @@
         android:layout_below="@id/tab_btns"
         android:numColumns="3"
         android:stretchMode="columnWidth"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
     	android:gravity="center"
         />
     
@@ -79,6 +81,8 @@
         android:layout_below="@id/tab_btns"
         android:numColumns="3"
         android:stretchMode="columnWidth"
+		android:paddingLeft="3dp"
+        android:paddingRight="3dp"
     	android:gravity="center"
     	android:visibility="gone"
         />

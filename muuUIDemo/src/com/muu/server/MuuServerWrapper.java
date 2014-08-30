@@ -15,6 +15,8 @@ import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
 import com.muu.data.ImageInfo;
+import com.muu.data.Roast;
+import com.muu.data.UpdateInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.util.TempDataLoader;
 
@@ -28,6 +30,25 @@ public class MuuServerWrapper {
 		mCtx = ctx.getApplicationContext();
 		mTmpDataLoader = new TempDataLoader();
 		mMuuClient = new MuuClient();
+	}
+	
+	public ArrayList<CartoonInfo> getTop2CartoonList() {
+		JSONArray jsonArray = mMuuClient.getTop2CartoonsList();
+		if (jsonArray == null) return null;
+		
+		ArrayList<CartoonInfo> cartoonList = new ArrayList<CartoonInfo>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			try {
+				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
+				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
+				cartoonList.add(cartoon);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		mTmpDataLoader.storeCartoonsToDB(mCtx, cartoonList);
+		return cartoonList;
 	}
 	
 	/**
@@ -51,7 +72,6 @@ public class MuuServerWrapper {
 				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
 				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
 				cartoonList.add(cartoon);
-//				mMuuClient.downloadCoverByUrl(cartoon.id, cartoon.coverUrl);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -180,6 +200,24 @@ public class MuuServerWrapper {
 		return commentList;
 	}
 	
+	public ArrayList<Roast> getRoasts(int cartoonId, int idx, int count) {
+		JSONArray jsonArray = mMuuClient.getRoastsByCartoonId(cartoonId, idx, count);
+		if (jsonArray == null) return null;
+		
+		ArrayList<Roast> roastList = new ArrayList<Roast>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			try {
+				JSONObject info = jsonArray.getJSONObject(i);
+				Roast roast = new Roast(info, cartoonId);
+				roastList.add(roast);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		mTmpDataLoader.storeRoastsToDB(mCtx, roastList);
+		return roastList;
+	}
 	/**
 	 * getChapterImgInfo: get image info of given chapter.
 	 * 
@@ -254,6 +292,15 @@ public class MuuServerWrapper {
 	
 	public void downloadCartoonCover(int cartoonId, String url) {
 		mMuuClient.downloadCoverByUrl(cartoonId, url);
+	}
+	
+	public UpdateInfo getUpdateInfo(String version) {
+		JSONObject json = mMuuClient.getUpdateInfo(version);
+		if (json == null) {
+			return null;
+		}
+		
+		return new UpdateInfo(json);
 	}
 	
 }

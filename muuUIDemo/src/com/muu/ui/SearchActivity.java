@@ -1,3 +1,4 @@
+
 package com.muu.ui;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
-import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
+import com.muu.db.DatabaseMgr.ROASTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.cartoon.test.R;
 import com.muu.volley.VolleyHelper;
@@ -361,14 +362,14 @@ public class SearchActivity extends Activity {
 				
 				holder.comment.setVisibility(View.GONE);
 
-				Cursor cursor = mDbMgr.query(DatabaseMgr.COMMENTS_ALL_URL,
+				Cursor cursor = mDbMgr.query(DatabaseMgr.ROASTS_ALL_URL,
 						null, String.format("%s=%d",
-								DatabaseMgr.COMMENTS_COLUMN.CARTOON_ID,
+								DatabaseMgr.ROASTS_COLUMN.CARTOON_ID,
 								mList.get(position).id), null, null);
 				if (cursor != null) {
 					if (cursor.moveToFirst()) {
 						String comment = cursor.getString(cursor
-								.getColumnIndex(COMMENTS_COLUMN.CONTENT));
+								.getColumnIndex(ROASTS_COLUMN.CONTENT));
 						holder.comment.setVisibility(View.VISIBLE);
 						holder.comment.setText(comment);
 					}
@@ -445,8 +446,12 @@ public class SearchActivity extends Activity {
 		
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
 		ArrayList<CartoonInfo> list = muuWrapper.getSearchCartoons(str, mCurPage + 1, sCountInOnePage);
+		if (list == null || list.size() < 1) {
+			return null;
+		}
+		
 		for (CartoonInfo cartoonInfo : list) {
-			muuWrapper.getComments(cartoonInfo.id, 0, 1);
+			muuWrapper.getRoasts(cartoonInfo.id, 0, 1);
 		}
 		
 		return list;

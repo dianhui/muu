@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     
     <application
         android:name="com.muu.service.ApplicationLauncher"
@@ -91,6 +93,48 @@
             <intent-filter>
                 <action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="com.muu.ui.SelectPathDialogActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:screenOrientation="nosensor"
+            android:theme="@style/FloatDialogTheme" />
+        
+        <activity
+            android:name="com.muu.ui.AboutDialogActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:screenOrientation="nosensor"
+            android:theme="@style/FloatDialogTheme" />
+        
+        <activity
+            android:name="com.muu.ui.CommentsActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="nosensor"/>
+        
+        <activity
+            android:name="com.tencent.weibo.sdk.android.component.PublishActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name="com.tencent.weibo.sdk.android.component.Authorize" />
+        <activity android:name="com.tencent.weibo.sdk.android.component.ReAddActivity" />
+         
+         <activity
+            android:name="com.tencent.connect.common.AssistActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.tencent.tauth.AuthActivity"
+            android:launchMode="singleTask"
+            android:noHistory="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="tencent801536295" />
             </intent-filter>
         </activity>
         

@@ -187,6 +187,12 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 	private void showShareDialog() {
 		Intent intent = new Intent();
 		intent.setClass(getApplicationContext(), ShareActivityDialog.class);
+		
+		intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, mCartoonInfo.id);
+		intent.putExtra(DetailsPageActivity.sCartoonNameExtraKey, mCartoonInfo.name);
+//		intent.putExtra(DetailsPageActivity.sCartoonCoverExtraKey, getCoverThumb());
+		intent.putExtra(DetailsPageActivity.sCartoonCoverUrlKey, mCartoonInfo.coverUrl);
+		
 		ReadPageActivity.this.startActivity(intent);
 	}
 
@@ -336,7 +342,7 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 				mChpImgInfoArray.append(chapter.id, chapterImgInfo);
 			}
 
-			if (imgIdx >= chapterImgInfo.size()) {
+			if (chapterImgInfo == null || imgIdx >= chapterImgInfo.size()) {
 				return null;
 			}
 			

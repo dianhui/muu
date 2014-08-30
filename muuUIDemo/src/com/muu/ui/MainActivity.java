@@ -21,6 +21,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,7 +40,7 @@ import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnPageChangeListener {
 	private static final String TAG = "MainActivity";
 	
 	private VolleyHelper mVolleyHelper = null;
@@ -51,9 +53,10 @@ public class MainActivity extends Activity {
 	private TextView mEmpty = null;
 	private ScrollView mCartoonsContainer = null;
 	private PullToRefreshScrollView mPullRefreshScrollView = null;
-	private NetworkImageView mActivityImageView = null;
-	private NetworkImageView mFirstImageView = null;
-	private NetworkImageView mSecondImageView = null;
+	
+	private ViewPager mTopViewPager = null;
+	private LinearLayout mDotsGroupView = null;
+	private ArrayList<NetworkImageView> mTopCartoonsViews = null;
 	
 	private ListType mCurrentList = null;
 	private int mCurrentPage = -1;
@@ -64,6 +67,11 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main_activity_layout);
 		
 		mVolleyHelper = VolleyHelper.getInstanse(getApplicationContext());
+		
+		mTopViewPager = (ViewPager)this.findViewById(R.id.top_view_pager);
+		mTopViewPager.setOnPageChangeListener(this);
+		
+		mDotsGroupView = (LinearLayout)this.findViewById(R.id.dots_group);
 		
 		mProgress = (ProgressBar)this.findViewById(R.id.progress_bar);
 		mEmpty = (TextView)this.findViewById(R.id.tv_empty);
@@ -76,13 +84,12 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		mActivityImageView = (NetworkImageView)this.findViewById(R.id.imv_activity);
 		setupSlideMenu();
 		setupActionBar();
 		setupDropdownView();
-		changeList(ListType.RANDOM);
-		
 		new RetrieveAcitivitiesTask().execute();
+		new RetrieveTop2CartoonListTask().execute();
+		changeList(ListType.TOP);
 	}
 	
 	private void changeList(ListType type) {
@@ -100,7 +107,7 @@ public class MainActivity extends Activity {
 	private void setupSlideMenu() {
 		mSlidingMenu = new SlidingMenu(this);
 		mSlidingMenu.setMode(SlidingMenu.LEFT);
-		mSlidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		mSlidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
 		mSlidingMenu.setShadowWidthRes(R.dimen.shadow_width);
 		mSlidingMenu.setShadowDrawable(R.drawable.img_menu_shadow);
 		mSlidingMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
@@ -170,6 +177,42 @@ public class MainActivity extends Activity {
 		});
 		
 		final TextView listTitle = (TextView)this.findViewById(R.id.tv_title);
+		
+		LinearLayout hotLayout = (LinearLayout) mChangeListView
+				.findViewById(R.id.ll_hot);
+		hotLayout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				listTitle.setText(R.string.hot_list);
+				Drawable leftDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_list_hot_selected);
+				leftDrawable.setBounds(0, 0, leftDrawable.getMinimumWidth(),
+						leftDrawable.getMinimumHeight());
+				Drawable rightDrawable = MainActivity.this.getResources()
+						.getDrawable(R.drawable.ic_change_list);
+				rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(),
+						rightDrawable.getMinimumHeight());
+				listTitle.setCompoundDrawables(leftDrawable, null, rightDrawable, null);
+				
+				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_random_read);
+				ll.setVisibility(View.VISIBLE);
+				
+				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
+				imv.setVisibility(View.VISIBLE);
+				
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_new);
+				ll.setVisibility(View.VISIBLE);
+				
+				imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_2);
+				imv.setVisibility(View.GONE);
+				
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
+				ll.setVisibility(View.GONE);
+				mChangeListPopup.dismiss();
+				
+				changeList(ListType.TOP);
+			}
+		});
 		
 		LinearLayout randomReadLayout = (LinearLayout) mChangeListView
 				.findViewById(R.id.ll_random_read);
@@ -244,77 +287,74 @@ public class MainActivity extends Activity {
 				changeList(ListType.NEW);
 			}
 		});
+	}
+	
+	private void setupFirstTwoCartoons(ArrayList<CartoonInfo> result) {
+		if (mTopCartoonsViews == null) {
+			mTopCartoonsViews = new ArrayList<NetworkImageView>();
+		}
 		
-		LinearLayout hotLayout = (LinearLayout) mChangeListView
-				.findViewById(R.id.ll_hot);
-		hotLayout.setOnClickListener(new OnClickListener() {
-
+		final CartoonInfo firstInfo = result.remove(0);
+		NetworkImageView firstImageView = new NetworkImageView(this);
+		firstImageView.setImageUrl(firstInfo.coverUrl, VolleyHelper.getInstanse(this).getDefaultImageLoader());
+		firstImageView.setDefaultImageResId(R.drawable.activity_event_default);
+		firstImageView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				listTitle.setText(R.string.hot_list);
-				Drawable leftDrawable = MainActivity.this.getResources()
-						.getDrawable(R.drawable.ic_list_hot_selected);
-				leftDrawable.setBounds(0, 0, leftDrawable.getMinimumWidth(),
-						leftDrawable.getMinimumHeight());
-				Drawable rightDrawable = MainActivity.this.getResources()
-						.getDrawable(R.drawable.ic_change_list);
-				rightDrawable.setBounds(0, 0, rightDrawable.getMinimumWidth(),
-						rightDrawable.getMinimumHeight());
-				listTitle.setCompoundDrawables(leftDrawable, null, rightDrawable, null);
-				
-				LinearLayout ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_random_read);
-				ll.setVisibility(View.VISIBLE);
-				
-				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
-				imv.setVisibility(View.VISIBLE);
-				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_new);
-				ll.setVisibility(View.VISIBLE);
-				
-				imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_2);
-				imv.setVisibility(View.GONE);
-				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
-				ll.setVisibility(View.GONE);
-				mChangeListPopup.dismiss();
-				
-				changeList(ListType.TOP);
+				Intent intent = new Intent();
+				intent.setClass(MainActivity.this, DetailsPageActivity.class);
+				intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, firstInfo.id);
+				MainActivity.this.startActivity(intent);
 			}
 		});
-	}
-	
-	private void setupFirstCartoon(CartoonInfo info) {
-		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no1);
-		setClickEvent(layout, info.id);
-		
-		if (!TextUtils.isEmpty(info.coverUrl)) {
-			mFirstImageView = (NetworkImageView)layout.findViewById(R.id.imv_no1_icon);
-			mFirstImageView.setImageUrl(info.coverUrl, mVolleyHelper.getDefaultImageLoader());
+		if (mTopCartoonsViews.size() > 1) {
+			mTopCartoonsViews.remove(1);
+			mTopCartoonsViews.add(1, firstImageView);
+		} else {
+			mTopCartoonsViews.add(1, firstImageView);
+		}
+
+		ImageView imv = new ImageView(MainActivity.this);
+		imv.setBackgroundResource(R.drawable.ic_dot_normal);
+		if (mDotsGroupView.getChildCount() > 1) {
+			mDotsGroupView.removeViewAt(1);
+			mDotsGroupView.addView(imv, 1, getDotParams());
+		} else {
+			mDotsGroupView.addView(imv, getDotParams());
 		}
 		
-		ImageView imv = (ImageView) layout.findViewById(R.id.imv_no1_tag);
-		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
-				getApplicationContext(), info.topicCode));
-		
-		TextView tv = (TextView)layout.findViewById(R.id.tv_no1_name);
-		tv.setText(info.name);
-	}
-	
-	private void setupSecondCartoon(CartoonInfo info) {
-		RelativeLayout layout = (RelativeLayout) this.findViewById(R.id.rl_no2);
-		setClickEvent(layout, info.id);
-		
-		if (!TextUtils.isEmpty(info.coverUrl)) {
-			mSecondImageView = (NetworkImageView)layout.findViewById(R.id.imv_no2_icon);
-			mSecondImageView.setImageUrl(info.coverUrl, mVolleyHelper.getDefaultImageLoader());
+		final CartoonInfo secondInfo = result.remove(0);
+		NetworkImageView secondImageView = new NetworkImageView(this);
+		secondImageView.setImageUrl(secondInfo.coverUrl, VolleyHelper.getInstanse(this).getDefaultImageLoader());
+		secondImageView.setDefaultImageResId(R.drawable.activity_event_default);
+		secondImageView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setClass(MainActivity.this, DetailsPageActivity.class);
+				intent.putExtra(DetailsPageActivity.sCartoonIdExtraKey, secondInfo.id);
+				MainActivity.this.startActivity(intent);
+			}
+		});
+		if (mTopCartoonsViews.size() > 2) {
+			mTopCartoonsViews.remove(2);
+			mTopCartoonsViews.add(2, secondImageView);
+		} else {
+			mTopCartoonsViews.add(2, secondImageView);
 		}
 		
-		ImageView imv = (ImageView) layout.findViewById(R.id.imv_no2_tag);
-		imv.setImageDrawable(TempDataLoader.getTopicTagDrawable(
-				getApplicationContext(), info.topicCode));
+		imv = new ImageView(MainActivity.this);
+		imv.setBackgroundResource(R.drawable.ic_dot_normal);
+		if (mDotsGroupView.getChildCount() > 2) {
+			mDotsGroupView.removeViewAt(2);
+			mDotsGroupView.addView(imv, 2, getDotParams());
+		} else {
+			mDotsGroupView.addView(imv, getDotParams());
+		}
 		
-		TextView tv = (TextView)layout.findViewById(R.id.tv_no2_name);
-		tv.setText(info.name);
+		mTopViewPager.setAdapter(new TopSlideViewAdapter(mTopCartoonsViews));
+		mTopViewPager.setCurrentItem(0);
+		((ImageView)mDotsGroupView.getChildAt(0)).setBackgroundResource(R.drawable.ic_dot_selected);
 	}
 	
 	private static final int sBaseCartoonViewId = 9999;
@@ -386,6 +426,23 @@ public class MainActivity extends Activity {
 		});
 	}
 	
+	private class RetrieveTop2CartoonListTask extends
+			AsyncTask<Void, Integer, ArrayList<CartoonInfo>> {
+		@Override
+		protected ArrayList<CartoonInfo> doInBackground(Void... arg0) {
+			return retrieveTop2CartoonList();
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<CartoonInfo> result) {
+			if (result == null || result.size() < 1) {
+				return;
+			}
+
+			setupFirstTwoCartoons(result);
+		}
+	}
+	
 	private class RetrieveCartoonListTask extends
 			AsyncTask<ListType, Integer, ArrayList<CartoonInfo>> {
 		private ListType mListType = ListType.RANDOM;
@@ -420,22 +477,22 @@ public class MainActivity extends Activity {
 							MainActivity.this.getString(R.string.no_more_data),
 							Toast.LENGTH_SHORT).show();
 				}
-				
 				return;
 			}
 			
 			mCurrentPage++;
-			if (mCurrentPage == 0) {
-				setupFirstCartoon(result.remove(0));
-				setupSecondCartoon(result.remove(0));
-				addMoreCartoons(result, true);
-			} else {
-				addMoreCartoons(result, false);
-			}
+			addMoreCartoons(result, mCurrentPage == 0);
 		}
 	}
 	
-	private static final int sFirstRetrieveCount = 11;
+	private ArrayList<CartoonInfo> retrieveTop2CartoonList() {
+		ArrayList<CartoonInfo> list = null;
+		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
+		list = muuWrapper.getTop2CartoonList();
+		return list;
+	}
+	
+	private static final int sFirstRetrieveCount = 9;
 	private static final int sRetrieveMoreCount = 9;
 	private ArrayList<CartoonInfo> retrieveCartoonList(ListType type) {
 		ArrayList<CartoonInfo> list = null;
@@ -458,12 +515,6 @@ public class MainActivity extends Activity {
 	}
 	
 	private class RetrieveAcitivitiesTask extends AsyncTask<Void, Integer, ArrayList<ActivityEventInfo>> {
-
-		@Override
-		protected void onPreExecute() {
-			mActivityImageView.setVisibility(View.GONE);
-		}
-		
 		@Override
 		protected ArrayList<ActivityEventInfo> doInBackground(Void... params) {
 			MuuServerWrapper muuWrapper = new MuuServerWrapper(MainActivity.this.getApplicationContext());
@@ -477,22 +528,85 @@ public class MainActivity extends Activity {
 				return;
 			}
 			
-			mActivityImageView.setVisibility(View.VISIBLE);
-			mActivityImageView.setImageUrl(result.get(0).imgUrl, VolleyHelper
-					.getInstanse(getApplicationContext())
-					.getDefaultImageLoader());
-			mActivityImageView.setOnClickListener(new OnClickListener() {
+			if (mTopCartoonsViews == null) {
+				mTopCartoonsViews = new ArrayList<NetworkImageView>();
+			}
+			NetworkImageView imgView = new NetworkImageView(
+					getApplicationContext());
+			imgView.setImageUrl(result.get(0).imgUrl,
+					VolleyHelper.getInstanse(getApplicationContext())
+							.getDefaultImageLoader());
+			imgView.setDefaultImageResId(R.drawable.activity_event_default);
+			imgView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent();
 					intent.setClass(getApplicationContext(),
-							EventActivity.class);
+					EventActivity.class);
 					intent.putExtra(EventActivity.sActivityTitle, result.get(0).activityName);
 					intent.putExtra(EventActivity.sActivityUrl, result.get(0).activityUrl);
 					MainActivity.this.startActivity(intent);
 				}
 			});
+			mTopCartoonsViews.add(0, imgView);
 			
+			 TopSlideViewAdapter adapter = (TopSlideViewAdapter)mTopViewPager.getAdapter();
+			 if (adapter == null) {
+				mTopViewPager.setAdapter(new TopSlideViewAdapter(mTopCartoonsViews));
+			} else {
+				adapter.updateData(mTopCartoonsViews);
+			}
+			 
+			 ImageView imv = new ImageView(MainActivity.this);
+			 imv.setBackgroundResource(R.drawable.ic_dot_normal);
+			 mDotsGroupView.addView(imv, getDotParams());
 		}
+	}
+
+	boolean isAutoPlay = false;
+	@Override
+	public void onPageScrollStateChanged(int arg0) {
+		switch (arg0) {
+		case 1:
+			isAutoPlay = false;
+			break;
+		case 2:
+			isAutoPlay = true;
+			break;
+		case 0:
+			if (mTopViewPager.getCurrentItem() == mTopViewPager.getAdapter()
+					.getCount() - 1 && !isAutoPlay) {
+				mTopViewPager.setCurrentItem(0);
+			} else if (mTopViewPager.getCurrentItem() == 0 && !isAutoPlay) {
+				mTopViewPager.setCurrentItem(mTopViewPager.getAdapter()
+						.getCount() - 1);
+			}
+			break;
+		}
+	}
+
+	@Override
+	public void onPageScrolled(int arg0, float arg1, int arg2) {
+	}
+
+	@Override
+	public void onPageSelected(int arg0) {
+		for (int i = 0; i < mDotsGroupView.getChildCount(); ++i) {
+			ImageView imv = (ImageView)mDotsGroupView.getChildAt(i);
+			
+			if (arg0 == i) {
+				imv.setBackgroundResource(R.drawable.ic_dot_selected);
+			} else {
+				imv.setBackgroundResource(R.drawable.ic_dot_normal);
+			}
+		}
+	}
+	
+	private LinearLayout.LayoutParams getDotParams() {
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+			     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+			layoutParams.setMargins(10, 0,10, 0);
+			return layoutParams;
 	}
 }

@@ -2,13 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    >
+    android:background="@color/white" >
 
     <include
         android:id="@+id/action_bar_layout"
         layout="@layout/action_bar_layout" />
-    
+
     <ImageView
         android:id="@+id/divider"
         android:layout_width="match_parent"
@@ -22,155 +21,58 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/divider"
-        android:text="@string/empty"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:visibility="gone"
-         />
-    
-	<com.handmark.pulltorefresh.library.PullToRefreshScrollView
-	    xmlns:ptr="http://schemas.android.com/apk/res-auto"
-	    android:id="@+id/sv_middle_content"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:layout_below="@id/divider"
-	    ptr:ptrAnimationStyle="flip"
-	    ptr:ptrMode="pullFromEnd" >
+        android:text="@string/empty"
+        android:visibility="gone" />
+
+    <com.handmark.pulltorefresh.library.PullToRefreshScrollView
+        xmlns:ptr="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/sv_middle_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider"
+        android:orientation="vertical"
+        ptr:ptrAnimationStyle="flip"
+        ptr:ptrMode="pullFromEnd" >
 
         <RelativeLayout
             android:id="@+id/rl_middle_conent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content" >
 
-			<com.android.volley.toolbox.NetworkImageView
-			    android:id="@+id/imv_activity"
-			    android:layout_width="360dp"
-            	android:layout_height="150dp"
-            	android:clickable="true"
-            	android:src="@drawable/activity_event_default"
-            	android:background="@drawable/cover_border_bg" 
-				android:padding="1dp"
-            	android:contentDescription="@string/content_des_place_holder"/>
-            
-            <RelativeLayout
-                android:id="@+id/rl_top3"
-                android:layout_below="@id/imv_activity"
-                android:layout_marginTop="4dp"
-                android:visibility="gone"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/top_view_pager"
+                android:layout_width="360dp"
+                android:layout_height="150dp"/>
+
+            <LinearLayout
+                android:id="@+id/dots_group"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:layout_below="@id/top_view_pager"
+                android:layout_marginTop="-20dp"
+                android:gravity="left"
+                android:layout_marginLeft="10dp"
+                android:orientation="horizontal" />
 
-                <RelativeLayout
-                    android:id="@+id/rl_no1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/middle_place_holder"
-                    android:clickable="true" >
-
-                    <com.android.volley.toolbox.NetworkImageView
-                        android:id="@+id/imv_no1_icon"
-                        android:layout_width="180dp"
-                        android:layout_height="254dp"
-                       	android:scaleType="fitXY"
-                        android:contentDescription="@string/content_des_place_holder"
-                        android:src="@color/white" />
-                    
-                    <ImageView
-                        android:id="@+id/imv_no1_tag"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/content_des_place_holder"
-                        android:src="@drawable/ic_topic_tag_01" />
-
-                    <ImageView
-                        android:id="@+id/imv_name_bg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/content_des_place_holder"
-                        android:layout_alignBottom="@id/imv_no1_icon"
-                        android:src="@drawable/book_name_bg" />
-                    
-                    <TextView
-                        android:id="@+id/tv_no1_name"
-                        style="@style/BookNameAppearence"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignBottom="@id/imv_no1_icon"
-                        android:layout_marginBottom="10dp"
-                        android:layout_centerHorizontal="true"
-                        android:text="@string/book_name" />
-                </RelativeLayout>
-                
-                <TextView 
-                    android:id="@+id/middle_place_holder"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_centerInParent="true"
-                    android:layout_marginLeft="1dp"
-                    android:layout_marginRight="1dp"
-                    />
-                
-                <RelativeLayout
-                    android:id="@+id/rl_no2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/middle_place_holder"
-                    android:layout_alignBottom="@id/rl_no1"
-                    android:clickable="true" >
-
-                    <com.android.volley.toolbox.NetworkImageView
-                        android:id="@+id/imv_no2_icon"
-                        android:layout_width="180dp"
-                        android:layout_height="254dp"
-                        android:scaleType="fitXY"
-                        android:contentDescription="@string/content_des_place_holder"
-                        android:src="@color/white" />
-
-                    <ImageView
-                        android:id="@+id/imv_no2_tag"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/content_des_place_holder"
-                        android:src="@drawable/ic_topic_tag_01" />
-
-                    <ImageView
-                        android:id="@+id/no2_imv_name_bg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/content_des_place_holder"
-                        android:layout_alignBottom="@id/imv_no2_icon"
-                        android:src="@drawable/book_name_bg" />
-                    
-                    <TextView
-                        android:id="@+id/tv_no2_name"
-                        style="@style/BookNameAppearence"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignBottom="@id/imv_no2_icon"
-                        android:layout_marginBottom="10dp"
-                        android:layout_centerHorizontal="true"
-                        android:text="@string/book_name" />
-                </RelativeLayout>
-            </RelativeLayout>
-            
             <RelativeLayout
                 android:id="@+id/rl_others"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_below="@id/dots_group"
+                android:layout_marginTop="20dp"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/imv_activity" />
+                android:layout_gravity="center_horizontal" />
         </RelativeLayout>
     </com.handmark.pulltorefresh.library.PullToRefreshScrollView>
-	
-	<ProgressBar
+
+    <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:visibility="gone"
-        />
-	
-	
+        android:visibility="gone" />
+
 </RelativeLayout>

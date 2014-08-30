@@ -11,6 +11,7 @@ import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
 import com.muu.data.ImageInfo;
+import com.muu.data.Roast;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
@@ -114,6 +115,26 @@ public class TempDataLoader {
 			
 			if (cur != null) cur.close();
 			dbMgr.insert(uri, comment.toContentValues());
+		}
+		dbMgr.closeDatabase();
+	}
+	
+	public void storeRoastsToDB(Context ctx, ArrayList<Roast> roastsList) {
+		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
+		for (Roast roast : roastsList) {
+			Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.ROASTS_ALL_URL.toString(), roast.id));
+			Cursor cur = dbMgr.query(uri, null, null, null, null);
+			if (cur != null && cur.moveToFirst()) {
+				Roast roastInDb = new Roast(cur);
+				cur.close();
+				if (roast.equals(roastInDb)) continue;
+				
+				dbMgr.update(uri, roast.toContentValues(), null, null);
+				continue;
+			}
+			
+			if (cur != null) cur.close();
+			dbMgr.insert(uri, roast.toContentValues());
 		}
 		dbMgr.closeDatabase();
 	}

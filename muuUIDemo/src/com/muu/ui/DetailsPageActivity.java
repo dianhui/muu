@@ -1,4 +1,3 @@
-
 package com.muu.ui;
 
 import java.util.ArrayList;
@@ -7,7 +6,7 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.CartoonInfo;
 import com.muu.data.ChapterInfo;
-import com.muu.data.Comment;
+import com.muu.data.Roast;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
@@ -48,6 +47,7 @@ public class DetailsPageActivity extends Activity {
 	public static final String sCartoonIdExtraKey = "cartoon_id";
 	public static final String sCartoonNameExtraKey = "cartoon_name";
 	public static final String sCartoonCoverExtraKey = "cartoon_cover";
+	public static final String sCartoonCoverUrlKey = "cartoon_cover_url";
 	
 	private SlidingMenu mChaptersSlideView = null;
 	private TextView mActionBarTitle = null;
@@ -85,7 +85,7 @@ public class DetailsPageActivity extends Activity {
 		setupContentViews();
 		setupAddCommentView();
 		new RetrieveChaptersTask().execute(mCartoonId);
-		new RetrieveCommentsTask().execute();
+		new RetrieveRoastsTask().execute();
 	}
 	
 	private void setupActionBar() {
@@ -160,6 +160,7 @@ public class DetailsPageActivity extends Activity {
 				intent.putExtra(sCartoonIdExtraKey, mCartoonInfo.id);
 				intent.putExtra(sCartoonNameExtraKey, mCartoonInfo.name);
 				intent.putExtra(sCartoonCoverExtraKey, getCoverThumb());
+				intent.putExtra(sCartoonCoverUrlKey, mCartoonInfo.coverUrl);
 				
 				DetailsPageActivity.this.startActivity(intent);
 			}
@@ -254,11 +255,16 @@ public class DetailsPageActivity extends Activity {
 		tv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(DetailsPageActivity.this,
-						getString(R.string.to_be_done), Toast.LENGTH_SHORT)
-						.show();
+				startCommentActivity();
 			}
 		});
+	}
+	
+	private void startCommentActivity() {
+		Intent intent = new Intent();
+		intent.setClass(this, CommentsActivity.class);
+		intent.putExtra("cartoon_id", mCartoonId);
+		this.startActivity(intent);
 	}
 	
     private void setupIntroLayout() {
@@ -388,21 +394,21 @@ public class DetailsPageActivity extends Activity {
 		return cur;
 	}
 	
-	private void setupCommentsView(ArrayList<Comment> commentList) {
-		if (commentList == null) {
+	private void setupRoastsView(ArrayList<Roast> roastList) {
+		if (roastList == null) {
 			return;
 		}
 		
-		int maxComments = commentList.size() <= 5 ? commentList.size() : 5;
+		int maxRoasts = roastList.size() <= 5 ? roastList.size() : 5;
 		
 		Resources res = this.getResources();
-		for (int i = 0; i < maxComments; i++) {
+		for (int i = 0; i < maxRoasts; i++) {
 			int resId = res.getIdentifier(
-					String.format("tv_comment_%d", i+1), "id",
+					String.format("tv_roast_%d", i+1), "id",
 					this.getPackageName());
 			
 			TextView tv = (TextView)this.findViewById(resId);
-			tv.setText(commentList.get(i).content);
+			tv.setText(roastList.get(i).content);
 		}
 	}
 	
@@ -487,18 +493,18 @@ public class DetailsPageActivity extends Activity {
 		}
 	}
 	
-	private class RetrieveCommentsTask extends
-			AsyncTask<Void, Integer, ArrayList<Comment>> {
+	private class RetrieveRoastsTask extends
+			AsyncTask<Void, Integer, ArrayList<Roast>> {
 
 		@Override
-		protected ArrayList<Comment> doInBackground(Void... params) {
-			return new MuuServerWrapper(getApplicationContext()).getComments(
+		protected ArrayList<Roast> doInBackground(Void... params) {
+			return new MuuServerWrapper(getApplicationContext()).getRoasts(
 					mCartoonId, 0, 5);
 		}
 		
 		@Override
-		protected void onPostExecute(ArrayList<Comment> result) {
-			setupCommentsView(result);
+		protected void onPostExecute(ArrayList<Roast> result) {
+			setupRoastsView(result);
 		}
 	}
 	

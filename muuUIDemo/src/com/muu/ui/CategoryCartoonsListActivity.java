@@ -8,7 +8,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
-import com.muu.db.DatabaseMgr.COMMENTS_COLUMN;
+import com.muu.db.DatabaseMgr.ROASTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.cartoon.test.R;
 import com.muu.util.TempDataLoader;
@@ -176,13 +176,13 @@ public class CategoryCartoonsListActivity extends Activity {
 				
 				holder.comment.setVisibility(View.GONE);
 				
-				Cursor cursor = mDbMgr.query(DatabaseMgr.COMMENTS_ALL_URL,
+				Cursor cursor = mDbMgr.query(DatabaseMgr.ROASTS_ALL_URL,
 						null, String.format("%s=%d",
-								DatabaseMgr.COMMENTS_COLUMN.CARTOON_ID,
+								DatabaseMgr.ROASTS_COLUMN.CARTOON_ID,
 								info.id), null, null);
 				if (cursor != null) {
 					if (cursor.moveToFirst()) {
-						String comment = cursor.getString(cursor.getColumnIndex(COMMENTS_COLUMN.CONTENT));
+						String comment = cursor.getString(cursor.getColumnIndex(ROASTS_COLUMN.CONTENT));
 						holder.comment.setVisibility(View.VISIBLE);
 						holder.comment.setText(comment);
 					}
@@ -264,7 +264,7 @@ public class CategoryCartoonsListActivity extends Activity {
 			return list;
 		}
 		for (CartoonInfo cartoonInfo : list) {
-			muuWrapper.getComments(cartoonInfo.id, 0, 1);
+			muuWrapper.getRoasts(cartoonInfo.id, 0, 1);
 		}
 		
 		return list;

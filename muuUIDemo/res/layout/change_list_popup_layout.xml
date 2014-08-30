@@ -2,28 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="173dp"
     android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
     android:orientation="vertical"
+    android:gravity="left"
     android:background="@drawable/bg_change_list_pop"
     android:minHeight="96dp" >
 
     <LinearLayout
-        android:id="@+id/ll_random_read"
+        android:id="@+id/ll_hot"
         android:layout_width="173dp"
         android:layout_height="47dp"
-        android:gravity="center"
+        android:gravity="left"
+        android:paddingLeft="25dp"
         android:clickable="true"
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/tv_random"
+            android:id="@+id/tv_hot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_list_random"
+            android:layout_gravity="center"
+            android:drawableLeft="@drawable/ic_list_hot"
             android:drawablePadding="10dp"
-            android:gravity="center"
             style="@style/WeekTopDropAppearence"
-            android:text="@string/random_read" />
+            android:text="@string/hot_list" />
+        
     </LinearLayout>
     
     <ImageView
@@ -35,22 +37,22 @@
         android:visibility="gone" />
     
     <LinearLayout
-        android:id="@+id/ll_hot"
+        android:id="@+id/ll_random_read"
         android:layout_width="173dp"
         android:layout_height="47dp"
-        android:gravity="center"
+        android:gravity="left"
+        android:paddingLeft="25dp"
         android:clickable="true">
 
         <TextView
-            android:id="@+id/tv_hot"
+            android:id="@+id/tv_random"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:drawableLeft="@drawable/ic_list_hot"
+            android:drawableLeft="@drawable/ic_list_random"
             android:drawablePadding="10dp"
+            android:layout_gravity="center"
             style="@style/WeekTopDropAppearence"
-            android:text="@string/hot_list" />
-        
+            android:text="@string/random_read" />
     </LinearLayout>
     
     <ImageView 
@@ -65,15 +67,15 @@
         android:id="@+id/ll_new"
         android:layout_width="173dp"
         android:layout_height="47dp"
-        android:gravity="center"
-        android:paddingLeft="10dp"
+        android:gravity="left"
+        android:paddingLeft="25dp"
         android:clickable="true">
 
         <TextView
             android:id="@+id/tv_new"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_gravity="center"
             android:drawableLeft="@drawable/ic_list_new"
             android:drawablePadding="10dp"
             style="@style/WeekTopDropAppearence"

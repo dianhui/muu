@@ -9,11 +9,13 @@ import android.util.Log;
 
 public class PropertyMgr {
 	private static final String TAG = "PropertyMgr";
-	private static final String sDefaultBaseUrl= "http://testapi.muu.com.cn/mobileapi";
+	private static final String sDefaultBaseUrl = "http://testapi.muu.com.cn/mobileapi";
 	private static final int sDefaultHttpTimeout = 60 * 1000;
 	private static final int sDefaultSocketTimeout = 30 * 1000;
-	private static final String sDefaultCachePath = Environment
-			.getExternalStorageDirectory().toString() + "/muu_cache/";
+	private static final String sDefaultStoragePath = Environment
+			.getExternalStorageDirectory().toString();
+	private static final String sDefaultCachePath = sDefaultStoragePath
+			+ "/muu_cache/";
 	private static final String sVolleyPath = "volley";
 	
 	
@@ -23,6 +25,7 @@ public class PropertyMgr {
 	private String mMuuBaseUrl;
 	private int mHttpTimeout;
 	private int mSocketTimeout;
+	private String mStoragePath;
 	private String mCachePath;
 	
 	private PropertyMgr(InputStream in, String prodName, String prodVer) {
@@ -37,6 +40,7 @@ public class PropertyMgr {
 			mMuuBaseUrl = sDefaultBaseUrl;
 			mHttpTimeout = sDefaultHttpTimeout;
 			mSocketTimeout = sDefaultSocketTimeout;
+			mStoragePath = sDefaultStoragePath;
 			mCachePath = sDefaultCachePath;
 			return;
 		}
@@ -48,6 +52,7 @@ public class PropertyMgr {
 			mMuuBaseUrl = mProps.getProperty("muu_base_url", sDefaultBaseUrl);
 			mHttpTimeout = getInt("http_timeout", sDefaultHttpTimeout);
 			mSocketTimeout = getInt("socket_timeout", sDefaultSocketTimeout);
+			mStoragePath = mProps.getProperty("storage_path", sDefaultStoragePath);
 			mCachePath = mProps.getProperty("cache_path", sDefaultCachePath);
 			
 		} catch (Exception e) {
@@ -85,6 +90,10 @@ public class PropertyMgr {
 		return mSocketTimeout;
 	}
 	
+	public String getStoragePath() {
+		return mStoragePath;
+	}
+	
 	public String getCachePath() {
 		return mCachePath;
 	}
@@ -106,6 +115,11 @@ public class PropertyMgr {
 	
 	public String getActivityCoverPath() {
 		return getCachePath() + "activities_cover/";
+	}
+	
+	public void setStoragePath(String path) {
+		mStoragePath = path;
+		mProps.setProperty("storage_path", path);
 	}
 	
 	public void setCachePath(String path){

@@ -27,9 +27,11 @@ public class MuuClient {
 	private static final String sTopicListPath = "/cartoons/topic";
 	private static final String sChapterInfoPath = "/cartoon/chapters";
 	private static final String sCommentsPath = "/cartoon/comments";
+	private static final String sRoastsPath = "/cartoon/roast";
 	private static final String sSearchCartoonPath = "/cartoons/name";
 	private static final String sChapterImageInfoPath = "/cartoon/chapter/images";
 	private static final String sActivitiesPath = "/activities";
+	private static final String sCheckUpdatePath = "/client/check_version";
 	
 	public static enum ListType {
 		RANDOM("random", sRandomListPath),
@@ -46,6 +48,23 @@ public class MuuClient {
 	private CommHttpClient mHttpClient = null;
 	public MuuClient() {
 		mHttpClient = new CommHttpClient();
+	}
+	
+	public JSONArray getTop2CartoonsList() {
+		JSONArray json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, sTopListPath
+					+ "/" + 0 + "/" + 2);
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONArray(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 	
 	/**
@@ -151,6 +170,24 @@ public class MuuClient {
 		try {
 			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, String
 					.format("%s/%d/%d/%d", sCommentsPath, cartoonId, idx,
+							count));
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONArray(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+	
+	public JSONArray getRoastsByCartoonId(int cartoonId, int idx, int count) {
+		JSONArray json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, String
+					.format("%s/%d/%d/%d", sRoastsPath, cartoonId, idx,
 							count));
 			byte[] entity = resp.getResponseEntity();
 			
@@ -407,4 +444,30 @@ public class MuuClient {
 		}
 		return;
 	}
+	
+	/**
+	 * getUpdateInfo: get update infomation from server.
+	 * @param
+	 * 		- version, in format of "1.2.3", String
+	 * @return
+	 * 		- JSONObject: {code: 0, url: "http://openapi.muu.com.cn/apps/muu.apk"}
+	 * 			0 for no update, 1 for has update.
+	 * */
+	public JSONObject getUpdateInfo(String version) {
+		JSONObject json = null;
+		try {
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, String
+					.format("%s/%s", sCheckUpdatePath, version));
+			byte[] entity = resp.getResponseEntity();
+			
+			String jsonStr = new String(entity);
+			json = new JSONObject(jsonStr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+	
 }

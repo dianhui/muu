@@ -121,6 +121,7 @@
                 android:layout_marginLeft="12dp"
                 android:layout_toRightOf="@id/btn_read"
                 android:background="@drawable/btn_add_comment"
+                android:visibility="gone"
                 android:contentDescription="@string/content_des_place_holder" />
         </RelativeLayout>
     </RelativeLayout>
@@ -263,7 +264,7 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/tv_comment_1"
+                android:id="@+id/tv_roast_1"
                 style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -272,41 +273,41 @@
                 android:minHeight="35dp" />
 
             <TextView
-                android:id="@+id/tv_comment_2"
+                android:id="@+id/tv_roast_2"
                 style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tv_comment_1"
+                android:layout_below="@id/tv_roast_1"
                 android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
                 android:minHeight="35dp" />
 
             <TextView
-                android:id="@+id/tv_comment_3"
+                android:id="@+id/tv_roast_3"
                 style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tv_comment_2"
+                android:layout_below="@id/tv_roast_2"
                 android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
                 android:minHeight="35dp" />
 
             <TextView
-                android:id="@+id/tv_comment_4"
+                android:id="@+id/tv_roast_4"
                 style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tv_comment_3"
+                android:layout_below="@id/tv_roast_3"
                 android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
                 android:minHeight="35dp" />
 
             <TextView
-                android:id="@+id/tv_comment_5"
+                android:id="@+id/tv_roast_5"
                 style="@style/DetailInfoTextAppearence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tv_comment_4"
+                android:layout_below="@id/tv_roast_4"
                 android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
                 android:minHeight="35dp" />

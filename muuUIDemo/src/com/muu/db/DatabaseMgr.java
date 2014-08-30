@@ -18,6 +18,7 @@ public class DatabaseMgr {
 	private static final String TABLE_CHAPTERS = "chapters";
 	private static final String TABLE_RECENT_READ = "recent_read";
 	private static final String TABLE_COMMENTS = "comments";
+	private static final String TABLE_ROASTS = "roasts";
 	private static final String TABLE_IMAGES = "images";
 	
 	private static final String VIEW_RECENT_HISTORY = "v_recent_history";
@@ -68,6 +69,14 @@ public class DatabaseMgr {
 	
 	public interface COMMENTS_COLUMN {
 		public static final String ID = "_id";
+		public static final String USER = "user";
+		public static final String CREATE_TIME = "create_time";
+		public static final String CONTENT = "content";
+		public static final String CARTOON_ID = "cartoon_id";
+	}
+	
+	public interface ROASTS_COLUMN {
+		public static final String ID = "_id";
 		public static final String CREATE_TIME = "create_time";
 		public static final String CONTENT = "content";
 		public static final String CARTOON_ID = "cartoon_id";
@@ -89,6 +98,8 @@ public class DatabaseMgr {
 			"content://%s", VIEW_RECENT_HISTORY));
 	public static final Uri COMMENTS_ALL_URL = Uri.parse(String.format(
 			"content://%s", TABLE_COMMENTS));
+	public static final Uri ROASTS_ALL_URL = Uri.parse(String.format(
+			"content://%s", TABLE_ROASTS));
 	public static final Uri IMAGES_ALL_URL = Uri.parse(String.format(
 			"content://%s", TABLE_IMAGES));
 	
@@ -122,6 +133,11 @@ public class DatabaseMgr {
 		case MUU_COMMENTS_ALL:
 		case MUU_COMMENTS_ID:
 			table = TABLE_COMMENTS;
+			break;
+			
+		case MUU_ROASTS_ALL:
+		case MUU_ROASTS_ID:
+			table = TABLE_ROASTS;
 			break;
 			
 		case MUU_RECENT_READ_ALL:
@@ -172,6 +188,16 @@ public class DatabaseMgr {
 			table = TABLE_COMMENTS;
 			selection = concatSelections(selection, String.format("(%s = %s)",
 					COMMENTS_COLUMN.ID, uri.getLastPathSegment()));
+			break;
+		case MUU_ROASTS_ALL:
+			table = TABLE_ROASTS;
+			break;
+		case MUU_ROASTS_ID:
+			table = TABLE_ROASTS;
+			selection = concatSelections(
+					selection,
+					String.format("(%s = %s)", ROASTS_COLUMN.ID,
+							uri.getLastPathSegment()));
 			break;
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
@@ -228,6 +254,17 @@ public class DatabaseMgr {
 			selection = concatSelections(selection, String.format("(%s = %s)",
 					COMMENTS_COLUMN.ID, uri.getLastPathSegment()));
 			break;
+		case MUU_ROASTS_ALL:
+			table = TABLE_ROASTS;
+			break;
+		case MUU_ROASTS_ID:
+			table = TABLE_ROASTS;
+			selection = concatSelections(
+					selection,
+					String.format("(%s = %s)", ROASTS_COLUMN.ID,
+							uri.getLastPathSegment()));
+			break;
+			
 		case MUU_CHAPTER_ALL:
 			table = TABLE_CHAPTERS;
 			break;
@@ -302,14 +339,24 @@ public class DatabaseMgr {
 			db.execSQL(createRecentReadTable);
 			
 			String createCommentsTable = String
-					.format("create table if not exists %s (%s integer primary key, %s integer, %s text, %s text, foreign key(%s) references %s(%s));",
+					.format("create table if not exists %s (%s integer primary key, %s integer, %s text, %s text, %s text, foreign key(%s) references %s(%s));",
 							TABLE_COMMENTS, COMMENTS_COLUMN.ID,
 							COMMENTS_COLUMN.CARTOON_ID,
+							COMMENTS_COLUMN.USER,
 							COMMENTS_COLUMN.CREATE_TIME,
 							COMMENTS_COLUMN.CONTENT,
 							COMMENTS_COLUMN.CARTOON_ID, TABLE_CARTOONS,
 							CARTOONS_COLUMN.ID);
 			db.execSQL(createCommentsTable);
+			
+			String createRoastsTable = String
+					.format("create table if not exists %s (%s integer primary key, %s integer, %s text, %s text, foreign key(%s) references %s(%s));",
+							TABLE_ROASTS, ROASTS_COLUMN.ID,
+							ROASTS_COLUMN.CARTOON_ID,
+							ROASTS_COLUMN.CREATE_TIME, ROASTS_COLUMN.CONTENT,
+							ROASTS_COLUMN.CARTOON_ID, TABLE_CARTOONS,
+							CARTOONS_COLUMN.ID);
+			db.execSQL(createRoastsTable);
 			
 			String createRecentHistoryView = String
 					.format("create view if not exists %s as select %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s, %s.%s as %s from %s, %s where %s.%s=%s.%s",
@@ -350,8 +397,10 @@ public class DatabaseMgr {
 	private static final int MUU_RECENT_HISTORY_ALL = 5;
 	private static final int MUU_COMMENTS_ALL = 6;
 	private static final int MUU_COMMENTS_ID = 7;
-	private static final int MUU_IMAGES_ALL = 8;
-	private static final int MUU_IMAGES_ID = 9;
+	private static final int MUU_ROASTS_ALL = 8;
+	private static final int MUU_ROASTS_ID = 9;
+	private static final int MUU_IMAGES_ALL = 10;
+	private static final int MUU_IMAGES_ID = 11;
 	
 	private static final UriMatcher
 		sURLMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -364,6 +413,8 @@ public class DatabaseMgr {
 		sURLMatcher.addURI("v_recent_history", null, MUU_RECENT_HISTORY_ALL);
 		sURLMatcher.addURI("comments", null, MUU_COMMENTS_ALL);
 		sURLMatcher.addURI("comments", "#", MUU_COMMENTS_ID);
+		sURLMatcher.addURI("roasts", null, MUU_ROASTS_ALL);
+		sURLMatcher.addURI("roasts", "#", MUU_ROASTS_ID);
 		sURLMatcher.addURI("images", null, MUU_IMAGES_ALL);
 		sURLMatcher.addURI("images", "#", MUU_IMAGES_ID);
 	}

@@ -37,6 +37,7 @@
     <string name="download_done">已经下载</string>
     <string name="percent_0">0%</string>
     <string name="no_image">没有图片</string>
+    <string name ="no_comment">暂无评论</string>
     
     <string name="sina_weibo">新浪微博</string>
     <string name="tencent_weibo">腾讯微博</string>
@@ -65,7 +66,14 @@
     <string name="tanbi">耽美</string>
     <string name="other">其他</string>
     <string name="homosex">同人</string>
+    
+    <string name="storage_name">存储卡 %d</string>
+    <string name="storage_path">路径：%s</string>
+    <string name="muu_intr">漫悠悠原创漫画网是专门为原创漫画作者、漫画爱好者提供在线漫画发布的原创漫画平台，专业从事原创动漫的平台运营、推广和增值服务的创新性原创漫画在线平台运营商。</string>
 	
+    
+    <string name="no_update">已为最新版本</string>
+    
     <string name="introduction">Cartoon description.</string>
     <string name="chapter_idx_dot">%d.</string>
     <string name="page">%1$d/%2$d</string>
