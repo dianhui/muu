@@ -178,9 +178,11 @@ public class ShareActivityDialog extends Activity implements
 			textObj.text = getWeiboContent();
 			weiboMessage.textObject = textObj;
 
-			ImageObject imgObj = new ImageObject();
-			imgObj.setImageObject(mCartoonCover);
-			weiboMessage.imageObject = imgObj;
+			if (mCartoonCover != null) {
+				ImageObject imgObj = new ImageObject();
+				imgObj.setImageObject(mCartoonCover);
+				weiboMessage.imageObject = imgObj;
+			}
 
 			SendMultiMessageToWeiboRequest request = new SendMultiMessageToWeiboRequest();
 			request.transaction = String.valueOf(System.currentTimeMillis());

@@ -21,6 +21,7 @@ public class CartoonInfo {
 	public String topicCode;
 	public int isComplete;
 	public String coverUrl;
+	public String recommendCover;
 	public int chapterCount;
 	public int size;  //in Bytes
 	

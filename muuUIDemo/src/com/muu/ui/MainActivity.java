@@ -1,3 +1,4 @@
+
 package com.muu.ui;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.ActivityEventInfo;
 import com.muu.data.CartoonInfo;
+import com.muu.data.Top2CartoonInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.server.MuuServerWrapper;
 import com.muu.cartoon.test.R;
@@ -30,6 +32,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -289,15 +292,16 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 		});
 	}
 	
-	private void setupFirstTwoCartoons(ArrayList<CartoonInfo> result) {
+	private void setupFirstTwoCartoons(ArrayList<Top2CartoonInfo> result) {
 		if (mTopCartoonsViews == null) {
 			mTopCartoonsViews = new ArrayList<NetworkImageView>();
 		}
 		
-		final CartoonInfo firstInfo = result.remove(0);
+		final Top2CartoonInfo firstInfo = result.remove(0);
 		NetworkImageView firstImageView = new NetworkImageView(this);
-		firstImageView.setImageUrl(firstInfo.coverUrl, VolleyHelper.getInstanse(this).getDefaultImageLoader());
+		firstImageView.setImageUrl(firstInfo.recommendCover, VolleyHelper.getInstanse(this).getDefaultImageLoader());
 		firstImageView.setDefaultImageResId(R.drawable.activity_event_default);
+		firstImageView.setScaleType(ScaleType.FIT_XY);
 		firstImageView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -311,7 +315,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 			mTopCartoonsViews.remove(1);
 			mTopCartoonsViews.add(1, firstImageView);
 		} else {
-			mTopCartoonsViews.add(1, firstImageView);
+			mTopCartoonsViews.add(firstImageView);
 		}
 
 		ImageView imv = new ImageView(MainActivity.this);
@@ -323,10 +327,11 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 			mDotsGroupView.addView(imv, getDotParams());
 		}
 		
-		final CartoonInfo secondInfo = result.remove(0);
+		final Top2CartoonInfo secondInfo = result.remove(0);
 		NetworkImageView secondImageView = new NetworkImageView(this);
-		secondImageView.setImageUrl(secondInfo.coverUrl, VolleyHelper.getInstanse(this).getDefaultImageLoader());
+		secondImageView.setImageUrl(secondInfo.recommendCover, VolleyHelper.getInstanse(this).getDefaultImageLoader());
 		secondImageView.setDefaultImageResId(R.drawable.activity_event_default);
+		secondImageView.setScaleType(ScaleType.FIT_XY);
 		secondImageView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -340,7 +345,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 			mTopCartoonsViews.remove(2);
 			mTopCartoonsViews.add(2, secondImageView);
 		} else {
-			mTopCartoonsViews.add(2, secondImageView);
+			mTopCartoonsViews.add(secondImageView);
 		}
 		
 		imv = new ImageView(MainActivity.this);
@@ -427,14 +432,14 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 	}
 	
 	private class RetrieveTop2CartoonListTask extends
-			AsyncTask<Void, Integer, ArrayList<CartoonInfo>> {
+			AsyncTask<Void, Integer, ArrayList<Top2CartoonInfo>> {
 		@Override
-		protected ArrayList<CartoonInfo> doInBackground(Void... arg0) {
+		protected ArrayList<Top2CartoonInfo> doInBackground(Void... arg0) {
 			return retrieveTop2CartoonList();
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<CartoonInfo> result) {
+		protected void onPostExecute(ArrayList<Top2CartoonInfo> result) {
 			if (result == null || result.size() < 1) {
 				return;
 			}
@@ -485,8 +490,8 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 		}
 	}
 	
-	private ArrayList<CartoonInfo> retrieveTop2CartoonList() {
-		ArrayList<CartoonInfo> list = null;
+	private ArrayList<Top2CartoonInfo> retrieveTop2CartoonList() {
+		ArrayList<Top2CartoonInfo> list = null;
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
 		list = muuWrapper.getTop2CartoonList();
 		return list;

@@ -54,7 +54,7 @@ public class MuuClient {
 		JSONArray json = null;
 		try {
 			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, sTopListPath
-					+ "/" + 0 + "/" + 2);
+					+ "/" + 1 + "/" + 2);
 			byte[] entity = resp.getResponseEntity();
 			
 			String jsonStr = new String(entity);
