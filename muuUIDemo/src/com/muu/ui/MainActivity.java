@@ -207,7 +207,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 				ll.setVisibility(View.VISIBLE);
 				
 				imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_2);
-				imv.setVisibility(View.GONE);
+				imv.setVisibility(View.VISIBLE);
 				
 				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
 				ll.setVisibility(View.GONE);
