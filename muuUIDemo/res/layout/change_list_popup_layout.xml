@@ -8,7 +8,7 @@
     android:minHeight="96dp" >
 
     <LinearLayout
-        android:id="@+id/ll_hot"
+        android:id="@+id/ll_top"
         android:layout_width="173dp"
         android:layout_height="47dp"
         android:gravity="left"
@@ -17,14 +17,14 @@
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/tv_hot"
+            android:id="@+id/tv_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:drawableLeft="@drawable/ic_list_hot"
             android:drawablePadding="10dp"
             style="@style/WeekTopDropAppearence"
-            android:text="@string/hot_list" />
+            android:text="@string/top_list" />
         
     </LinearLayout>
     
@@ -64,7 +64,7 @@
         />
     
     <LinearLayout
-        android:id="@+id/ll_new"
+        android:id="@+id/ll_recommend"
         android:layout_width="173dp"
         android:layout_height="47dp"
         android:gravity="left"
@@ -72,14 +72,14 @@
         android:clickable="true">
 
         <TextView
-            android:id="@+id/tv_new"
+            android:id="@+id/tv_recommend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:drawableLeft="@drawable/ic_list_new"
             android:drawablePadding="10dp"
             style="@style/WeekTopDropAppearence"
-            android:text="@string/recent_update" />
+            android:text="@string/recommend_list" />
     </LinearLayout>
     
 </LinearLayout>

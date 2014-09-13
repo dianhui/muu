@@ -1,9 +1,12 @@
-
 package com.muu.ui;
+
+import java.util.ArrayList;
 
 import com.muu.cartoon.test.R;
 import com.muu.data.UpdateInfo;
 import com.muu.server.MuuServerWrapper;
+import com.muu.util.StorageUtil;
+import com.muu.util.StorageUtil.StorageInfo;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -89,6 +92,13 @@ public class SettingsActivity extends Activity {
 	}
 	
 	private void showSelectPathDialog() {
+		ArrayList<StorageInfo> list = StorageUtil.getStorageList();
+		if (list == null || list.size() < 1) {
+			Toast.makeText(this, this.getString(R.string.no_extral_storage),
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		Intent intent = new Intent();
 		intent.setClass(this, SelectPathDialogActivity.class);
 		this.startActivity(intent	);

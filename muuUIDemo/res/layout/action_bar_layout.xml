@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/WeekTopAppearence"
-            android:text="@string/hot_list"
+            android:text="@string/top_list"
             android:drawableLeft="@drawable/ic_list_hot_selected"
             android:drawableRight="@drawable/ic_change_list"
             android:drawablePadding="5dp"

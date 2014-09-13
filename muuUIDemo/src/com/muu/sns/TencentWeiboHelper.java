@@ -15,5 +15,4 @@ public class TencentWeiboHelper {
 		i.putExtras(bundle);
 		activity.startActivity(i);
 	}
-
 }

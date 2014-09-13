@@ -181,12 +181,12 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 		
 		final TextView listTitle = (TextView)this.findViewById(R.id.tv_title);
 		
-		LinearLayout hotLayout = (LinearLayout) mChangeListView
-				.findViewById(R.id.ll_hot);
-		hotLayout.setOnClickListener(new OnClickListener() {
+		LinearLayout topLayout = (LinearLayout) mChangeListView
+				.findViewById(R.id.ll_top);
+		topLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				listTitle.setText(R.string.hot_list);
+				listTitle.setText(R.string.top_list);
 				Drawable leftDrawable = MainActivity.this.getResources()
 						.getDrawable(R.drawable.ic_list_hot_selected);
 				leftDrawable.setBounds(0, 0, leftDrawable.getMinimumWidth(),
@@ -203,13 +203,13 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
 				imv.setVisibility(View.VISIBLE);
 				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_new);
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_recommend);
 				ll.setVisibility(View.VISIBLE);
 				
 				imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_2);
 				imv.setVisibility(View.VISIBLE);
 				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_top);
 				ll.setVisibility(View.GONE);
 				mChangeListPopup.dismiss();
 				
@@ -240,13 +240,13 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
 				imv.setVisibility(View.GONE);
 				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_new);
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_recommend);
 				ll.setVisibility(View.VISIBLE);
 				
 				imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_2);
 				imv.setVisibility(View.VISIBLE);
 				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_top);
 				ll.setVisibility(View.VISIBLE);
 				mChangeListPopup.dismiss();
 				
@@ -254,13 +254,13 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 			}
 		});
 		
-		LinearLayout newUpdateLayout = (LinearLayout) mChangeListView
-				.findViewById(R.id.ll_new);
-		newUpdateLayout.setOnClickListener(new OnClickListener() {
+		LinearLayout recommendLayout = (LinearLayout) mChangeListView
+				.findViewById(R.id.ll_recommend);
+		recommendLayout.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				listTitle.setText(R.string.recent_update);
+				listTitle.setText(R.string.recommend_list);
 				Drawable leftDrawable = MainActivity.this.getResources()
 						.getDrawable(R.drawable.ic_list_new_selected);
 				leftDrawable.setBounds(0, 0, leftDrawable.getMinimumWidth(),
@@ -277,17 +277,17 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 				ImageView imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_1);
 				imv.setVisibility(View.VISIBLE);
 				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_new);
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_recommend);
 				ll.setVisibility(View.GONE);
 				
 				imv = (ImageView)mChangeListView.findViewById(R.id.imv_divider_2);
 				imv.setVisibility(View.GONE);
 				
-				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_hot);
+				ll = (LinearLayout)mChangeListView.findViewById(R.id.ll_top);
 				ll.setVisibility(View.VISIBLE);
 				mChangeListPopup.dismiss();
 				
-				changeList(ListType.NEW);
+				changeList(ListType.RECOMMEND);
 			}
 		});
 	}
@@ -369,6 +369,12 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 		int baseCartoonViewId = sBaseCartoonViewId;
 		if (isFirstList) {
 			othersLayout.removeAllViews();
+			// remove the first 2 cartoons as they are retrieved by #RetrieveTop2CartoonListTask
+			if (mCurrentList == ListType.RECOMMEND) {
+				list.remove(0);
+				list.remove(1);
+			}
+			
 		} else {
 			baseCartoonViewId = othersLayout.getChildAt(othersLayout.getChildCount() - 1).getId() + 1;
 		}
@@ -502,13 +508,15 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 	private ArrayList<CartoonInfo> retrieveCartoonList(ListType type) {
 		ArrayList<CartoonInfo> list = null;
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
-		int requestCount = mCurrentPage == -1 ? sFirstRetrieveCount : sRetrieveMoreCount;
+		int requestCount = (mCurrentPage == -1) ? sFirstRetrieveCount : sRetrieveMoreCount;
 		switch (type) {
 		case RANDOM:
 			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
 			break;
-		case NEW:
-			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);
+		case RECOMMEND:
+			//Get 2 more for first recommend request, as the top 2 cartoons are put in top scroll view.
+			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1,
+					((mCurrentPage == -1) ? requestCount + 2 : requestCount));
 			break;
 		case TOP:
 			list = muuWrapper.getCartoonListByType(type, mCurrentPage + 1, requestCount);

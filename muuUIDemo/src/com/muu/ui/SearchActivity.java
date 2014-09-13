@@ -334,26 +334,12 @@ public class SearchActivity extends Activity {
 			if (mList != null && mList.get(position) != null) {
 				CartoonInfo info = mList.get(position);
 				
-				if (!TextUtils.isEmpty(mSearchStr)) {
-					SpannableStringBuilder style = new SpannableStringBuilder(
-							info.name);
-					int start = info.name.indexOf(mSearchStr);
-					if (start < 0) {
-						holder.name.setText(info.name);
-					} else {
-						style.setSpan(
-								new ForegroundColorSpan(Color
-										.parseColor(sMachedTextColor)), start,
-								start + mSearchStr.length(),
-								Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
-						holder.name.setText(style);
-					}
-				} else {
-					holder.name.setText(info.name);
-				}
+				holder.name.setText(info.name);
+				highlightTextView(holder.name);
 				
 				holder.author.setText(getString(R.string.author,
 						info.author));
+				highlightTextView(holder.author);
 				
 				if (!TextUtils.isEmpty(info.coverUrl)) {
 					holder.icon.setImageUrl(info.coverUrl, VolleyHelper
@@ -387,6 +373,25 @@ public class SearchActivity extends Activity {
 			});
 			return convertView;
         }
+		
+		private void highlightTextView(TextView tv) {
+			if (TextUtils.isEmpty(mSearchStr)) return;
+			
+			String text = (String)tv.getText();
+			if (TextUtils.isEmpty(text)) return;
+			
+			SpannableStringBuilder styleBuilder = new SpannableStringBuilder(text);
+			int start = text.indexOf(mSearchStr);
+			if (start < 0) return;
+			
+			styleBuilder
+					.setSpan(
+							new ForegroundColorSpan(Color
+									.parseColor(sMachedTextColor)), start,
+							start + mSearchStr.length(),
+							Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+			tv.setText(styleBuilder);
+		}
 		
 		private void onItemClicked(int position) {
 			Intent intent = new Intent();

@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">漫悠悠漫画</string>
     <string name="random_read">随心看</string>
-    <string name="recent_update">最近更新</string>
-    <string name="hot_list">TOP50</string>
+    <string name="recommend_list">编辑推荐</string>
+    <string name="top_list">TOP50</string>
     <string name="category_item_text">搞笑</string>
     <string name="category_title">分类</string>
     <string name="offline_read">离线阅读</string>
@@ -69,6 +69,7 @@
     
     <string name="storage_name">存储卡 %d</string>
     <string name="storage_path">路径：%s</string>
+    <string name="no_extral_storage">没有外置sd卡</string>
     <string name="muu_intr">漫悠悠原创漫画网是专门为原创漫画作者、漫画爱好者提供在线漫画发布的原创漫画平台，专业从事原创动漫的平台运营、推广和增值服务的创新性原创漫画在线平台运营商。</string>
 	
     

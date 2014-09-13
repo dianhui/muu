@@ -23,7 +23,7 @@ import android.graphics.BitmapFactory;
 public class MuuClient {
 	private static final String sRandomListPath = "/cartoon/random";
 	private static final String sTopListPath = "/cartoon/top";
-	private static final String sNewListPath = "/cartoon/hot";
+	private static final String sRecommendListPath = "/cartoon/scroll";
 	private static final String sTopicListPath = "/cartoons/topic";
 	private static final String sChapterInfoPath = "/cartoon/chapters";
 	private static final String sCommentsPath = "/cartoon/comments";
@@ -36,7 +36,7 @@ public class MuuClient {
 	public static enum ListType {
 		RANDOM("random", sRandomListPath),
 		TOP("top", sTopListPath),
-		NEW("new", sNewListPath);
+		RECOMMEND("recommend", sRecommendListPath);
 		
 		public String name, path;
 		ListType(String name, String path) {
@@ -53,8 +53,8 @@ public class MuuClient {
 	public JSONArray getTop2CartoonsList() {
 		JSONArray json = null;
 		try {
-			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, sTopListPath
-					+ "/" + 1 + "/" + 2);
+			ClientResponse resp = mHttpClient.handle(HttpMethod.GET, sRecommendListPath
+					+ "/" + 0 + "/" + 2);
 			byte[] entity = resp.getResponseEntity();
 			
 			String jsonStr = new String(entity);
