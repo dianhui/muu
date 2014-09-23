@@ -64,7 +64,7 @@ public class SettingsActivity extends Activity {
 	}
 	
 	private void setupContentView() {
-		mChkUpdateProgressBar = (ProgressBar)this.findViewById(R.id.progress_check_update);
+		mChkUpdateProgressBar = (ProgressBar)this.findViewById(R.id.progress_bar);
 		
 		TextView tv = (TextView)this.findViewById(R.id.tv_select_path);
 		tv.setOnClickListener(new OnClickListener() {

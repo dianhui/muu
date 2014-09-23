@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:numColumns="3"
         android:padding="10dp"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="5dp"
+        android:verticalSpacing="8dp"
+        android:horizontalSpacing="8dp"
         />
 </LinearLayout>
