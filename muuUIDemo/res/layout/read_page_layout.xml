@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="4dp"
-                android:layout_marginRight="50dp"
+                android:maxWidth="200dp"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:layout_toRightOf="@id/img_btn_back"
