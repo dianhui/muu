@@ -28,8 +28,10 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -43,7 +45,7 @@ import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnPageChangeListener {
+public class MainActivity extends Activity implements OnPageChangeListener, OnTouchListener {
 	private static final String TAG = "MainActivity";
 	
 	private VolleyHelper mVolleyHelper = null;
@@ -57,6 +59,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 	private ScrollView mCartoonsContainer = null;
 	private PullToRefreshScrollView mPullRefreshScrollView = null;
 	
+//	private Rect mTopViewPagerRect = null;
 	private ViewPager mTopViewPager = null;
 	private LinearLayout mDotsGroupView = null;
 	private ArrayList<NetworkImageView> mTopCartoonsViews = null;
@@ -73,7 +76,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 		
 		mTopViewPager = (ViewPager)this.findViewById(R.id.top_view_pager);
 		mTopViewPager.setOnPageChangeListener(this);
-		
+		mTopViewPager.setOnTouchListener(this);
 		mDotsGroupView = (LinearLayout)this.findViewById(R.id.dots_group);
 		
 		mProgress = (ProgressBar)this.findViewById(R.id.progress_bar);
@@ -600,6 +603,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 
 	@Override
 	public void onPageScrolled(int arg0, float arg1, int arg2) {
+		mTopViewPager.getParent().requestDisallowInterceptTouchEvent(true);
 	}
 
 	@Override
@@ -621,5 +625,13 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 
 			layoutParams.setMargins(10, 0,10, 0);
 			return layoutParams;
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		if (v.getId() != R.id.top_view_pager) return false;
+		
+		v.getParent().requestDisallowInterceptTouchEvent(true);
+		return false;
 	}
 }

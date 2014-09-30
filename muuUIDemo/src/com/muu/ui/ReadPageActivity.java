@@ -153,6 +153,8 @@ public class ReadPageActivity extends Activity implements OnGestureListener {
 			}
 		});
 		
+		if (mCartoonInfo == null) return;
+		
 		TextView tv = (TextView)this.findViewById(R.id.tv_back_text);
 		tv.setText(mCartoonInfo.name);
 		
