@@ -17,6 +17,7 @@ public class PropertyMgr {
 	private static final String sDefaultCachePath = sDefaultStoragePath
 			+ "/muu_cache/";
 	private static final String sVolleyPath = "volley";
+	private static final String sDefaultAppUpdatePath = sDefaultCachePath + "/update/";
 	
 	
 	private static PropertyMgr mInstance;
@@ -27,6 +28,7 @@ public class PropertyMgr {
 	private int mSocketTimeout;
 	private String mStoragePath;
 	private String mCachePath;
+	private String mUpdatePath;
 	
 	private PropertyMgr(InputStream in, String prodName, String prodVer) {
 		initialize(in, prodName, prodVer);
@@ -42,6 +44,7 @@ public class PropertyMgr {
 			mSocketTimeout = sDefaultSocketTimeout;
 			mStoragePath = sDefaultStoragePath;
 			mCachePath = sDefaultCachePath;
+			mUpdatePath = sDefaultAppUpdatePath;
 			return;
 		}
 		
@@ -54,6 +57,7 @@ public class PropertyMgr {
 			mSocketTimeout = getInt("socket_timeout", sDefaultSocketTimeout);
 			mStoragePath = mProps.getProperty("storage_path", sDefaultStoragePath);
 			mCachePath = mProps.getProperty("cache_path", sDefaultCachePath);
+			mUpdatePath = mProps.getProperty("update_path", sDefaultAppUpdatePath);
 			
 		} catch (Exception e) {
 			Log.d(TAG, "Failed to load property.");
@@ -125,6 +129,15 @@ public class PropertyMgr {
 	public void setCachePath(String path){
 		mCachePath = path;
 		mProps.setProperty("cache_path", path);
+	}
+	
+	public String getUpdatePath() {
+		return mUpdatePath;
+	}
+	
+	public void setUpdatePath(String path) {
+		mUpdatePath = path;
+		mProps.setProperty("update_path", path);
 	}
 	
 	private int getInt(String key, int defaultValue) {

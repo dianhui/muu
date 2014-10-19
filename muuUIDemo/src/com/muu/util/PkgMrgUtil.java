@@ -1,27 +1,22 @@
 package com.muu.util;
 
-import java.util.List;
-
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.util.Log;
 
 public class PkgMrgUtil {
-	public static final String TENCENT_WEIBO_PKG = "com.tencent.wblog";
-	public static final String WEIXIN_PKG = "com.tencent.mm";
-	public static final String SINA_WEIBO_PKG = "com.sina.weibo";
-	public static final String QQ_PKG = "tencent.mobileqq";
-	
-	public static boolean isPkgInstalled(Context ctx, String pkgName) {
-		PackageManager pkgMrg = ctx.getPackageManager();
-		List<ApplicationInfo> infoList = pkgMrg.getInstalledApplications(PackageManager.GET_META_DATA);
-		for (ApplicationInfo info : infoList) {
-			if (info.packageName.contains(pkgName)) {
-				return true;
-			}
+	private static final String TAG = "PkgMrgUtil";
+	public static String getAppVersion(Context ctx) {
+		String version = "";
+		 PackageInfo pi;
+		try {
+			pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
+			version = String.format("%s.%s", pi.versionName, pi.versionCode);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
 		}
-		
-		return false;
+		Log.d(TAG, "version: " + version);
+		return version;
 	}
-
 }

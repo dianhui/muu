@@ -74,6 +74,12 @@
 	
     
     <string name="no_update">已为最新版本</string>
+    <string name="update_dialog_title">升级新版本</string>
+    <string name="update_intro">欢迎体验漫悠悠最新版本。</string>
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="succ_to_download">下载成功</string>
+    <string name="fail_to_download">下载失败</string>
     
     <string name="introduction">Cartoon description.</string>
     <string name="chapter_idx_dot">%d.</string>

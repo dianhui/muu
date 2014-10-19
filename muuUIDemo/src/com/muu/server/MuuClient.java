@@ -3,6 +3,7 @@ package com.muu.server;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
@@ -468,6 +469,16 @@ public class MuuClient {
 			e.printStackTrace();
 		}
 		return json;
+	}
+	
+	/**
+	 * get new app input stream with given full url.
+	 * @throws IOException 
+	 * */
+	public InputStream getNewAppInputStream(String appUrl) throws IOException {
+		ClientResponse resp = mHttpClient.handle(HttpMethod.GET, appUrl);
+		
+		return resp.getEntityInputStream();
 	}
 	
 }

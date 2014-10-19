@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import com.muu.cartoon.test.R;
 import com.muu.data.UpdateInfo;
 import com.muu.server.MuuServerWrapper;
+import com.muu.update.AppUpdateService;
+import com.muu.util.PkgMrgUtil;
 import com.muu.util.StorageUtil;
 import com.muu.util.StorageUtil.StorageInfo;
 
@@ -78,6 +80,12 @@ public class SettingsActivity extends Activity {
 		tv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (AppUpdateService.isDownloading()) {
+					Toast.makeText(SettingsActivity.this, SettingsActivity.this.getString(R.string.download_in_process),
+							Toast.LENGTH_LONG).show();
+					return;
+				}
+				
 				new CheckUpdateTask().execute();
 			}
 		});
@@ -120,21 +128,24 @@ public class SettingsActivity extends Activity {
 		@Override
 		protected UpdateInfo doInBackground(Void... params) {
 			MuuServerWrapper muuServerWrapper = new MuuServerWrapper(SettingsActivity.this);
-			return muuServerWrapper.getUpdateInfo("1.0.1");
+			return muuServerWrapper.getUpdateInfo(PkgMrgUtil.getAppVersion(SettingsActivity.this));
 		}
 		
 		@Override
 		protected void onPostExecute(UpdateInfo info) {
 			mChkUpdateProgressBar.setVisibility(View.GONE);
 			
-			if (info == null || !info.hasUpdate) {
-				Toast.makeText(SettingsActivity.this,
-						SettingsActivity.this.getString(R.string.no_update),
-						Toast.LENGTH_SHORT).show();
+//			if (info == null || !info.hasUpdate) {
+//				Toast.makeText(SettingsActivity.this,
+//						SettingsActivity.this.getString(R.string.no_update),
+//						Toast.LENGTH_SHORT).show();
+//				return;
+//			}
+			
+			if (info == null) {
 				return;
 			}
-			
-			//TODO: show update dialog and do liveupdate.
+			LiveUpadateDialog.startAppUpdateDialog(SettingsActivity.this, info.updatePath);
 		}
 	}
 }

@@ -108,4 +108,13 @@ public class StorageUtil {
         }
         return list;
     }
+    
+    public static boolean hasSDCard() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
