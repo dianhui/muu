@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class PropertyMgr {
 	private static final String TAG = "PropertyMgr";
-	private static final String sDefaultBaseUrl = "http://testapi.muu.com.cn/mobileapi";
+	private static final String sDefaultBaseUrl = "http://openapi.muu.com.cn/mobileapi";
 	private static final int sDefaultHttpTimeout = 60 * 1000;
 	private static final int sDefaultSocketTimeout = 30 * 1000;
 	private static final String sDefaultStoragePath = Environment

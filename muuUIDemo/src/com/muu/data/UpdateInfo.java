@@ -11,7 +11,7 @@ public class UpdateInfo {
 	
 	public UpdateInfo(JSONObject json) {
 		try {
-			hasUpdate = json.getInt("code") == 0 ? false : true;
+			hasUpdate = json.getInt("code") == 0 ? true : false;
 			updatePath = json.getString("url").replaceAll("\\\\", "");
 		} catch (JSONException e) {
 			e.printStackTrace();

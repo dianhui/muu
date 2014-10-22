@@ -67,6 +67,12 @@ public class LiveUpadateDialog extends Activity implements OnClickListener{
 			return;
 		}
 		
+		if (AppUpdateService.isDownloading()) {
+			Toast.makeText(this, getString(R.string.download_in_process),
+					Toast.LENGTH_LONG).show();
+			return;
+		}
+		
 		AppUpdateService.startService(this, mAppUrl);
 	}
 }

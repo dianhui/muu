@@ -135,16 +135,13 @@ public class SettingsActivity extends Activity {
 		protected void onPostExecute(UpdateInfo info) {
 			mChkUpdateProgressBar.setVisibility(View.GONE);
 			
-//			if (info == null || !info.hasUpdate) {
-//				Toast.makeText(SettingsActivity.this,
-//						SettingsActivity.this.getString(R.string.no_update),
-//						Toast.LENGTH_SHORT).show();
-//				return;
-//			}
-			
-			if (info == null) {
+			if (info == null || !info.hasUpdate) {
+				Toast.makeText(SettingsActivity.this,
+						SettingsActivity.this.getString(R.string.no_update),
+						Toast.LENGTH_SHORT).show();
 				return;
 			}
+
 			LiveUpadateDialog.startAppUpdateDialog(SettingsActivity.this, info.updatePath);
 		}
 	}
