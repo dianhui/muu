@@ -2,12 +2,11 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.PropertyMgr;
 import com.muu.util.StorageUtil;
 import com.muu.util.StorageUtil.StorageInfo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +19,7 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SelectPathDialogActivity extends Activity {
+public class SelectPathDialogActivity extends StatisticsBaseActivity {
 	private ListView mStorageList = null;
 	
 	@Override

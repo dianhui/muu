@@ -12,10 +12,9 @@ import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.ROASTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.volley.VolleyHelper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -53,7 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
-public class SearchActivity extends Activity {
+public class SearchActivity extends StatisticsBaseActivity {
 	private static final int sCountInOnePage = 4;
 	private static final String sMachedTextColor = "#ef6a30";
 	
@@ -343,7 +342,7 @@ public class SearchActivity extends Activity {
 				
 				if (!TextUtils.isEmpty(info.coverUrl)) {
 					holder.icon.setImageUrl(info.coverUrl, VolleyHelper
-							.getInstanse(mCtx).getDefaultImageLoader());
+							.getInstance(mCtx).getImageLoader());
 				}
 				
 				holder.comment.setVisibility(View.GONE);

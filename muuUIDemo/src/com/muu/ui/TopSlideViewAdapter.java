@@ -37,7 +37,9 @@ public class TopSlideViewAdapter extends PagerAdapter {
 
 	@Override
 	public Object instantiateItem(ViewGroup container, int position) {
-		((ViewPager) container).addView(mViews.get(position));
+		if (mViews.get(position).getParent() == null) {
+			((ViewPager) container).addView(mViews.get(position));
+		}
 		
 		return mViews.get(position);
 	}

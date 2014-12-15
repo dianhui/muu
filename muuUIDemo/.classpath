@@ -5,6 +5,11 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="src" path="/WeiboSDK"/>
+	<classpathentry exported="true" kind="src" path="/WeiboSDK"/>
+	<classpathentry kind="lib" path="libs/baidu_statistic_3_5.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/workspace/git/baiduStatistic/android_doc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

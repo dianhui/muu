@@ -1,8 +1,7 @@
 package com.muu.ui;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,7 +10,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class EventActivity extends Activity {
+public class EventActivity extends StatisticsBaseActivity {
 	public static final String sActivityTitle = "activity_title";
 	public static final String sActivityUrl = "activity_url"; 
 	

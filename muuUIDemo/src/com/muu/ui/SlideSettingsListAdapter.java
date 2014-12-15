@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 
 public class SlideSettingsListAdapter extends BaseAdapter {
 

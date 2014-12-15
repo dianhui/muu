@@ -1,4 +1,4 @@
-package com.muu.volley;
+package com.android.volley.toolbox;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,13 +13,25 @@ import android.os.SystemClock;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.FileLoader.FileCache;
 
+/**
+ * 文件下载的磁盘缓存
+ * 
+ * @author xuegang
+ *
+ */
 public class DiskFileCache implements FileCache {
+    /** 磁盘空间平衡系数 */
     private static final float HYSTERESIS_FACTOR = 0.8f;
-    private static final int DEFAULT_DISK_USAGE_BYTES = 5 * 1024 * 1024;
+    /** 默认最大磁盘空间大小 */
+    private static final int DEFAULT_DISK_USAGE_BYTES = 100 * 1024 * 1024;
     
+    /** 磁盘缓存根目录 */
     private final File mRootDirectory;
+    /** 最大缓存空间 */
     private final long mMaxCacheSizeInBytes;
+    /** 缓存当前大小 */
     private long mTotalSize = 0;
+    /** 缓存列表 */
     private final Map<String, File> mEntries = new LinkedHashMap<String, File>(16, .75f, true);
 
     public DiskFileCache(File rootDirectory, long maxSize) {
@@ -33,6 +45,11 @@ public class DiskFileCache implements FileCache {
     
     @Override
     public synchronized void init() {
+        if (null == mRootDirectory) {
+            VolleyLog.e("DiskFileCache's root directory is null");
+            return;
+        }
+
         if (!mRootDirectory.exists()) {
             if (!mRootDirectory.mkdirs()) {
                 VolleyLog.e("Unable to create cache dir %s", mRootDirectory.getAbsolutePath());
@@ -55,6 +72,11 @@ public class DiskFileCache implements FileCache {
     
     @Override
     public synchronized void clear() {
+        if (null == mRootDirectory) {
+            VolleyLog.e("DiskFileCache's root directory is null");
+            return;
+        }
+
         File[] files = mRootDirectory.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -79,6 +101,7 @@ public class DiskFileCache implements FileCache {
     @Override
     public synchronized String putFile(String fileName, byte[] data) {
         pruneIfNeeded(data.length);
+        /** 如果缓存存在，则清除 */
         File oldFile = mEntries.get(fileName);
         if (null != oldFile) {
             mEntries.remove(fileName);
@@ -87,6 +110,11 @@ public class DiskFileCache implements FileCache {
             oldFile = null;
         }
         
+        if (null == mRootDirectory) {
+            VolleyLog.e("DiskFileCache's root directory is null");
+            return null;
+        }
+
         try {
             File file = new File(mRootDirectory, fileName);
             if (!file.exists()) {

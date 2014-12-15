@@ -21,7 +21,12 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Process;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
+
+import com.android.volley.toolbox.VolleyConfig;
+import com.android.volley.toolbox.VolleyUtil;
 
 /**
  * Provides a thread for performing network dispatch from a queue of requests.
@@ -107,6 +112,30 @@ public class NetworkDispatcher extends Thread {
 
                 addTrafficStatsTag(request);
 
+                /* Get response from cache */
+                File file = new File(VolleyConfig.getLocalImageDirectory(), VolleyUtil.uri2CacheKey(request.getUrl()));
+                if (file.exists()) {
+                    byte[] data = VolleyUtil.readFile(file);
+                    if (null != data) {
+                        Response<?> response = request.parseNetworkResponse(new NetworkResponse(
+                                data, Collections.<String, String> emptyMap(), true));
+                        if (response.isSuccess()) {
+                            mDelivery.postResponse(request, response);
+                            continue;
+                        }
+                    } else {
+                        VolleyLog.e("Failed to read file: %s", file.getAbsoluteFile());
+                    }
+                }
+                file = null;
+                
+                /* If request is limited to process from cache, then continue */
+                if (request.getOnlyCache()) {
+                    Response<?> response = Response.error(new VolleyError("only cache"));
+                    mDelivery.postResponse(request, response);
+                    continue;
+                }
+
                 // Perform the network request.
                 NetworkResponse networkResponse = mNetwork.performRequest(request);
                 request.addMarker("network-http-complete");
@@ -130,7 +159,6 @@ public class NetworkDispatcher extends Thread {
                 }
 
                 // Post the response back.
-                request.markDelivered();
                 mDelivery.postResponse(request, response);
             } catch (VolleyError volleyError) {
                 parseAndDeliverNetworkError(request, volleyError);

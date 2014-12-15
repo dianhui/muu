@@ -12,6 +12,7 @@
     <color name="slide_category_list_bg_selected">#2e2e2e</color>
     
     <color name="transparent_black">#A6000000</color>
+    <color name="transparent">#00000000</color>
     
     <color name="slide_category_list_text_selected">#ef6a30</color>
     <color name="action_bar_title">#ef6a30</color>

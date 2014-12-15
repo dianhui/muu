@@ -82,9 +82,9 @@ public class ImageLoader {
      * @param queue The RequestQueue to use for making image requests.
      * @param imageCache The cache to use as an L1 cache.
      */
-    public ImageLoader(RequestQueue queue, ImageCache imageCache) {
+    public ImageLoader(RequestQueue queue) {
         mRequestQueue = queue;
-        mCache = imageCache;
+        mCache = VolleyConfig.getImageCache();
     }
 
     /**
@@ -146,14 +146,12 @@ public class ImageLoader {
     /**
      * Checks if the item is available in the cache.
      * @param requestUrl The url of the remote image
-     * @param maxWidth The maximum width of the returned image.
-     * @param maxHeight The maximum height of the returned image.
      * @return True if the item exists in cache, false otherwise.
      */
-    public boolean isCached(String requestUrl, int maxWidth, int maxHeight) {
+    public boolean isCached(String requestUrl) {
         throwIfNotOnMainThread();
 
-        String cacheKey = getCacheKey(requestUrl, maxWidth, maxHeight);
+        String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
         return mCache.getBitmap(cacheKey) != null;
     }
 
@@ -168,7 +166,7 @@ public class ImageLoader {
      * @param defaultImage Optional default image to return until the actual image is loaded.
      */
     public ImageContainer get(String requestUrl, final ImageListener listener) {
-        return get(requestUrl, listener, 0, 0);
+        return get(requestUrl, listener, 0, 0, false);
     }
 
     /**
@@ -180,15 +178,16 @@ public class ImageLoader {
      * @param imageListener The listener to call when the remote image is loaded
      * @param maxWidth The maximum width of the returned image.
      * @param maxHeight The maximum height of the returned image.
+     * @param onlyCache Only get image from cache
      * @return A container object that contains all of the properties of the request, as well as
      *     the currently available image (default if remote is not loaded).
      */
     public ImageContainer get(String requestUrl, ImageListener imageListener,
-            int maxWidth, int maxHeight) {
+            int maxWidth, int maxHeight, boolean onlyCache) {
         // only fulfill requests that were initiated from the main thread.
         throwIfNotOnMainThread();
 
-        final String cacheKey = getCacheKey(requestUrl, maxWidth, maxHeight);
+        final String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
 
         // Try to look up the request in the cache of remote images.
         Bitmap cachedBitmap = mCache.getBitmap(cacheKey);
@@ -204,7 +203,7 @@ public class ImageLoader {
                 new ImageContainer(null, requestUrl, cacheKey, imageListener);
 
         // Update the caller to let them know that they should use the default bitmap.
-        imageListener.onResponse(imageContainer, true);
+        // imageListener.onResponse(imageContainer, true);
 
         // Check to see if a request is already in-flight.
         BatchedImageRequest request = mInFlightRequests.get(cacheKey);
@@ -229,7 +228,7 @@ public class ImageLoader {
                     onGetImageError(cacheKey, error);
                 }
             });
-
+        newRequest.setOnlyCache(onlyCache);
         mRequestQueue.add(newRequest);
         mInFlightRequests.put(cacheKey,
                 new BatchedImageRequest(newRequest, imageContainer));
@@ -467,14 +466,29 @@ public class ImageLoader {
             throw new IllegalStateException("ImageLoader must be invoked from the main thread.");
         }
     }
+    
     /**
-     * Creates a cache key for use with the L1 cache.
-     * @param url The URL of the request.
-     * @param maxWidth The max-width of the output.
-     * @param maxHeight The max-height of the output.
+     * Get Bitmap directly from cache
+     * 
+     * @param requestUrl The URL of the image
+     * @return the Bitmap requested, or null if non-exist
      */
-    private static String getCacheKey(String url, int maxWidth, int maxHeight) {
-        return new StringBuilder(url.length() + 12).append("#W").append(maxWidth)
-                .append("#H").append(maxHeight).append(url).toString();
+    public Bitmap getBitmapFromCache(String requestUrl) {
+        String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
+        return mCache.getBitmap(cacheKey);
+    }
+    
+    /**
+     * Put Bitmap directly into cache
+     * 
+     * @param requestUrl
+     * @param bitmap
+     *
+     * @author xuegang
+     * @version Created: 2014年9月11日 下午4:34:15
+     */
+    public void putBitmapToCache(String requestUrl, Bitmap bitmap) {
+        String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
+        mCache.putBitmap(cacheKey, bitmap);
     }
 }

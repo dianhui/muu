@@ -2,7 +2,7 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.data.UpdateInfo;
 import com.muu.server.MuuServerWrapper;
 import com.muu.update.AppUpdateService;
@@ -10,7 +10,6 @@ import com.muu.util.PkgMrgUtil;
 import com.muu.util.StorageUtil;
 import com.muu.util.StorageUtil.StorageInfo;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,7 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends StatisticsBaseActivity {
 	private ProgressBar mChkUpdateProgressBar = null;
 	
 	@Override

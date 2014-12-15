@@ -12,6 +12,7 @@ import com.android.volley.Response.Listener;
  * 
  * 不建议直接使用本请求。应该使用FileLoader
  * 同样，本请求只适合下载较小的文件，如图片。
+ * 
  * @author xuegang
  *
  */
@@ -19,6 +20,7 @@ public class FileRequest extends Request<String> {
     private String mRequestUrl;
     private Listener<String> mListener;
     private FileLoader mFileLoader;
+    
     public FileRequest(int method, String url, Listener<String> listener, ErrorListener errorListener) {
         super(method, url, errorListener);
         mRequestUrl = url;
@@ -31,6 +33,10 @@ public class FileRequest extends Request<String> {
 
     @Override
     protected Response<String> parseNetworkResponse(NetworkResponse response) {
+        if (null == mFileLoader) {
+            return Response.error(new FileError("FileLoader not set"));
+        }
+        
         String fileName = mFileLoader.saveFile(mRequestUrl, response.data);
         if (null != fileName) {
             return Response.success(fileName, HttpHeaderParser.parseCacheHeaders(response));

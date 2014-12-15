@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import com.baidu.mobstat.StatService;
 //import com.muu.util.PreferenceUtil;
 import com.muu.util.PropertyMgr;
 import com.muu.util.TempDataLoader;
@@ -21,6 +22,8 @@ public class ApplicationLauncher extends Application {
 		
 		new TempDataLoader().initCategoryMap(getApplicationContext());
 		loadProperties();
+		
+		initStatistics();
 	}
 	
 	private void loadProperties() {
@@ -37,5 +40,10 @@ public class ApplicationLauncher extends Application {
 		} else {
 			PropertyMgr.init(null, "Muu", "1.0");
 		}
+	}
+	
+	private void initStatistics() {
+		StatService.setAppChannel(this, "ch050", true);
+		StatService.setDebugOn(false);
 	}
 }

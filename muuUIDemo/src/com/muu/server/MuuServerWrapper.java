@@ -16,7 +16,6 @@ import com.muu.data.ChapterInfo;
 import com.muu.data.Comment;
 import com.muu.data.ImageInfo;
 import com.muu.data.Roast;
-import com.muu.data.Top2CartoonInfo;
 import com.muu.data.UpdateInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.util.TempDataLoader;
@@ -32,20 +31,22 @@ public class MuuServerWrapper {
 		mMuuClient = new MuuClient();
 	}
 	
-	public ArrayList<Top2CartoonInfo> getTop2CartoonList() {
+	public ArrayList<CartoonInfo> getTop2CartoonList() {
 		JSONArray jsonArray = mMuuClient.getTop2CartoonsList();
 		if (jsonArray == null) return null;
 		
-		ArrayList<Top2CartoonInfo> cartoonList = new ArrayList<Top2CartoonInfo>();
+		ArrayList<CartoonInfo> cartoonList = new ArrayList<CartoonInfo>();
 		for (int i = 0; i < jsonArray.length(); i++) {
 			try {
 				JSONObject cartoonInfo = jsonArray.getJSONObject(i);
-				Top2CartoonInfo cartoon = new Top2CartoonInfo(cartoonInfo);
+				CartoonInfo cartoon = new CartoonInfo(cartoonInfo);
 				cartoonList.add(cartoon);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		mTmpDataLoader.storeCartoonsToDB(mCtx, cartoonList);
 		
 		return cartoonList;
 	}

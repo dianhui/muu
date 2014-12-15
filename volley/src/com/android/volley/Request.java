@@ -28,6 +28,7 @@ import com.android.volley.VolleyLog.MarkerLog;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -108,6 +109,11 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 
     /** An opaque token tagging this request; used for bulk cancellation. */
     private Object mTag;
+    
+    private boolean mOnlyCache;
+
+    /** List of extra HTTP headers */
+    private Map<String, String> mHeaders;
 
     /**
      * Creates a new request with the given URL and error listener.  Note that
@@ -319,6 +325,17 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         return mCanceled;
     }
 
+    public void addHeader(String key, String value) {
+        if (null == mHeaders) {
+            mHeaders = new HashMap<String, String>();
+        }
+        mHeaders.put(key, value);
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        mHeaders = headers;
+    }
+
     /**
      * Returns a list of extra HTTP headers to go along with this request. Can
      * throw {@link AuthFailureError} as authentication may be required to
@@ -326,6 +343,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * @throws AuthFailureError In the event of auth failure
      */
     public Map<String, String> getHeaders() throws AuthFailureError {
+        if (null != mHeaders) {
+            return mHeaders;
+        }
         return Collections.emptyMap();
     }
 
@@ -519,6 +539,14 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     public boolean hasHadResponseDelivered() {
         return mResponseDelivered;
+    }
+    
+    public void setOnlyCache(boolean onlyCache) {
+        mOnlyCache = onlyCache;
+    }
+    
+    public boolean getOnlyCache() {
+        return mOnlyCache;
     }
 
     /**

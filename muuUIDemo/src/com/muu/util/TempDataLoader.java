@@ -16,7 +16,7 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.db.DatabaseMgr.CHAPTERS_COLUMN;
 import com.muu.db.DatabaseMgr.IMAGES_COLUMN;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -53,10 +53,14 @@ public class TempDataLoader {
 	public void storeCartoonsToDB(Context ctx, ArrayList<CartoonInfo> cartoonsList) {
 		DatabaseMgr dbMgr = new DatabaseMgr(ctx);
 		for (CartoonInfo cartoonInfo : cartoonsList) {
+			Log.d("XXX", "cartoonInfo: " + cartoonInfo.toString());
+			
 			Uri uri = Uri.parse(String.format("%s/%d", DatabaseMgr.MUU_CARTOONS_ALL_URL.toString(), cartoonInfo.id));
 			Cursor cur = dbMgr.query(uri, null, null, null, null);
 			if (cur != null && cur.moveToFirst()) {
 				CartoonInfo cartoon = new CartoonInfo(cur);
+				
+				Log.d("XXX", "cartoon: " + cartoon.toString());
 				
 				cur.close();
 				if (cartoonInfo.equals(cartoon)) continue;

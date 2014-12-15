@@ -17,6 +17,7 @@ package com.android.volley.toolbox;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
@@ -36,6 +37,13 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
 public class NetworkImageView extends ImageView {
     /** The URL of the network image to load */
     private String mUrl;
+    /** flag to indicate the image should only get from cache, not network */
+    private boolean mOnlyCache;
+
+    /**
+     * Whether enable animation to display this ImageView
+     */
+    private boolean mEnableAnimation = true;
 
     /**
      * Resource ID of the image to be used as a placeholder until the network
@@ -53,8 +61,16 @@ public class NetworkImageView extends ImageView {
 
     /** Current ImageContainer. (either in-flight or finished) */
     private ImageContainer mImageContainer;
+    /** Listener for image load event */
+    private OnLoadListener mOnLoadListener;
+    /** Whether view is animated */
+    private boolean mHasAnimated = false;
 
-    private boolean mEnableAnimation = true;
+    public interface OnLoadListener {
+        void onLoadSuccess(String url);
+
+        void onLoadFailed(String url);
+    }
 
     public NetworkImageView(Context context) {
         this(context, null);
@@ -66,33 +82,40 @@ public class NetworkImageView extends ImageView {
 
     public NetworkImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.NetworkImageView);
-        mEnableAnimation = a.getBoolean(
-                R.styleable.NetworkImageView_enableAnimation, true);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NetworkImageView);
+        mEnableAnimation = a.getBoolean(R.styleable.NetworkImageView_enableAnimation, true);
+        mDefaultImageId = a.getResourceId(R.styleable.NetworkImageView_defaultImage, 0);
+        mErrorImageId = a.getResourceId(R.styleable.NetworkImageView_errorImage, 0);
         a.recycle();
     }
 
     /**
      * Sets URL of the image that should be loaded into this view. Note that
      * calling this will immediately either set the cached image (if available)
-     * or the default image specified by
-     * {@link NetworkImageView#setDefaultImageResId(int)} on the view.
+     * or the default image specified by {@link NetworkImageView#setDefaultImageResId(int)} on the
+     * view.
      * 
-     * NOTE: If applicable, {@link NetworkImageView#setDefaultImageResId(int)}
-     * and {@link NetworkImageView#setErrorImageResId(int)} should be called
+     * NOTE: If applicable, {@link NetworkImageView#setDefaultImageResId(int)} and
+     * {@link NetworkImageView#setErrorImageResId(int)} should be called
      * prior to calling this function.
      * 
      * @param url
      *            The URL that should be loaded into this ImageView.
      * @param imageLoader
      *            ImageLoader that will be used to make the request.
+     * @param onlyCache
+     *            Flag to indicate the image should only fetched from cache, not network
      */
-    public void setImageUrl(String url, ImageLoader imageLoader) {
+    public void setImageUrl(String url, ImageLoader imageLoader, boolean onlyCache) {
         mUrl = url;
         mImageLoader = imageLoader;
         // The URL has potentially changed. See if we need to load it.
+        mOnlyCache = onlyCache;
         loadImageIfNecessary(false);
+    }
+
+    public void setImageUrl(String url, ImageLoader imageLoader) {
+        setImageUrl(url, imageLoader, false);
     }
 
     /**
@@ -109,6 +132,18 @@ public class NetworkImageView extends ImageView {
      */
     public void setErrorImageResId(int errorImage) {
         mErrorImageId = errorImage;
+    }
+
+    /**
+     * set OnLoadListener
+     * 
+     * @param l
+     *
+     * @author xuegang
+     * @version Created: 2014年9月18日 下午4:14:58
+     */
+    public void setOnLoadListener(OnLoadListener l) {
+        mOnLoadListener = l;
     }
 
     /**
@@ -130,10 +165,13 @@ public class NetworkImageView extends ImageView {
         // if the view's bounds aren't known yet, and this is not a
         // wrap-content/wrap-content
         // view, hold off on loading the image.
-        boolean isFullyWrapContent = wrapWidth && wrapHeight;
-        if (width == 0 && height == 0 && !isFullyWrapContent) {
-            return;
-        }
+        // boolean isFullyWrapContent = wrapWidth && wrapHeight;
+        // if (width == 0 && height == 0 && !isFullyWrapContent) {
+        // if (null != mOnLoadListener) {
+        // mOnLoadListener.onLoadFailed(mUrl);
+        // }
+        // return;
+        // }
 
         // if the URL to be loaded in this view is empty, cancel any old
         // requests and clear the
@@ -152,7 +190,7 @@ public class NetworkImageView extends ImageView {
         if (mImageContainer != null && mImageContainer.getRequestUrl() != null) {
             if (mImageContainer.getRequestUrl().equals(mUrl)) {
                 // if the request is from the same URL, return.
-                return;
+                // return;
             } else {
                 // if there is a pre-existing request, cancel it if it's
                 // fetching a different URL.
@@ -169,45 +207,54 @@ public class NetworkImageView extends ImageView {
         // The pre-existing content of this view didn't match the current URL.
         // Load the new image
         // from the network.
-        ImageContainer newContainer = mImageLoader.get(mUrl,
-                new ImageListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        if (mErrorImageId != 0) {
-                            setImageResource(mErrorImageId);
-                        }
-                    }
+        ImageContainer newContainer = mImageLoader.get(mUrl, new ImageListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (mErrorImageId != 0) {
+                    setImageResource(mErrorImageId);
+                }
+                if (mOnLoadListener != null) {
+                    mOnLoadListener.onLoadFailed(mUrl);
+                }
+            }
 
-                    @Override
-                    public void onResponse(final ImageContainer response,
-                            boolean isImmediate) {
-                        // If this was an immediate response that was delivered
-                        // inside of a layout
-                        // pass do not set the image immediately as it will
-                        // trigger a requestLayout
-                        // inside of a layout. Instead, defer setting the image
-                        // by posting back to
-                        // the main thread.
-                        if (isImmediate && isInLayoutPass) {
-                            post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    onResponse(response, false);
-                                }
-                            });
-                            return;
+            @Override
+            public void onResponse(final ImageContainer response, boolean isImmediate) {
+                // If this was an immediate response that was delivered
+                // inside of a layout
+                // pass do not set the image immediately as it will
+                // trigger a requestLayout
+                // inside of a layout. Instead, defer setting the image
+                // by posting back to
+                // the main thread.
+                if (isImmediate && isInLayoutPass) {
+                    post(new Runnable() {
+                        @Override
+                        public void run() {
+                            onResponse(response, false);
                         }
+                    });
+                    return;
+                }
 
-                        if (response.getBitmap() != null) {
-                            setImageBitmap(response.getBitmap());
-                            if (mEnableAnimation) {
-                                fadeAnimate();
-                            }
-                        } else if (mDefaultImageId != 0) {
-                            setImageResource(mDefaultImageId);
-                        }
+                if (response.getBitmap() != null) {
+                    setImageBitmap(response.getBitmap());
+                    if (needAnimation()) {
+                        fadeAnimate();
                     }
-                }, maxWidth, maxHeight);
+                    if (mOnLoadListener != null) {
+                        mOnLoadListener.onLoadSuccess(mUrl);
+                    }
+                } else {
+                    if (mErrorImageId != 0) {
+                        setImageResource(mErrorImageId);
+                    }
+                    if (mOnLoadListener != null) {
+                        mOnLoadListener.onLoadFailed(mUrl);
+                    }
+                }
+            }
+        }, maxWidth, maxHeight, mOnlyCache);
 
         // update the ImageContainer to be the new bitmap container.
         mImageContainer = newContainer;
@@ -222,8 +269,7 @@ public class NetworkImageView extends ImageView {
     }
 
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right,
-            int bottom) {
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         loadImageIfNecessary(true);
     }
@@ -239,6 +285,7 @@ public class NetworkImageView extends ImageView {
             // necessary.
             mImageContainer = null;
         }
+        mHasAnimated = false;
         super.onDetachedFromWindow();
     }
 
@@ -248,7 +295,29 @@ public class NetworkImageView extends ImageView {
         invalidate();
     }
 
+    /**
+     * Judge whether we need animation. There are now three conditions:
+     * 1. We must enable animation.
+     * 2. This view has never been animated.
+     * 3. SDK version is equal or larger than honeycomb. Note, this is just for purpose of
+     * efficiency
+     * 
+     * @return
+     *
+     * @author xuegang
+     * @version Created: 2014年10月21日 上午10:54:37
+     */
+    private boolean needAnimation() {
+        if (mEnableAnimation && !mHasAnimated
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            return true;
+        }
+
+        return false;
+    }
+
     private void fadeAnimate() {
+        mHasAnimated = true;
         AlphaAnimation fadeImage = new AlphaAnimation(0, 1);
         fadeImage.setDuration(1000);
         fadeImage.setInterpolator(new DecelerateInterpolator());

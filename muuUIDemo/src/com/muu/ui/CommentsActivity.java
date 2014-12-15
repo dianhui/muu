@@ -2,11 +2,10 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.data.Comment;
 import com.muu.server.MuuServerWrapper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,7 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class CommentsActivity extends Activity {
+public class CommentsActivity extends StatisticsBaseActivity {
 	private ProgressBar mProgressBar;
 	private ListView mCommentsListView;
 	private RelativeLayout mEmpLayout;

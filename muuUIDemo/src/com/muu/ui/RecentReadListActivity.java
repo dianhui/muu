@@ -6,10 +6,9 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.volley.VolleyHelper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -25,7 +24,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class RecentReadListActivity extends Activity {
+public class RecentReadListActivity extends StatisticsBaseActivity {
 	private RelativeLayout mEmptyLayout = null;
 	private ListView mListView = null;
 	
@@ -153,7 +152,7 @@ public class RecentReadListActivity extends Activity {
 						info.author));
 				if (!TextUtils.isEmpty(info.coverUrl)) {
 					holder.icon.setImageUrl(info.coverUrl, VolleyHelper
-							.getInstanse(mCtx).getDefaultImageLoader());
+							.getInstance(mCtx).getImageLoader());
 				}
 			}
 			

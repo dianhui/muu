@@ -33,22 +33,26 @@ public class FileLoader {
 
     /** 等待派发的响应映射表 */
     private final HashMap<String, BatchedFileRequest> mBatchedResponses = new HashMap<String, BatchedFileRequest>();
-    
+
     /** 派发响应Handler */
     private final Handler mHandler = new Handler(Looper.getMainLooper());
-    
+
     /** 派发响应的Runnable */
     private Runnable mRunnable;
-    
+
     public interface FileCache {
         /** 缓存初始化 */
         public void init();
+
         /** 清空缓存 */
         public void clear();
+
         /** 查找缓存，返回文件名，或null */
         public String getFile(String key);
-        /** 写缓存， 成功返回true，否则false */
+
+        /** 写缓存， 成功返回文件名，失败返回null */
         public String putFile(String key, byte[] data);
+
         /** 删除缓存 */
         public void remove(String key);
     }
@@ -80,8 +84,7 @@ public class FileLoader {
             mContainers.add(container);
         }
 
-        public boolean removeContainerAndCancelIfNecessary(
-                FileContainer container) {
+        public boolean removeContainerAndCancelIfNecessary(FileContainer container) {
             mContainers.remove(container);
             if (mContainers.size() == 0) {
                 mRequest.cancel();
@@ -101,7 +104,8 @@ public class FileLoader {
         /** 请求URL */
         private final String mRequestUrl;
 
-        public FileContainer(String fileName, String requestUrl, String cacheKey, FileListener listener) {
+        public FileContainer(String fileName, String requestUrl, String cacheKey,
+                FileListener listener) {
             mFileName = fileName;
             mRequestUrl = requestUrl;
             mCacheKey = cacheKey;
@@ -143,40 +147,94 @@ public class FileLoader {
         public void onResponse(FileContainer response, boolean isImmediate);
     }
 
-    public FileLoader(RequestQueue queue, FileCache cache) {
+    public FileLoader(RequestQueue queue) {
         mRequestQueue = queue;
-        mCache = cache;
-        
+        mCache = VolleyConfig.getFileCache();
+
         mCache.init();
     }
-    
+
     public boolean isCached(String requestUrl) {
         throwIfNotOnMainThread();
-        
-        String cacheKey = getCacheKey(requestUrl);
+
+        String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
         return mCache.getFile(cacheKey) != null;
     }
-    
+
+    /**
+     * Get local file name
+     * 
+     * @param requestUrl
+     * @return
+     *
+     * @author xuegang
+     * @version Created: 2014年10月1日 上午9:44:29
+     */
+    public String getFileFromCache(String requestUrl) {
+        String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
+        return mCache.getFile(cacheKey);
+    }
+
+    /**
+     * Get local file name, prefix with file scheme("file://")
+     * 
+     * @param requestUrl
+     * @return
+     *
+     * @author xuegang
+     * @version Created: 2014年10月1日 上午9:44:06
+     */
+    public String getFileFromCachePrefixFileScheme(String requestUrl) {
+        String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
+        String localFileName = mCache.getFile(cacheKey);
+        if (null == localFileName) {
+            return null;
+        }
+
+        return "file://" + localFileName;
+    }
+
     public FileContainer get(String requestUrl, Object requestTag, FileListener fileListener) {
+        return get(requestUrl, requestTag, fileListener, false);
+    }
+
+    /**
+     * Issues a file request with the given URL if that file is not available
+     * in the cache, and returns a file container that contains all of the data
+     * relating to the request.
+     * 
+     * @param requestUrl The url of the remote file
+     * @param requestTag The tag that can be used to cancel this request
+     * @param fileListener The listener to call when the remote file is loaded
+     * @param onlyCache True if only get file from cache
+     * @return A container object that contains all of the properties of the request, as well as
+     *         the currently available file.
+     *
+     * @author xuegang
+     * @version Created: 2014年10月22日 上午10:53:39
+     */
+    public FileContainer get(String requestUrl, Object requestTag, FileListener fileListener,
+            boolean onlyCache) {
         throwIfNotOnMainThread();
 
-        final String cacheKey = getCacheKey(requestUrl);
-        
+        final String cacheKey = VolleyUtil.uri2CacheKey(requestUrl);
+
         String cachedFile = mCache.getFile(cacheKey);
         if (null != cachedFile) {
             FileContainer container = new FileContainer(cachedFile, requestUrl, null, null);
             fileListener.onResponse(container, true);
             return container;
         }
-        
-        FileContainer fileContainer = new FileContainer(cachedFile, requestUrl, cacheKey, fileListener);
-        
+
+        FileContainer fileContainer = new FileContainer(cachedFile, requestUrl, cacheKey,
+                fileListener);
+
         BatchedFileRequest request = mInFlightRequests.get(cacheKey);
         if (null != request) {
             request.addContainer(fileContainer);
             return fileContainer;
         }
-        
+
         FileRequest newRequest = new FileRequest(requestUrl, new Listener<String>() {
 
             @Override
@@ -190,40 +248,41 @@ public class FileLoader {
                 onGetFileError(cacheKey, error);
             }
         });
-        
+
         newRequest.setFileLoader(this);
+        newRequest.setOnlyCache(onlyCache);
         newRequest.setTag(requestTag);
         mRequestQueue.add(newRequest);
         mInFlightRequests.put(cacheKey, new BatchedFileRequest(newRequest, fileContainer));
         return fileContainer;
     }
-    
+
     public void setBatchedResponseDelay(int newBatchedResponseDelayMs) {
         mBatchResponseDelayMs = newBatchedResponseDelayMs;
     }
-    
+
     private void onGetFileSuccess(String cacheKey, String response) {
-        BatchedFileRequest request = mInFlightRequests.get(cacheKey);
+        BatchedFileRequest request = mInFlightRequests.remove(cacheKey);
         if (null != request) {
             request.mResponseFileName = response;
             batchResponse(cacheKey, request);
         }
     }
-    
+
     private void onGetFileError(String cacheKey, VolleyError error) {
-        BatchedFileRequest request = mInFlightRequests.get(cacheKey);
+        BatchedFileRequest request = mInFlightRequests.remove(cacheKey);
         if (null != request) {
             request.setError(error);
             batchResponse(cacheKey, request);
         }
     }
-    
+
     private void batchResponse(String cacheKey, BatchedFileRequest request) {
         mBatchedResponses.put(cacheKey, request);
-        
+
         if (null == mRunnable) {
             mRunnable = new Runnable() {
-                
+
                 @Override
                 public void run() {
                     for (BatchedFileRequest bfr : mBatchedResponses.values()) {
@@ -231,7 +290,7 @@ public class FileLoader {
                             if (null == container.mListener) {
                                 continue;
                             }
-                            
+
                             if (null == bfr.getError()) {
                                 container.mFileName = bfr.mResponseFileName;
                                 container.mListener.onResponse(container, false);
@@ -240,31 +299,24 @@ public class FileLoader {
                             }
                         }
                     }
-                    
+
                     mBatchedResponses.clear();
                     mRunnable = null;
                 }
             };
-            
+
             mHandler.postDelayed(mRunnable, mBatchResponseDelayMs);
         }
     }
-    
-    /*package*/String saveFile(String requestUrl, byte[] data) {
-        final String cachedKey = getCacheKey(requestUrl);
+
+    /* package */String saveFile(String requestUrl, byte[] data) {
+        final String cachedKey = VolleyUtil.uri2CacheKey(requestUrl);
         return mCache.putFile(cachedKey, data);
     }
-    
+
     private void throwIfNotOnMainThread() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            throw new IllegalStateException("ImageLoader must be invoked from the main thread.");
+            throw new IllegalStateException("FileLoader must be invoked from the main thread.");
         }
-    }
-    
-    private static String getCacheKey(String key) {
-        int firstHalfLength = key.length() / 2;
-        String localFilename = String.valueOf(key.substring(0, firstHalfLength).hashCode());
-        localFilename += String.valueOf(key.substring(firstHalfLength).hashCode());
-        return localFilename;
     }
 }

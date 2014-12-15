@@ -16,41 +16,41 @@
 
 package com.sina.weibo.sdk.openapi;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.SparseArray;
-
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.net.WeiboParameters;
 
 /**
- * 璇ョ被灏佽浜嗗井鍗氭帴鍙ｃ�
- * 璇︽儏璇峰弬鑰�a href="http://t.cn/8F3e7SE">寰崥鎺ュ彛</a>
+ * 该类封装了微博接口。
+ * 详情请参考<a href="http://t.cn/8F3e7SE">微博接口</a>
  * 
  * @author SINA
  * @since 2014-03-03
  */
 public class StatusesAPI extends AbsOpenAPI {
     
-    /** 杩囨护绫诲瀷ID锛�锛氬叏閮ㄣ�1锛氬師鍒涖�2锛氬浘鐗囥�3锛氳棰戙�4锛氶煶涔�*/
+    /** 过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐 */
     public static final int FEATURE_ALL      = 0;
     public static final int FEATURE_ORIGINAL = 1;
     public static final int FEATURE_PICTURE  = 2;
     public static final int FEATURE_VIDEO    = 3;
     public static final int FEATURE_MUSICE   = 4;
     
-    /** 浣滆�绛涢�绫诲瀷锛�锛氬叏閮ㄣ�1锛氭垜鍏虫敞鐨勪汉銆�锛氶檶鐢熶汉 */
+    /** 作者筛选类型，0：全部、1：我关注的人、2：陌生人 */
     public static final int AUTHOR_FILTER_ALL        = 0;
     public static final int AUTHOR_FILTER_ATTENTIONS = 1;
     public static final int AUTHOR_FILTER_STRANGER   = 2;
     
-    /** 鏉ユ簮绛涢�绫诲瀷锛�锛氬叏閮ㄣ�1锛氭潵鑷井鍗氱殑璇勮銆�锛氭潵鑷井缇ょ殑璇勮 */
+    /** 来源筛选类型，0：全部、1：来自微博的评论、2：来自微群的评论 */
     public static final int SRC_FILTER_ALL      = 0;
     public static final int SRC_FILTER_WEIBO    = 1;
     public static final int SRC_FILTER_WEIQUN   = 2;
     
-    /** 鍘熷垱绛涢�绫诲瀷锛�锛氬叏閮ㄥ井鍗氥�1锛氬師鍒涚殑寰崥銆� */
+    /** 原创筛选类型，0：全部微博、1：原创的微博。  */
     public static final int TYPE_FILTER_ALL     = 0;
     public static final int TYPE_FILTER_ORIGAL  = 1;    
 
@@ -58,9 +58,12 @@ public class StatusesAPI extends AbsOpenAPI {
     private static final String API_BASE_URL = API_SERVER + "/statuses";
 
     /**
-     * API 绫诲瀷銆�     * 鍛藉悕瑙勫垯锛�     *      <li>璇诲彇鎺ュ彛锛歊EAD_API_XXX
-     *      <li>鍐欏叆鎺ュ彛锛歐RITE_API_XXX
-     * 璇锋敞鎰忥細璇ョ被涓殑鎺ュ彛浠呭仛涓烘紨绀轰娇鐢紝骞舵病鏈夊寘鍚墍鏈夊叧浜庡井鍗氱殑鎺ュ彛锛岀涓夋柟寮�彂鑰呭彲浠�     * 鏍规嵁闇�鏉ュ～鍏呰绫伙紝鍙弬鑰僱egacy鍖呬笅 {@link com.sina.weibo.sdk.openapi.legacy.StatusesAPI}
+     * API 类型。
+     * 命名规则：
+     *      <li>读取接口：READ_API_XXX
+     *      <li>写入接口：WRITE_API_XXX
+     * 请注意：该类中的接口仅做为演示使用，并没有包含所有关于微博的接口，第三方开发者可以
+     * 根据需要来填充该类，可参考legacy包下 {@link com.sina.weibo.sdk.openapi.legacy.StatusesAPI}
      */
     private static final int READ_API_FRIENDS_TIMELINE = 0;
     private static final int READ_API_MENTIONS         = 1;    
@@ -80,22 +83,30 @@ public class StatusesAPI extends AbsOpenAPI {
     }
 
     /**
-     * 鏋勯�鍑芥暟锛屼娇鐢ㄥ悇涓�API 鎺ュ彛鎻愪緵鐨勬湇鍔″墠蹇呴』鍏堣幏鍙�Token銆�     * 
-     * @param accesssToken 璁块棶浠ょ墝
+     * 构造函数，使用各个 API 接口提供的服务前必须先获取 Token。
+     * 
+     * @param accesssToken 访问令牌
      */
-    public StatusesAPI(Oauth2AccessToken accessToken) {
-        super(accessToken);
+    public StatusesAPI(Context context, String appKey, Oauth2AccessToken accessToken) {
+        super(context, appKey, accessToken);
     }
     
     /**
-     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛鍙婂叾鎵�叧娉ㄧ敤鎴风殑鏈�柊寰崥銆�     * 
-     * @param since_id    鑻ユ寚瀹氭鍙傛暟锛屽垯杩斿洖ID姣攕ince_id澶х殑寰崥锛堝嵆姣攕ince_id鏃堕棿鏅氱殑寰崥锛夛紝榛樿涓�
-     * @param max_id      鑻ユ寚瀹氭鍙傛暟锛屽垯杩斿洖ID灏忎簬鎴栫瓑浜巑ax_id鐨勫井鍗氾紝榛樿涓�銆�     * @param count       鍗曢〉杩斿洖鐨勮褰曟潯鏁帮紝榛樿涓�0銆�     * @param page        杩斿洖缁撴灉鐨勯〉鐮侊紝榛樿涓�銆�     * @param base_app    鏄惁鍙幏鍙栧綋鍓嶅簲鐢ㄧ殑鏁版嵁銆俧alse涓哄惁锛堟墍鏈夋暟鎹級锛宼rue涓烘槸锛堜粎褰撳墠搴旂敤锛夛紝榛樿涓篺alse銆�     * @param featureType 杩囨护绫诲瀷ID锛�锛氬叏閮ㄣ�1锛氬師鍒涖�2锛氬浘鐗囥�3锛氳棰戙�4锛氶煶涔愶紝榛樿涓�銆�     *                    <li>{@link #FEATURE_ALL}
+     * 获取当前登录用户及其所关注用户的最新微博。
+     * 
+     * @param since_id    若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0
+     * @param max_id      若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+     * @param count       单页返回的记录条数，默认为50。
+     * @param page        返回结果的页码，默认为1。
+     * @param base_app    是否只获取当前应用的数据。false为否（所有数据），true为是（仅当前应用），默认为false。
+     * @param featureType 过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
+     *                    <li>{@link #FEATURE_ALL}
      *                    <li>{@link #FEATURE_ORIGINAL}
      *                    <li>{@link #FEATURE_PICTURE}
      *                    <li>{@link #FEATURE_VIDEO}
      *                    <li>{@link #FEATURE_MUSICE}
-     * @param trim_user   杩斿洖鍊间腑user瀛楁寮�叧锛宖alse锛氳繑鍥炲畬鏁磚ser瀛楁銆乼rue锛歶ser瀛楁浠呰繑鍥瀠ser_id锛岄粯璁や负false銆�     * @param listener    寮傛璇锋眰鍥炶皟鎺ュ彛
+     * @param trim_user   返回值中user字段开关，false：返回完整user字段、true：user字段仅返回user_id，默认为false。
+     * @param listener    异步请求回调接口
      */
     public void friendsTimeline(long since_id, long max_id, int count, int page, boolean base_app,
             int featureType, boolean trim_user, RequestListener listener) {
@@ -105,20 +116,25 @@ public class StatusesAPI extends AbsOpenAPI {
     }    
     
     /**
-     * 鑾峰彇鏈�柊鐨勬彁鍒扮櫥褰曠敤鎴风殑寰崥鍒楄〃锛屽嵆@鎴戠殑寰崥銆�     * 
-     * @param since_id      鑻ユ寚瀹氭鍙傛暟锛屽垯杩斿洖ID姣攕ince_id澶х殑寰崥锛堝嵆姣攕ince_id鏃堕棿鏅氱殑寰崥锛夛紝榛樿涓�銆�     * @param max_id        鑻ユ寚瀹氭鍙傛暟锛屽垯杩斿洖ID灏忎簬鎴栫瓑浜巑ax_id鐨勫井鍗氾紝榛樿涓�銆�     * @param count         鍗曢〉杩斿洖鐨勮褰曟潯鏁帮紝榛樿涓�0銆�     * @param page          杩斿洖缁撴灉鐨勯〉鐮侊紝榛樿涓�銆�     * @param authorType    浣滆�绛涢�绫诲瀷锛�锛氬叏閮ㄣ�1锛氭垜鍏虫敞鐨勪汉銆�锛氶檶鐢熶汉 ,榛樿涓�銆傚彲涓轰互涓嬪嚑绉�:
+     * 获取最新的提到登录用户的微博列表，即@我的微博。
+     * 
+     * @param since_id      若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
+     * @param max_id        若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+     * @param count         单页返回的记录条数，默认为50。
+     * @param page          返回结果的页码，默认为1。
+     * @param authorType    作者筛选类型，0：全部、1：我关注的人、2：陌生人 ,默认为0。可为以下几种 :
      *                      <li>{@link #AUTHOR_FILTER_ALL}
      *                      <li>{@link #AUTHOR_FILTER_ATTENTIONS}
      *                      <li>{@link #AUTHOR_FILTER_STRANGER}
-     * @param sourceType    鏉ユ簮绛涢�绫诲瀷锛�锛氬叏閮ㄣ�1锛氭潵鑷井鍗氱殑璇勮銆�锛氭潵鑷井缇ょ殑璇勮锛岄粯璁や负0銆傚彲涓轰互涓嬪嚑绉�:
+     * @param sourceType    来源筛选类型，0：全部、1：来自微博的评论、2：来自微群的评论，默认为0。可为以下几种 :
      *                      <li>{@link #SRC_FILTER_ALL}
      *                      <li>{@link #SRC_FILTER_WEIBO}
      *                      <li>{@link #SRC_FILTER_WEIQUN}
-     * @param filterType    鍘熷垱绛涢�绫诲瀷锛�锛氬叏閮ㄥ井鍗氥�1锛氬師鍒涚殑寰崥锛岄粯璁や负0銆�鍙负浠ヤ笅鍑犵 :
+     * @param filterType    原创筛选类型，0：全部微博、1：原创的微博，默认为0。 可为以下几种 :
      *                      <li>{@link #TYPE_FILTER_ALL}
      *                      <li>{@link #TYPE_FILTER_ORIGAL}
-     * @param trim_user     杩斿洖鍊间腑user瀛楁寮�叧锛宖alse锛氳繑鍥炲畬鏁磚ser瀛楁銆乼rue锛歶ser瀛楁浠呰繑鍥瀠ser_id锛岄粯璁や负false
-     * @param listener      寮傛璇锋眰鍥炶皟鎺ュ彛
+     * @param trim_user     返回值中user字段开关，false：返回完整user字段、true：user字段仅返回user_id，默认为false
+     * @param listener      异步请求回调接口
      */
     public void mentions(long since_id, long max_id, int count, int page, int authorType, int sourceType,
             int filterType, boolean trim_user, RequestListener listener) {
@@ -127,10 +143,12 @@ public class StatusesAPI extends AbsOpenAPI {
     }
     
     /**
-     * 鍙戝竷涓�潯鏂板井鍗氾紙杩炵画涓ゆ鍙戝竷鐨勫井鍗氫笉鍙互閲嶅锛夈�
+     * 发布一条新微博（连续两次发布的微博不可以重复）。
      * 
-     * @param content  瑕佸彂甯冪殑寰崥鏂囨湰鍐呭锛屽唴瀹逛笉瓒呰繃140涓眽瀛椼�
-     * @param lat      绾害锛屾湁鏁堣寖鍥达細-90.0鍒�90.0锛�琛ㄧず鍖楃含锛岄粯璁や负0.0銆�     * @param lon      缁忓害锛屾湁鏁堣寖鍥达細-180.0鍒�180.0锛�琛ㄧず涓滅粡锛岄粯璁や负0.0銆�     * @param listener 寮傛璇锋眰鍥炶皟鎺ュ彛
+     * @param content  要发布的微博文本内容，内容不超过140个汉字。
+     * @param lat      纬度，有效范围：-90.0到+90.0，+表示北纬，默认为0.0。
+     * @param lon      经度，有效范围：-180.0到+180.0，+表示东经，默认为0.0。
+     * @param listener 异步请求回调接口
      */
     public void update(String content, String lat, String lon, RequestListener listener) {
         WeiboParameters params = buildUpdateParams(content, lat, lon);
@@ -138,9 +156,13 @@ public class StatusesAPI extends AbsOpenAPI {
     }
     
     /**
-     * 涓婁紶鍥剧墖骞跺彂甯冧竴鏉℃柊寰崥銆�     * 
-     * @param content  瑕佸彂甯冪殑寰崥鏂囨湰鍐呭锛屽唴瀹逛笉瓒呰繃140涓眽瀛�     * @param bitmap   瑕佷笂浼犵殑鍥剧墖锛屼粎鏀寔JPEG銆丟IF銆丳NG鏍煎紡锛屽浘鐗囧ぇ灏忓皬浜�M
-     * @param lat      绾害锛屾湁鏁堣寖鍥达細-90.0鍒�90.0锛�琛ㄧず鍖楃含锛岄粯璁や负0.0銆�     * @param lon      缁忓害锛屾湁鏁堣寖鍥达細-180.0鍒�180.0锛�琛ㄧず涓滅粡锛岄粯璁や负0.0銆�     * @param listener 寮傛璇锋眰鍥炶皟鎺ュ彛
+     * 上传图片并发布一条新微博。
+     * 
+     * @param content  要发布的微博文本内容，内容不超过140个汉字
+     * @param bitmap   要上传的图片，仅支持JPEG、GIF、PNG格式，图片大小小于5M
+     * @param lat      纬度，有效范围：-90.0到+90.0，+表示北纬，默认为0.0。
+     * @param lon      经度，有效范围：-180.0到+180.0，+表示东经，默认为0.0。
+     * @param listener 异步请求回调接口
      */
     public void upload(String content, Bitmap bitmap, String lat, String lon, RequestListener listener) {
         WeiboParameters params = buildUpdateParams(content, lat, lon);
@@ -149,11 +171,16 @@ public class StatusesAPI extends AbsOpenAPI {
     }
     
     /**
-     * 鎸囧畾涓�釜鍥剧墖URL鍦板潃鎶撳彇鍚庝笂浼犲苟鍚屾椂鍙戝竷涓�潯鏂板井鍗氾紝姝ゆ柟娉曚細澶勭悊URLencod銆�     * 
-     * @param status   瑕佸彂甯冪殑寰崥鏂囨湰鍐呭锛屽唴瀹逛笉瓒呰繃140涓眽瀛椼�
-     * @param imageUrl 鍥剧墖鐨刄RL鍦板潃锛屽繀椤讳互http寮�ご銆�     * @param pic_id   宸茬粡涓婁紶鐨勫浘鐗噋id锛屽涓椂浣跨敤鑻辨枃鍗婅閫楀彿绗﹀垎闅旓紝鏈�涓嶈秴杩囦節寮犮� 
-     *                 imageUrl 鍜�pic_id蹇呴�涓�釜锛屼袱涓弬鏁伴兘瀛樺湪鏃讹紝鍙杙icid鍙傛暟鐨勫�涓哄噯銆�     *                 <b>娉細鐩墠璇ュ弬鏁颁笉鍙敤锛岀幇鍦ㄨ繕鍙兘閫氳繃BD鍚堜綔鎺ュ叆锛屼笉瀵逛釜浜虹敵璇�/b>
-     * @param lat      绾害锛屾湁鏁堣寖鍥达細-90.0鍒�90.0锛�琛ㄧず鍖楃含锛岄粯璁や负0.0銆�     * @param lon      缁忓害锛屾湁鏁堣寖鍥达細-180.0鍒�180.0锛�琛ㄧず涓滅粡锛岄粯璁や负0.0銆�     * @param listener 寮傛璇锋眰鍥炶皟鎺ュ彛
+     * 指定一个图片URL地址抓取后上传并同时发布一条新微博，此方法会处理URLencod。
+     * 
+     * @param status   要发布的微博文本内容，内容不超过140个汉字。
+     * @param imageUrl 图片的URL地址，必须以http开头。
+     * @param pic_id   已经上传的图片pid，多个时使用英文半角逗号符分隔，最多不超过九张。 
+     *                 imageUrl 和 pic_id必选一个，两个参数都存在时，取picid参数的值为准。
+     *                 <b>注：目前该参数不可用，现在还只能通过BD合作接入，不对个人申请</b>
+     * @param lat      纬度，有效范围：-90.0到+90.0，+表示北纬，默认为0.0。
+     * @param lon      经度，有效范围：-180.0到+180.0，+表示东经，默认为0.0。
+     * @param listener 异步请求回调接口
      */
     public void uploadUrlText(String status, String imageUrl, String pic_id, String lat, String lon,
             RequestListener listener) {
@@ -175,7 +202,7 @@ public class StatusesAPI extends AbsOpenAPI {
 
     /**
      * -----------------------------------------------------------------------
-     * 璇锋敞鎰忥細浠ヤ笅鏂规硶鍖�潎鍚屾鏂规硶銆傚鏋滃紑鍙戣�鏈夎嚜宸辩殑寮傛璇锋眰鏈哄埗锛岃浣跨敤璇ュ嚱鏁般�
+     * 请注意：以下方法匀均同步方法。如果开发者有自己的异步请求机制，请使用该函数。
      * -----------------------------------------------------------------------
      */
     
@@ -214,11 +241,31 @@ public class StatusesAPI extends AbsOpenAPI {
         params.put("pic_id", pic_id);
         return requestSync(sAPIList.get(WRITE_API_UPLOAD_URL_TEXT), params, HTTPMETHOD_POST);
     }
+    
+    /**
+     * 转发一条微博。
+     * 
+     * @param id            要转发的微博ID
+     * @param status        添加的转发文本，内容不超过140个汉字，不填则默认为“转发微博”
+     * @param commentType   是否在转发的同时发表评论，0：否、1：评论给当前微博、2：评论给原微博、3：都评论，默认为0
+     *                      <li> {@link #COMMENTS_NONE}
+     *                      <li> {@link #COMMENTS_CUR_STATUSES}
+     *                      <li> {@link #COMMENTS_RIGAL_STATUSES}
+     *                      <li> {@link #COMMENTS_BOTH}
+     * @param listener      异步请求回调接口
+     */
+    public void repost(long id, String status, int commentType, RequestListener listener) {
+        WeiboParameters params = new WeiboParameters(mAppKey);
+        params.put("id", id);
+        params.put("status", status);
+        params.put("is_comment", commentType);
+        requestAsync(sAPIList.get(WRITE_API_REPOST), params, HTTPMETHOD_POST, listener);
+    }
 
-    // 缁勮TimeLines鐨勫弬鏁�    
+    // 组装TimeLines的参数
     private WeiboParameters buildTimeLineParamsBase(long since_id, long max_id, int count, int page,
             boolean base_app, boolean trim_user, int featureType) {
-        WeiboParameters params = new WeiboParameters();
+        WeiboParameters params = new WeiboParameters(mAppKey);
         params.put("since_id", since_id);
         params.put("max_id", max_id);
         params.put("count", count);
@@ -229,9 +276,9 @@ public class StatusesAPI extends AbsOpenAPI {
         return params;
     }
 
-    // 缁勮寰崥璇锋眰鍙傛暟
+    // 组装微博请求参数
     private WeiboParameters buildUpdateParams(String content, String lat, String lon) {
-        WeiboParameters params = new WeiboParameters();
+        WeiboParameters params = new WeiboParameters(mAppKey);
         params.put("status", content);
         if (!TextUtils.isEmpty(lon)) {
             params.put("long", lon);
@@ -244,7 +291,7 @@ public class StatusesAPI extends AbsOpenAPI {
     
     private WeiboParameters buildMentionsParams(long since_id, long max_id, int count, int page,
             int authorType, int sourceType, int filterType, boolean trim_user) {
-        WeiboParameters params = new WeiboParameters();
+        WeiboParameters params = new WeiboParameters(mAppKey);
         params.put("since_id", since_id);
         params.put("max_id", max_id);
         params.put("count", count);
@@ -255,5 +302,5 @@ public class StatusesAPI extends AbsOpenAPI {
         params.put("trim_user", trim_user ? 1 : 0);
         
         return params;
-    } 
+    }
 }

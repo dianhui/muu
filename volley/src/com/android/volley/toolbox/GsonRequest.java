@@ -1,7 +1,9 @@
 package com.android.volley.toolbox;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
@@ -15,6 +17,7 @@ public class GsonRequest<T> extends Request<T> {
     private Listener<T> mListener;
     private Class<T> mClazz;
     private Gson mGson;
+    private Map<String, String> mParams;
 
     public GsonRequest(int method, String url, Class<T> clazz,
             Listener<T> listener, ErrorListener errorListener) {
@@ -24,9 +27,35 @@ public class GsonRequest<T> extends Request<T> {
         mGson = new Gson();
     }
 
+    /**
+     * get方式请求数据
+     * 
+     * @param url
+     *            带有请求参数的拼装好的url
+     * @param clazz
+     * @param listener
+     * @param errorListener
+     */
     public GsonRequest(String url, Class<T> clazz, Listener<T> listener,
             ErrorListener errorListener) {
         this(Method.GET, url, clazz, listener, errorListener);
+    }
+
+    /**
+     * post方式请求数据
+     * 
+     * @param url
+     *            请求的url
+     * @param params
+     *            post需要的相关参数
+     * @param clazz
+     * @param listener
+     * @param errorListener
+     */
+    public GsonRequest(String url, Map<String, String> params, Class<T> clazz,
+            Listener<T> listener, ErrorListener errorListener) {
+        this(Method.POST, url, clazz, listener, errorListener);
+        mParams = params;
     }
 
     @Override
@@ -52,4 +81,8 @@ public class GsonRequest<T> extends Request<T> {
         mListener.onResponse(response);
     }
 
+    @Override
+    protected Map<String, String> getParams() throws AuthFailureError {
+        return mParams;
+    }
 }

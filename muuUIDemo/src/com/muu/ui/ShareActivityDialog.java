@@ -1,36 +1,35 @@
 package com.muu.ui;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
+import com.muu.sns.IShareResponse;
 import com.muu.sns.QQShareHelper;
+import com.muu.sns.SinaWeibo;
 import com.muu.sns.SnsConstants;
 import com.muu.sns.TencentWeiboHelper;
-import com.sina.weibo.sdk.api.ImageObject;
-import com.sina.weibo.sdk.api.TextObject;
-import com.sina.weibo.sdk.api.WeiboMultiMessage;
-import com.sina.weibo.sdk.api.share.BaseResponse;
-import com.sina.weibo.sdk.api.share.IWeiboDownloadListener;
-import com.sina.weibo.sdk.api.share.IWeiboHandler;
-import com.sina.weibo.sdk.api.share.IWeiboShareAPI;
-import com.sina.weibo.sdk.api.share.SendMultiMessageToWeiboRequest;
-import com.sina.weibo.sdk.api.share.WeiboShareSDK;
-import com.sina.weibo.sdk.constant.WBConstants;
-import com.sina.weibo.sdk.exception.WeiboShareException;
+import com.muu.sns.WeChat;
+import com.sina.weibo.sdk.exception.WeiboException;
+import com.sina.weibo.sdk.net.RequestListener;
+import com.tencent.weibo.sdk.android.api.util.Util;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ShareActivityDialog extends Activity implements
-		IWeiboHandler.Response {
-	private IWeiboShareAPI mSinaWeiboShareAPI;
+public class ShareActivityDialog extends StatisticsBaseActivity implements RequestListener, IShareResponse {
 	private int mCartoonId = -1;
 	private String mCartoonName;
 	private Bitmap mCartoonCover;
 	private String mCartoonCoverUrl;
+	private ProgressBar mProgressBar;
+	
+	private SinaWeibo mSinaWeibo;
+	private TencentWeiboHelper mTencentWeibo;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,46 +50,18 @@ public class ShareActivityDialog extends Activity implements
 		}
 
 		setupBtns();
-		initSinaWeiboApi();
-
-		if (savedInstanceState != null) {
-			mSinaWeiboShareAPI.handleWeiboResponse(getIntent(), this);
-		}
-	}
-
-	/**
-	 * @see {@link Activity#onNewIntent}
-	 */
-	@Override
-	protected void onNewIntent(Intent intent) {
-		mSinaWeiboShareAPI.handleWeiboResponse(intent, this);
-
-		super.onNewIntent(intent);
+		mProgressBar = (ProgressBar)this.findViewById(R.id.progress_bar);
+		mSinaWeibo = new SinaWeibo(this);
+		mTencentWeibo = new TencentWeiboHelper(this, this);
 	}
 
 	@Override
-	public void onResponse(BaseResponse baseResp) {
-		this.finish();
-
-		switch (baseResp.errCode) {
-		case WBConstants.ErrorCode.ERR_OK:
-			Toast.makeText(this, getString(R.string.share_success),
-					Toast.LENGTH_SHORT).show();
-			break;
-		case WBConstants.ErrorCode.ERR_FAIL:
-			Toast.makeText(this, getString(R.string.share_fail),
-					Toast.LENGTH_SHORT).show();
-			break;
-		case WBConstants.ErrorCode.ERR_CANCEL:
-			Toast.makeText(this, getString(R.string.share_cancel),
-					Toast.LENGTH_SHORT).show();
-			break;
-
-		default:
-			break;
-		}
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        mSinaWeibo.invokeAuthCallback(requestCode, resultCode, data);
 	}
-
+	
 	private void setupBtns() {
 		setupShare2SinaWeiboBtn();
 		setupShare2TencentWeiboBtn();
@@ -103,7 +74,13 @@ public class ShareActivityDialog extends Activity implements
 		tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				sendSinaWeibo();
+				if (!mSinaWeibo.isAccountValid()) {
+					mSinaWeibo.authorise(ShareActivityDialog.this);
+					return;
+				}
+				
+				mProgressBar.setVisibility(View.VISIBLE);
+				mSinaWeibo.sendWeiboWithPicUrl(getWeiboContent(), mCartoonCoverUrl, ShareActivityDialog.this);
 			}
 		});
 	}
@@ -113,6 +90,13 @@ public class ShareActivityDialog extends Activity implements
 		tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				String accessToken = Util.getSharePersistent(ShareActivityDialog.this, "ACCESS_TOKEN");
+				if (TextUtils.isEmpty(accessToken)) {
+					mTencentWeibo.auth(ShareActivityDialog.this, SnsConstants.TENCENT_WEIBO_APP_ID, SnsConstants.TENCENT_APP_SECRET);
+					return;
+				}
+				
+				mProgressBar.setVisibility(View.VISIBLE);
 				sendTencentWeibo();
 			}
 		});
@@ -126,6 +110,7 @@ public class ShareActivityDialog extends Activity implements
 				new QQShareHelper(getApplicationContext()).shareToQQ(
 						ShareActivityDialog.this, getQQShareContent(),
 						mCartoonCoverUrl, getCartoonUrl());
+				finish();
 			}
 		});
 	}
@@ -135,79 +120,25 @@ public class ShareActivityDialog extends Activity implements
 		tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(
-						ShareActivityDialog.this,
-						ShareActivityDialog.this.getString(R.string.to_be_done),
-						Toast.LENGTH_SHORT).show();
+				WeChat.getInstance(ShareActivityDialog.this).shareByWechat(
+						getQQShareContent(), getCartoonUrl(), mCartoonCoverUrl);
+				finish();
 			}
 		});
 	}
 
-	private void initSinaWeiboApi() {
-		mSinaWeiboShareAPI = WeiboShareSDK.createWeiboAPI(this,
-				SnsConstants.SINA_WEIBO_APP_KEY);
-		mSinaWeiboShareAPI.registerApp();
-		setupSinaWeiboDownloadListener();
-	}
-
-	private void setupSinaWeiboDownloadListener() {
-		if (mSinaWeiboShareAPI.isWeiboAppInstalled()) {
-			return;
-		}
-
-		mSinaWeiboShareAPI
-				.registerWeiboDownloadListener(new IWeiboDownloadListener() {
-					@Override
-					public void onCancel() {
-						Toast.makeText(ShareActivityDialog.this,
-								R.string.sina_weibo_cancel_download,
-								Toast.LENGTH_SHORT).show();
-					}
-				});
-	}
-
-	private void sendSinaWeibo() {
-		if (!mSinaWeiboShareAPI.checkEnvironment(true)) {
-			// TODO
-			return;
-		}
-
-		try {
-			WeiboMultiMessage weiboMessage = new WeiboMultiMessage();
-			TextObject textObj = new TextObject();
-			textObj.text = getWeiboContent();
-			weiboMessage.textObject = textObj;
-
-			if (mCartoonCover != null) {
-				ImageObject imgObj = new ImageObject();
-				imgObj.setImageObject(mCartoonCover);
-				weiboMessage.imageObject = imgObj;
-			}
-
-			SendMultiMessageToWeiboRequest request = new SendMultiMessageToWeiboRequest();
-			request.transaction = String.valueOf(System.currentTimeMillis());
-			request.multiMessage = weiboMessage;
-
-			mSinaWeiboShareAPI.sendRequest(request);
-		} catch (WeiboShareException e) {
-			e.printStackTrace();
-			Toast.makeText(ShareActivityDialog.this, e.getMessage(),
-					Toast.LENGTH_SHORT).show();
-		}
-	}
-
 	private void sendTencentWeibo() {
 		String content = getWeiboContent();
-		TencentWeiboHelper.sendWeibo(this, content, mCartoonCoverUrl);
+		mTencentWeibo.sendWeibo(this, content, mCartoonCoverUrl);
 	}
 
 	private String getWeiboContent() {
-		return String.format("%s%s%s%s%s", "我正在用漫悠悠看漫画:《", mCartoonName, "》",
+		return String.format("%s%s%s%s", "鎴戞鍦ㄧ敤婕偁鎮犵湅婕敾: ", mCartoonName,
 				"--", getCartoonUrl());
 	}
 	
 	private String getQQShareContent() {
-		return String.format("%s%s%s", "我正在用漫悠悠看漫画:《", mCartoonName, "》");
+		return String.format("%s%s", "鎴戞鍦ㄧ敤婕偁鎮犵湅婕敾:", mCartoonName);
 	}
 
 	private String getCartoonUrl() {
@@ -217,6 +148,42 @@ public class ShareActivityDialog extends Activity implements
 
 		return String.format("%s%d%s", "http://www.muu.com.cn/comics/", mCartoonId,
 				".html");
+	}
+
+	@Override
+	public void onComplete(String values) {
+		Toast.makeText(this, getString(R.string.share_success),
+				Toast.LENGTH_LONG).show();
+		finish();
+	}
+
+	@Override
+	public void onWeiboException(WeiboException values) {
+		Log.d("ShareActivityDialog", "Fail to share: " + values.getMessage());
+		Toast.makeText(this, getString(R.string.share_fail), Toast.LENGTH_LONG)
+				.show();
+		finish();
+	}
+
+	@Override
+	public void onShareSuccess() {
+		Toast.makeText(this, getString(R.string.share_success),
+				Toast.LENGTH_SHORT).show();
+		mProgressBar.setVisibility(View.GONE);
+		finish();
+	}
+
+	@Override
+	public void onShareFailed() {
+		Toast.makeText(this, getString(R.string.share_fail), Toast.LENGTH_SHORT)
+				.show();
+		mProgressBar.setVisibility(View.GONE);
+		finish();
+	}
+
+	@Override
+	public void onShareCanceled() {
+		mProgressBar.setVisibility(View.GONE);
 	}
 
 }

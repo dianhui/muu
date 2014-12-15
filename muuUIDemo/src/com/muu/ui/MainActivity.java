@@ -1,4 +1,3 @@
-
 package com.muu.ui;
 
 import java.util.ArrayList;
@@ -10,14 +9,12 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.muu.data.ActivityEventInfo;
 import com.muu.data.CartoonInfo;
-import com.muu.data.Top2CartoonInfo;
 import com.muu.server.MuuClient.ListType;
 import com.muu.server.MuuServerWrapper;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -45,7 +42,7 @@ import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnPageChangeListener, OnTouchListener {
+public class MainActivity extends StatisticsBaseActivity implements OnPageChangeListener, OnTouchListener {
 	private static final String TAG = "MainActivity";
 	
 	private VolleyHelper mVolleyHelper = null;
@@ -59,7 +56,7 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 	private ScrollView mCartoonsContainer = null;
 	private PullToRefreshScrollView mPullRefreshScrollView = null;
 	
-//	private Rect mTopViewPagerRect = null;
+	//	private Rect mTopViewPagerRect = null;
 	private ViewPager mTopViewPager = null;
 	private LinearLayout mDotsGroupView = null;
 	private ArrayList<NetworkImageView> mTopCartoonsViews = null;
@@ -72,7 +69,7 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity_layout);
 		
-		mVolleyHelper = VolleyHelper.getInstanse(getApplicationContext());
+		mVolleyHelper = VolleyHelper.getInstance(getApplicationContext());
 		
 		mTopViewPager = (ViewPager)this.findViewById(R.id.top_view_pager);
 		mTopViewPager.setOnPageChangeListener(this);
@@ -94,7 +91,6 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 		setupActionBar();
 		setupDropdownView();
 		new RetrieveAcitivitiesTask().execute();
-		new RetrieveTop2CartoonListTask().execute();
 		changeList(ListType.TOP);
 	}
 	
@@ -295,16 +291,19 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 		});
 	}
 	
-	private void setupFirstTwoCartoons(ArrayList<Top2CartoonInfo> result) {
+	private void setupFirstTwoCartoons(ArrayList<CartoonInfo> result) {
 		if (mTopCartoonsViews == null) {
 			mTopCartoonsViews = new ArrayList<NetworkImageView>();
 		}
 		
-		final Top2CartoonInfo firstInfo = result.remove(0);
+		final CartoonInfo firstInfo = result.remove(0);
 		NetworkImageView firstImageView = new NetworkImageView(this);
-		firstImageView.setImageUrl(firstInfo.recommendCover, VolleyHelper.getInstanse(this).getDefaultImageLoader());
+		firstImageView.setImageUrl(firstInfo.recommendCover, VolleyHelper.getInstance(this).getImageLoader());
 		firstImageView.setDefaultImageResId(R.drawable.activity_event_default);
+		firstImageView.setBackgroundResource(R.color.transparent);
 		firstImageView.setScaleType(ScaleType.FIT_XY);
+		firstImageView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,  
+                LayoutParams.MATCH_PARENT)); 
 		firstImageView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -330,11 +329,14 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 			mDotsGroupView.addView(imv, getDotParams());
 		}
 		
-		final Top2CartoonInfo secondInfo = result.remove(0);
+		final CartoonInfo secondInfo = result.remove(0);
 		NetworkImageView secondImageView = new NetworkImageView(this);
-		secondImageView.setImageUrl(secondInfo.recommendCover, VolleyHelper.getInstanse(this).getDefaultImageLoader());
+		secondImageView.setImageUrl(secondInfo.recommendCover, VolleyHelper.getInstance(this).getImageLoader());
 		secondImageView.setDefaultImageResId(R.drawable.activity_event_default);
+		secondImageView.setBackgroundResource(R.color.transparent);
 		secondImageView.setScaleType(ScaleType.FIT_XY);
+		secondImageView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,  
+                LayoutParams.MATCH_PARENT)); 
 		secondImageView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -415,7 +417,7 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 		if (!TextUtils.isEmpty(info.coverUrl)) {
 			NetworkImageView netImv = (NetworkImageView)layout.findViewById(R.id.imv_icon);
 			netImv.setImageUrl(info.coverUrl,
-					mVolleyHelper.getDefaultImageLoader());
+					mVolleyHelper.getImageLoader());
 		}
 		
 		ImageView imv = (ImageView) layout.findViewById(R.id.imv_tag);
@@ -441,14 +443,14 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 	}
 	
 	private class RetrieveTop2CartoonListTask extends
-			AsyncTask<Void, Integer, ArrayList<Top2CartoonInfo>> {
+			AsyncTask<Void, Integer, ArrayList<CartoonInfo>> {
 		@Override
-		protected ArrayList<Top2CartoonInfo> doInBackground(Void... arg0) {
+		protected ArrayList<CartoonInfo> doInBackground(Void... arg0) {
 			return retrieveTop2CartoonList();
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<Top2CartoonInfo> result) {
+		protected void onPostExecute(ArrayList<CartoonInfo> result) {
 			if (result == null || result.size() < 1) {
 				return;
 			}
@@ -499,8 +501,8 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 		}
 	}
 	
-	private ArrayList<Top2CartoonInfo> retrieveTop2CartoonList() {
-		ArrayList<Top2CartoonInfo> list = null;
+	private ArrayList<CartoonInfo> retrieveTop2CartoonList() {
+		ArrayList<CartoonInfo> list = null;
 		MuuServerWrapper muuWrapper = new MuuServerWrapper(this.getApplicationContext());
 		list = muuWrapper.getTop2CartoonList();
 		return list;
@@ -540,6 +542,8 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 		
 		@Override
 		protected void onPostExecute(final ArrayList<ActivityEventInfo> result) {
+			new RetrieveTop2CartoonListTask().execute();
+			
 			if (result == null || result.size() < 1) {
 				return;
 			}
@@ -550,9 +554,12 @@ public class MainActivity extends Activity implements OnPageChangeListener, OnTo
 			NetworkImageView imgView = new NetworkImageView(
 					getApplicationContext());
 			imgView.setImageUrl(result.get(0).imgUrl,
-					VolleyHelper.getInstanse(getApplicationContext())
-							.getDefaultImageLoader());
+					VolleyHelper.getInstance(getApplicationContext())
+							.getImageLoader());
 			imgView.setDefaultImageResId(R.drawable.activity_event_default);
+			imgView.setBackgroundResource(R.color.transparent);
+			imgView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,  
+	                LayoutParams.MATCH_PARENT)); 
 			imgView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

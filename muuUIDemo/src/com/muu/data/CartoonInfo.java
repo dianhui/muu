@@ -70,6 +70,9 @@ public class CartoonInfo {
 			topicCode = cartoonInfo.getString("topicCode").replaceAll("\\\\", "");
 			coverUrl = cartoonInfo.getString("cover").replaceAll("\\\\", "");
 			chapterCount = cartoonInfo.getInt("chapterCount");
+			if (cartoonInfo.getString("recommendCover") != null) {
+				recommendCover = cartoonInfo.getString("recommendCover").replaceAll("\\\\", "");
+			}
 //			size = cartoonInfo.getInt("size");
 			size = 0;
 		} catch (JSONException e) {

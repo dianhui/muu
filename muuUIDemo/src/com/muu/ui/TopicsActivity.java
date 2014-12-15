@@ -2,7 +2,7 @@ package com.muu.ui;
 
 import java.util.ArrayList;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.TempDataLoader;
 
 import android.app.Activity;
@@ -19,7 +19,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class TopicsActivity extends Activity {
+public class TopicsActivity extends StatisticsBaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

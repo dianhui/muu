@@ -1,6 +1,5 @@
 package com.muu.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,11 +10,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.update.AppUpdateService;
 import com.muu.util.StorageUtil;
 
-public class LiveUpadateDialog extends Activity implements OnClickListener{
+public class LiveUpadateDialog extends StatisticsBaseActivity implements OnClickListener{
 	public static void startAppUpdateDialog(Context ctx, String appUrl) {
 		Intent intent = new Intent();
 		intent.setClass(ctx, LiveUpadateDialog.class);

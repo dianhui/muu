@@ -99,7 +99,7 @@ public class BasicNetwork implements Network {
                 if (statusCode == HttpStatus.SC_NOT_MODIFIED) {
                     return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED,
                             request.getCacheEntry() == null ? null : request.getCacheEntry().data,
-                            responseHeaders, true);
+                            responseHeaders, true, false);
                 }
 
                 // Some responses such as 204s do not have content.  We must check.
@@ -118,7 +118,8 @@ public class BasicNetwork implements Network {
                 if (statusCode < 200 || statusCode > 299) {
                     throw new IOException();
                 }
-                return new NetworkResponse(statusCode, responseContents, responseHeaders, false);
+                return new NetworkResponse(statusCode, responseContents, responseHeaders, false,
+                        false);
             } catch (SocketTimeoutException e) {
                 attemptRetryOnException("socket", request, new TimeoutError());
             } catch (ConnectTimeoutException e) {
@@ -136,7 +137,7 @@ public class BasicNetwork implements Network {
                 VolleyLog.e("Unexpected response code %d for %s", statusCode, request.getUrl());
                 if (responseContents != null) {
                     networkResponse = new NetworkResponse(statusCode, responseContents,
-                            responseHeaders, false);
+                            responseHeaders, false, false);
                     if (statusCode == HttpStatus.SC_UNAUTHORIZED ||
                             statusCode == HttpStatus.SC_FORBIDDEN) {
                         attemptRetryOnException("auth",

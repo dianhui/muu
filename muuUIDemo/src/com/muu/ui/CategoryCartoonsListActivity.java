@@ -10,7 +10,7 @@ import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.ROASTS_COLUMN;
 import com.muu.server.MuuServerWrapper;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 
@@ -33,7 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CategoryCartoonsListActivity extends Activity {
+public class CategoryCartoonsListActivity extends StatisticsBaseActivity {
 	public static String sTopicCode = "topic_code";
 	private static final int sCountInOnePage = 4;
 	
@@ -170,8 +170,7 @@ public class CategoryCartoonsListActivity extends Activity {
 				holder.name.setText(info.name);
 				holder.author.setText(getString(R.string.author, info.author));
 				if (!TextUtils.isEmpty(info.coverUrl)) {
-					holder.icon.setImageUrl(info.coverUrl, VolleyHelper
-							.getInstanse(mCtx).getDefaultImageLoader());
+					holder.icon.setImageUrl(info.coverUrl, VolleyHelper.getInstance(mCtx).getImageLoader());
 				}
 				
 				holder.comment.setVisibility(View.GONE);

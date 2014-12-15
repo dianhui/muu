@@ -1,11 +1,10 @@
 package com.muu.ui;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class AboutDialogActivity extends Activity {
+public class AboutDialogActivity extends StatisticsBaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

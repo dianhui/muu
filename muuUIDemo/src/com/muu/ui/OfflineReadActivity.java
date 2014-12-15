@@ -6,10 +6,9 @@ import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.CARTOONS_COLUMN;
 import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.service.DownloadMgr;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.TempDataLoader;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +36,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class OfflineReadActivity extends Activity {
+public class OfflineReadActivity extends StatisticsBaseActivity {
 	private static final int IDX_DOWNLOADING_TAB = 0;
 	private static final int IDX_DOWNLOADED_TAB = 1;
 	

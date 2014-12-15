@@ -2,7 +2,7 @@ package com.muu.update;
 
 import java.io.File;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.PropertyMgr;
 
 import de.greenrobot.event.EventBus;

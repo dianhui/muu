@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.tencent.connect.auth.QQAuth;
 import com.tencent.connect.share.QQShare;
 import com.tencent.tauth.IUiListener;
@@ -49,9 +49,7 @@ public class QQShareHelper {
 		params.putString(QQShare.SHARE_TO_QQ_TITLE,
 				activity.getString(R.string.app_name));
 		params.putString(QQShare.SHARE_TO_QQ_SUMMARY, content);
-		//TODO: need put targetUrl to SHARE_TO_QQ_TARGET_URL, but now muu's web is blocked by qq,
-		// if use the real address, the shared message is not complete.
-		params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  "http://www.qq.com/news/1.html");
+		params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  targetUrl);
 		params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, imgUrl);
 		params.putString(QQShare.SHARE_TO_QQ_APP_NAME,  activity.getString(R.string.app_name));
 		return params;
@@ -92,7 +90,7 @@ public class QQShareHelper {
 				public void run() {
 					 Toast.makeText(activity,
 							resultStr,
-							Toast.LENGTH_SHORT).show();
+							Toast.LENGTH_LONG).show();
 					 activity.finish();
 				}
 			});

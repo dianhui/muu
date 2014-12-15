@@ -8,7 +8,7 @@ import java.io.InputStream;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.server.MuuClient;
 import com.muu.util.PropertyMgr;
 

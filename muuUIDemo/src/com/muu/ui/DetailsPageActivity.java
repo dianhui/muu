@@ -12,11 +12,10 @@ import com.muu.db.DatabaseMgr.RECENT_HISTORY_COLUMN;
 import com.muu.server.MuuServerWrapper;
 import com.muu.service.DownloadMgr;
 import com.muu.service.DownloadMgr.DownloadStatus;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.TempDataLoader;
 import com.muu.volley.VolleyHelper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -30,6 +29,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,7 +43,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DetailsPageActivity extends Activity {
+public class DetailsPageActivity extends StatisticsBaseActivity {
 	public static final String sCartoonIdExtraKey = "cartoon_id";
 	public static final String sCartoonNameExtraKey = "cartoon_name";
 	public static final String sCartoonCoverExtraKey = "cartoon_cover";
@@ -211,8 +211,10 @@ public class DetailsPageActivity extends Activity {
 			mCoverImageView = (NetworkImageView) this
 					.findViewById(R.id.imv_icon);
 			mCoverImageView.setImageUrl(mCartoonInfo.coverUrl, VolleyHelper
-					.getInstanse(this).getDefaultImageLoader());
+					.getInstance(this).getImageLoader());
 		}
+		
+		Log.d("XXX", "cover url: " + mCartoonInfo.coverUrl);
 		
 		ImageView imv = (ImageView)this.findViewById(R.id.imv_status);
 		int resId = mCartoonInfo.isComplete == 0 ? R.drawable.ic_status_continue

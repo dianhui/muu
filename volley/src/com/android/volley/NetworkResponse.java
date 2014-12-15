@@ -27,25 +27,32 @@ import java.util.Map;
 public class NetworkResponse {
     /**
      * Creates a new network response.
+     * 
      * @param statusCode the HTTP status code
      * @param data Response body
      * @param headers Headers returned with this response, or null for none
      * @param notModified True if the server returned a 304 and the data was already in cache
+     * @param fromCache True if response is fetched from cache
      */
     public NetworkResponse(int statusCode, byte[] data, Map<String, String> headers,
-            boolean notModified) {
+            boolean notModified, boolean fromCache) {
         this.statusCode = statusCode;
         this.data = data;
         this.headers = headers;
         this.notModified = notModified;
+        this.fromCache = fromCache;
     }
 
     public NetworkResponse(byte[] data) {
-        this(HttpStatus.SC_OK, data, Collections.<String, String>emptyMap(), false);
+        this(HttpStatus.SC_OK, data, Collections.<String, String> emptyMap(), false, false);
     }
 
     public NetworkResponse(byte[] data, Map<String, String> headers) {
-        this(HttpStatus.SC_OK, data, headers, false);
+        this(HttpStatus.SC_OK, data, headers, false, false);
+    }
+
+    public NetworkResponse(byte[] data, Map<String, String> headers, boolean fromCache) {
+        this(HttpStatus.SC_OK, data, headers, false, fromCache);
     }
 
     /** The HTTP status code. */
@@ -59,4 +66,7 @@ public class NetworkResponse {
 
     /** True if the server returned a 304 (Not Modified). */
     public final boolean notModified;
+
+    /** True if response is fetched from cache */
+    public boolean fromCache;
 }

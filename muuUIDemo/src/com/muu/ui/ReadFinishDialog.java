@@ -5,7 +5,7 @@ import java.util.Random;
 import com.android.volley.toolbox.NetworkImageView;
 import com.muu.data.CartoonInfo;
 import com.muu.db.DatabaseMgr;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.volley.VolleyHelper;
 
 import android.content.Context;
@@ -96,7 +96,7 @@ public class ReadFinishDialog extends android.app.Dialog {
 		}
 		
 		NetworkImageView imv = (NetworkImageView)this.findViewById(R.id.imv_cartoon_cover);
-		imv.setImageUrl(info.coverUrl, VolleyHelper.getInstanse(mCtx).getDefaultImageLoader());
+		imv.setImageUrl(info.coverUrl, VolleyHelper.getInstance(mCtx).getImageLoader());
 		imv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

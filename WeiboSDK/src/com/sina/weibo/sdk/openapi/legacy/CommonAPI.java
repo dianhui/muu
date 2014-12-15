@@ -16,10 +16,12 @@
 
 package com.sina.weibo.sdk.openapi.legacy;
 
+import android.content.Context;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.net.WeiboParameters;
 import com.sina.weibo.sdk.openapi.AbsOpenAPI;
+import com.sina.weibo.sdk.openapi.CommentsAPI;
 
 /**
  * 此类封装了公共服务的接口。
@@ -40,8 +42,8 @@ public class CommonAPI extends AbsOpenAPI {
     public static final String LANGUAGE_ZH_TW   = "zh-tw";
     public static final String LANGUAGE_EN      = "english";
 
-    public CommonAPI(Oauth2AccessToken accessToken) {
-        super(accessToken);
+    public CommonAPI(Context context, String appKey, Oauth2AccessToken accessToken) {
+        super(context, appKey, accessToken);
     }
 
     private static final String SERVER_URL_PRIX = API_SERVER + "/common";
@@ -51,7 +53,7 @@ public class CommonAPI extends AbsOpenAPI {
      * 
      * @param province  省份代码
      * @param capital   国家的首字母，a-z，可为空代表返回全部，默认为全部。
-     *                  <li> {@link CommentsAPI#CAPITAL}
+     *                  <li> {@link CommentsAPI#capital}
      * @param language  返回的语言版本，zh-cn：简体中文、zh-tw：繁体中文、english：英文，默认为zh-cn
      *                  <li> {@link #LANGUAGE_ZH_CN}
      *                  <li> {@link #LANGUAGE_ZH_TW}
@@ -59,7 +61,7 @@ public class CommonAPI extends AbsOpenAPI {
      * @param listener  异步请求回调接口
      */
     public void getCity(String province, String capital, String language, RequestListener listener) {
-        WeiboParameters params = new WeiboParameters();
+        WeiboParameters params = new WeiboParameters(mAppKey);
         params.put("province", province);
         if (null != capital) {
             params.put("capital", capital);
@@ -78,7 +80,7 @@ public class CommonAPI extends AbsOpenAPI {
      *@param listener   异步请求回调接口
      */
     public void getCountry(CAPITAL capital, String language, RequestListener listener) {
-        WeiboParameters params = new WeiboParameters();
+        WeiboParameters params = new WeiboParameters(mAppKey);
         if (null != capital) {
             params.put("capital", capital.name().toLowerCase());
         }
@@ -96,7 +98,7 @@ public class CommonAPI extends AbsOpenAPI {
      *@param listener   异步请求回调接口
      */
     public void getTimezone(String language, RequestListener listener) {
-        WeiboParameters params = new WeiboParameters();
+        WeiboParameters params = new WeiboParameters(mAppKey);
         params.put("language", language);
         requestAsync(SERVER_URL_PRIX + "/get_timezone.json", params, HTTPMETHOD_GET, listener);
     }

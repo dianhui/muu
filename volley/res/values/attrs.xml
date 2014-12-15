@@ -3,6 +3,8 @@
 
     <declare-styleable name="NetworkImageView">
         <attr name="enableAnimation" format="boolean"></attr>
+        <attr name="defaultImage" format="reference"></attr>
+        <attr name="errorImage" format="reference"></attr>
     </declare-styleable>
 
 </resources>

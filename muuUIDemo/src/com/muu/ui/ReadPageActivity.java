@@ -4,7 +4,6 @@ package com.muu.ui;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -31,12 +30,12 @@ import com.muu.data.ImageInfo;
 import com.muu.db.DatabaseMgr;
 import com.muu.db.DatabaseMgr.RECENT_READ_COLUMN;
 import com.muu.server.MuuServerWrapper;
-import com.muu.cartoon.test.R;
+import com.muu.cartoons.R;
 import com.muu.util.TempDataLoader;
 import com.muu.widget.TouchImageView;
 import com.muu.widget.TouchImageView.OnGestureListener;
 
-public class ReadPageActivity extends Activity implements OnGestureListener {
+public class ReadPageActivity extends StatisticsBaseActivity implements OnGestureListener {
 	public static final String sChapterIdxExtraKey = "chapter_idx";
 	public static final String sPageIdxExtraKey = "page_idx";
 	
